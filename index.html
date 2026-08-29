@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pokémon Scanner Test</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 22px;
+    }
+
+    button {
+      width: 100%;
+      max-width: 450px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    #cameraBox {
+      display: none;
+      position: relative;
+      width: 100%;
+      max-width: 450px;
+      margin: auto;
+      aspect-ratio: 3 / 4;
+      background: black;
+      overflow: hidden;
+      border-radius: 15px;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #guide {
+      position: absolute;
+      left: 12%;
+      top: 8%;
+      width: 76%;
+      height: 84%;
+      border: 3px solid white;
+      border-radius: 15px;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    #status {
+      margin: 15px 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Pokémon Card Scanner</h1>
+
+<button onclick="startCamera()">
+  📷 START CAMERA
+</button>
+
+<div id="status">
+  Camera not started
+</div>
+
+<div id="cameraBox">
+
+  <video
+    id="video"
+    autoplay
+    playsinline
+    muted>
+  </video>
+
+  <div id="guide"></div>
+
+</div>
+
+<script>
+
+async function startCamera() {
+
+  const status =
+    document.getElementById("status");
+
+  try {
+
+    status.innerText =
+      "Starting camera...";
+
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
+
+        video: {
+          facingMode: {
+            ideal: "environment"
+          }
+        },
+
+        audio: false
+
+      });
+
+    const video =
+      document.getElementById("video");
+
+    video.srcObject =
+      stream;
+
+    await video.play();
+
+    document
+      .getElementById("cameraBox")
+      .style.display =
+      "block";
+
+    status.innerText =
+      "Camera working ✓";
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    status.innerText =
+      "Camera error: " +
+      error.message;
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
