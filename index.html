@@ -14,14 +14,13 @@
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      padding: 14px;
+      padding: 12px;
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       color: #222;
@@ -35,15 +34,15 @@
 
     h1 {
       text-align: center;
-      font-size: 22px;
-      margin: 6px 0 16px;
+      font-size: 21px;
+      margin: 6px 0 14px;
     }
 
     .section {
       background: white;
-      padding: 14px;
+      padding: 13px;
       border-radius: 14px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     label {
@@ -55,34 +54,34 @@
 
     select {
       width: 100%;
-      padding: 13px;
+      padding: 12px;
       font-size: 16px;
-      border-radius: 9px;
       border: 1px solid #ccc;
+      border-radius: 9px;
       background: white;
     }
 
     button {
       width: 100%;
-      padding: 15px;
+      padding: 14px;
       border: none;
       border-radius: 10px;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
     }
 
     #startButton {
+      margin-top: 10px;
       background: #222;
       color: white;
-      margin-top: 12px;
     }
 
     #stopButton {
       display: none;
+      margin-top: 8px;
       background: #777;
       color: white;
-      margin-top: 8px;
     }
 
     #cameraBox {
@@ -99,72 +98,59 @@
       display: block;
       width: 100%;
       height: auto;
-      background: #111;
     }
 
+    /*
+      White guide = approximate card position.
+    */
     #cardGuide {
       position: absolute;
-
       left: 11%;
       top: 5%;
-
       width: 78%;
       height: 90%;
-
       border: 3px solid white;
       border-radius: 14px;
-
       pointer-events: none;
     }
 
+    /*
+      Yellow guide = collector-number area.
+
+      Deliberately a little wider than before
+      so the user does not need perfect alignment.
+    */
     #numberGuide {
       position: absolute;
-
-      left: 13%;
-      top: 78%;
-
-      width: 48%;
-      height: 15%;
-
+      left: 12%;
+      top: 75%;
+      width: 58%;
+      height: 18%;
       border: 3px dashed #ffd600;
       border-radius: 8px;
-
       pointer-events: none;
     }
 
     #cameraMessage {
       position: absolute;
-
+      top: 7px;
       left: 50%;
-      top: 6px;
-
       transform: translateX(-50%);
-
-      background: rgba(0,0,0,.65);
-      color: white;
-
       padding: 6px 10px;
-
       border-radius: 20px;
-
+      background: rgba(0,0,0,.7);
+      color: white;
       font-size: 11px;
-
       white-space: nowrap;
-
       pointer-events: none;
     }
 
     #status {
       display: none;
-
-      padding: 12px;
-
+      padding: 11px;
+      margin-bottom: 10px;
       border-radius: 9px;
-
       text-align: center;
-
-      margin-bottom: 12px;
-
       font-size: 14px;
     }
 
@@ -185,41 +171,43 @@
 
     #ocrPreviewSection {
       display: none;
+      padding: 10px;
+      margin-bottom: 10px;
       background: white;
       border-radius: 14px;
-      padding: 10px;
-      margin-bottom: 12px;
     }
 
     #ocrPreviewLabel {
-      font-size: 12px;
-      color: #666;
-      text-align: center;
       margin-bottom: 6px;
+      text-align: center;
+      color: #666;
+      font-size: 12px;
     }
 
     #ocrCanvas {
       display: block;
       width: 100%;
-      max-height: 140px;
+      max-height: 150px;
       object-fit: contain;
       background: white;
       border: 2px solid #333;
       border-radius: 8px;
     }
 
+    #modeLabel {
+      margin-top: 5px;
+      text-align: center;
+      color: #777;
+      font-size: 11px;
+    }
+
     #detectedCard {
       display: none;
-
+      padding: 15px;
+      margin-bottom: 10px;
       background: white;
-
       border-radius: 14px;
-
-      padding: 16px;
-
       text-align: center;
-
-      margin-bottom: 12px;
     }
 
     #detectedImage {
@@ -229,57 +217,47 @@
     }
 
     #detectedNumber {
+      margin-top: 8px;
       font-size: 25px;
       font-weight: bold;
-      margin-top: 10px;
     }
 
     #detectedSet {
-      font-size: 15px;
-      color: #666;
       margin-top: 3px;
+      color: #666;
+      font-size: 14px;
     }
 
     #correctButton {
-      margin-top: 14px;
+      margin-top: 13px;
       background: #4caf50;
       color: white;
     }
 
     #wrongButton {
-      margin-top: 8px;
+      margin-top: 7px;
       background: #ddd;
       color: #222;
     }
 
     #debugBox {
-      display: block;
-
+      margin-top: 9px;
+      padding: 9px;
       background: #eee;
-
-      padding: 10px;
-
       border-radius: 8px;
-
-      margin-top: 10px;
-
       font-size: 11px;
-
-      word-break: break-word;
-
       text-align: left;
+      word-break: break-word;
     }
 
     .smallText {
+      margin-top: 7px;
       text-align: center;
       color: #777;
       font-size: 12px;
       line-height: 1.4;
-      margin-top: 8px;
     }
-
   </style>
-
 </head>
 
 
@@ -288,7 +266,6 @@
 <div class="container">
 
   <h1>Pokémon Card Inventory</h1>
-
 
   <div class="section">
 
@@ -302,14 +279,12 @@
       </option>
     </select>
 
-
     <button
       id="startButton"
       onclick="startScanner()"
     >
       📷 START SCANNER
     </button>
-
 
     <button
       id="stopButton"
@@ -318,11 +293,10 @@
       STOP CAMERA
     </button>
 
-
     <div class="smallText">
-      Hold one card inside the white frame.
+      Hold the card inside the white frame.
       <br>
-      Keep the collector number inside the yellow dashed box.
+      Keep the small collector number near the yellow box.
     </div>
 
   </div>
@@ -341,11 +315,10 @@
     ></video>
 
     <div id="cardGuide"></div>
-
     <div id="numberGuide"></div>
 
     <div id="cameraMessage">
-      Keep whole card inside frame
+      Hold card steady
     </div>
 
   </div>
@@ -354,10 +327,12 @@
   <div id="ocrPreviewSection">
 
     <div id="ocrPreviewLabel">
-      Scanner is trying to read this:
+      Scanner is currently reading:
     </div>
 
     <canvas id="ocrCanvas"></canvas>
+
+    <div id="modeLabel"></div>
 
   </div>
 
@@ -374,15 +349,11 @@
       CARD DETECTED
     </div>
 
-
     <img id="detectedImage">
-
 
     <div id="detectedNumber"></div>
 
-
     <div id="detectedSet"></div>
-
 
     <button
       id="correctButton"
@@ -391,112 +362,89 @@
       ✓ CORRECT
     </button>
 
-
     <button
       id="wrongButton"
       onclick="rejectCard()"
     >
-      ✕ WRONG CARD — KEEP SCANNING
+      ✕ WRONG CARD — TRY AGAIN
     </button>
-
 
     <div id="debugBox"></div>
 
   </div>
 
-
 </div>
-
 
 
 <script>
 
 /*
-===========================================================
+=========================================================
 SET DATABASE
-===========================================================
+
+We can add every set here later.
+The scanner itself will not need rebuilding.
+=========================================================
 */
 
 const SETS = {
 
   "destined-rivals": {
 
-    name:
-      "Destined Rivals",
+    name: "Destined Rivals",
 
-    code:
-      "DRI",
+    code: "DRI",
 
-    denominator:
-      182,
+    denominator: 182,
 
-    maxNumber:
-      244,
+    maxNumber: 244,
 
-    imageSet:
-      "sv10"
+    imageSet: "sv10"
 
   }
 
 };
 
 
-
 /*
-===========================================================
-SCANNER VARIABLES
-===========================================================
+=========================================================
+VARIABLES
+=========================================================
 */
 
-let cameraStream =
-  null;
+let cameraStream = null;
 
-let scannerRunning =
-  false;
+let scannerRunning = false;
 
-let scannerPaused =
-  false;
+let scannerPaused = false;
 
-let scanBusy =
-  false;
+let scanBusy = false;
 
-let scanTimer =
-  null;
+let scanTimer = null;
 
-let ocrWorker =
-  null;
+let ocrWorker = null;
 
-let scanStyle =
-  0;
+let scanPass = 0;
 
-let detectedNumber =
-  null;
-
+let detectedNumber = null;
 
 
 /*
-===========================================================
-START CAMERA
-===========================================================
+=========================================================
+START SCANNER
+=========================================================
 */
 
 async function startScanner() {
 
   if (scannerRunning) {
 
-    scannerPaused =
-      false;
+    scannerPaused = false;
 
-    setStatus(
-      "Scanner ready — hold a card inside the frame.",
-      "working"
-    );
-
-    scheduleScan(
-      500
-    );
+    scheduleScan(400);
 
     return;
+
   }
 
 
@@ -506,11 +454,12 @@ async function startScanner() {
   ) {
 
     setStatus(
-      "Your browser does not support live camera scanning.",
+      "Live camera is not available in this browser.",
       "error"
     );
 
     return;
+
   }
 
 
@@ -532,25 +481,22 @@ async function startScanner() {
           },
 
           width: {
-            ideal: 1080
+            ideal: 1920
           },
 
           height: {
-            ideal: 1920
+            ideal: 1080
           }
 
         },
 
-        audio:
-          false
+        audio: false
 
       });
 
 
     const video =
-      document.getElementById(
-        "video"
-      );
+      document.getElementById("video");
 
 
     video.srcObject =
@@ -561,43 +507,32 @@ async function startScanner() {
 
 
     document
-      .getElementById(
-        "cameraBox"
-      )
+      .getElementById("cameraBox")
       .style.display =
       "block";
 
 
     document
-      .getElementById(
-        "ocrPreviewSection"
-      )
+      .getElementById("ocrPreviewSection")
       .style.display =
       "block";
 
 
     document
-      .getElementById(
-        "startButton"
-      )
+      .getElementById("startButton")
       .style.display =
       "none";
 
 
     document
-      .getElementById(
-        "stopButton"
-      )
+      .getElementById("stopButton")
       .style.display =
       "block";
 
 
-    scannerRunning =
-      true;
+    scannerRunning = true;
 
-
-    scannerPaused =
-      false;
+    scannerPaused = false;
 
 
     setStatus(
@@ -610,28 +545,21 @@ async function startScanner() {
 
 
     setStatus(
-      "Scanner ready — hold a card inside the frame.",
+      "Ready — hold a card inside the frame.",
       "working"
     );
 
 
-    scheduleScan(
-      700
-    );
-
+    scheduleScan(500);
 
   }
 
   catch (error) {
 
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     setStatus(
-      "Camera error: " +
-      error.message,
+      "Camera error: " + error.message,
       "error"
     );
 
@@ -640,11 +568,10 @@ async function startScanner() {
 }
 
 
-
 /*
-===========================================================
-OCR WORKER
-===========================================================
+=========================================================
+CREATE OCR WORKER
+=========================================================
 */
 
 async function createOcrWorker() {
@@ -655,9 +582,7 @@ async function createOcrWorker() {
 
 
   ocrWorker =
-    await Tesseract.createWorker(
-      "eng"
-    );
+    await Tesseract.createWorker("eng");
 
 
   await ocrWorker.setParameters({
@@ -666,18 +591,20 @@ async function createOcrWorker() {
       "0123456789/| ",
 
     preserve_interword_spaces:
-      "1"
+      "1",
+
+    tessedit_pageseg_mode:
+      "7"
 
   });
 
 }
 
 
-
 /*
-===========================================================
+=========================================================
 SCHEDULE SCAN
-===========================================================
+=========================================================
 */
 
 function scheduleScan(delay) {
@@ -691,11 +618,7 @@ function scheduleScan(delay) {
 
 
   if (scanTimer) {
-
-    clearTimeout(
-      scanTimer
-    );
-
+    clearTimeout(scanTimer);
   }
 
 
@@ -708,11 +631,10 @@ function scheduleScan(delay) {
 }
 
 
-
 /*
-===========================================================
-SCAN LIVE VIDEO
-===========================================================
+=========================================================
+SCAN FRAME
+=========================================================
 */
 
 async function scanFrame() {
@@ -727,9 +649,7 @@ async function scanFrame() {
 
 
   const video =
-    document.getElementById(
-      "video"
-    );
+    document.getElementById("video");
 
 
   if (
@@ -737,79 +657,103 @@ async function scanFrame() {
     !video.videoHeight
   ) {
 
-    scheduleScan(
-      500
-    );
+    scheduleScan(400);
 
     return;
+
   }
 
 
-  scanBusy =
-    true;
+  scanBusy = true;
 
 
   try {
 
     const canvas =
-      document.getElementById(
-        "ocrCanvas"
-      );
+      document.getElementById("ocrCanvas");
 
 
     const ctx =
       canvas.getContext(
         "2d",
         {
-          willReadFrequently:
-            true
+          willReadFrequently: true
         }
       );
 
 
     /*
-      Three slightly different
-      bottom-left crops.
+    -----------------------------------------------------
+    OCR MODES
+
+    Instead of destroying every image with one
+    black/white threshold, the scanner cycles through
+    several treatments automatically.
+    -----------------------------------------------------
     */
 
-    const attempts = [
+    const passes = [
 
       {
-        x: 0.13,
-        y: 0.77,
-        w: 0.48,
-        h: 0.16,
-        threshold: 150
+        name: "Original colour",
+        x: 0.10,
+        y: 0.73,
+        w: 0.62,
+        h: 0.21,
+        mode: "colour"
       },
 
       {
-        x: 0.12,
-        y: 0.74,
-        w: 0.52,
-        h: 0.19,
-        threshold: 175
+        name: "Grayscale",
+        x: 0.10,
+        y: 0.73,
+        w: 0.62,
+        h: 0.21,
+        mode: "gray"
       },
 
       {
-        x: 0.11,
-        y: 0.79,
-        w: 0.55,
-        h: 0.14,
-        threshold: 200
+        name: "Enhanced contrast",
+        x: 0.10,
+        y: 0.73,
+        w: 0.62,
+        h: 0.21,
+        mode: "contrast"
+      },
+
+      {
+        name: "Black & white fallback",
+        x: 0.10,
+        y: 0.73,
+        w: 0.62,
+        h: 0.21,
+        mode: "threshold"
       }
 
     ];
 
 
     const pass =
-      attempts[
-        scanStyle %
-        attempts.length
+      passes[
+        scanPass %
+        passes.length
       ];
 
 
-    scanStyle++;
+    scanPass++;
 
+
+    document
+      .getElementById("modeLabel")
+      .innerText =
+      pass.name;
+
+
+    /*
+    -----------------------------------------------------
+    CROP FROM LIVE CAMERA
+    -----------------------------------------------------
+    */
 
     const sourceX =
       Math.floor(
@@ -840,11 +784,14 @@ async function scanFrame() {
 
 
     /*
-      Enlarge the tiny collector number.
+      Upscale the crop.
+
+      Collector numbers are tiny, so we want plenty
+      of pixels for OCR without creating a gigantic
+      canvas that slows the phone down.
     */
 
-    const targetWidth =
-      1600;
+    const targetWidth = 1800;
 
 
     const scale =
@@ -855,7 +802,7 @@ async function scanFrame() {
     const targetHeight =
       Math.max(
         1,
-        Math.floor(
+        Math.round(
           sourceHeight *
           scale
         )
@@ -888,110 +835,168 @@ async function scanFrame() {
 
 
     /*
-      Convert image to high contrast.
+    -----------------------------------------------------
+    IMAGE PROCESSING
+    -----------------------------------------------------
     */
 
-    const imageData =
-      ctx.getImageData(
+    if (pass.mode !== "colour") {
 
+      const imageData =
+        ctx.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+
+      const pixels =
+        imageData.data;
+
+
+      for (
+        let i = 0;
+        i < pixels.length;
+        i += 4
+      ) {
+
+        const gray =
+
+          pixels[i] * 0.299 +
+
+          pixels[i + 1] * 0.587 +
+
+          pixels[i + 2] * 0.114;
+
+
+        let value = gray;
+
+
+        /*
+          Plain grayscale.
+        */
+
+        if (
+          pass.mode === "gray"
+        ) {
+
+          value = gray;
+
+        }
+
+
+        /*
+          Increase contrast without forcing
+          everything to pure black or white.
+        */
+
+        if (
+          pass.mode === "contrast"
+        ) {
+
+          value =
+            (
+              gray - 128
+            ) * 2.0 + 128;
+
+
+          value =
+            Math.max(
+              0,
+              Math.min(
+                255,
+                value
+              )
+            );
+
+        }
+
+
+        /*
+          Threshold is now only our final fallback.
+        */
+
+        if (
+          pass.mode === "threshold"
+        ) {
+
+          value =
+            gray > 175
+              ? 255
+              : 0;
+
+        }
+
+
+        pixels[i] =
+          value;
+
+
+        pixels[i + 1] =
+          value;
+
+
+        pixels[i + 2] =
+          value;
+
+      }
+
+
+      ctx.putImageData(
+        imageData,
         0,
-        0,
-
-        canvas.width,
-        canvas.height
-
+        0
       );
-
-
-    const pixels =
-      imageData.data;
-
-
-    for (
-      let i = 0;
-      i < pixels.length;
-      i += 4
-    ) {
-
-      const gray =
-
-        pixels[i] * 0.299 +
-
-        pixels[i + 1] * 0.587 +
-
-        pixels[i + 2] * 0.114;
-
-
-      const value =
-
-        gray >
-        pass.threshold
-
-          ? 255
-          : 0;
-
-
-      pixels[i] =
-        value;
-
-
-      pixels[i + 1] =
-        value;
-
-
-      pixels[i + 2] =
-        value;
 
     }
 
 
-    ctx.putImageData(
-      imageData,
-      0,
-      0
-    );
-
-
     setStatus(
-      "Reading collector number...",
+      "Looking for collector number...",
       "working"
     );
 
 
-    const result =
+    /*
+    -----------------------------------------------------
+    OCR
+    -----------------------------------------------------
+    */
 
+    const result =
       await ocrWorker.recognize(
         canvas
       );
 
 
     let text =
-
       (
         result.data.text ||
         ""
       )
-
       .replace(
         /\n/g,
         " "
       )
-
       .replace(
         /[Oo]/g,
         "0"
       )
-
       .replace(
         /[Il]/g,
         "1"
       )
-
+      .replace(
+        /\s+/g,
+        " "
+      )
       .trim();
 
 
     console.log(
-      "OCR READ:",
+      pass.name,
+      "OCR:",
       text
     );
 
@@ -1008,12 +1013,13 @@ async function scanFrame() {
 
       showDetectedCard(
         number,
-        text
+        text,
+        pass.name
       );
 
       return;
-    }
 
+    }
 
   }
 
@@ -1028,93 +1034,105 @@ async function scanFrame() {
 
   finally {
 
-    scanBusy =
-      false;
+    scanBusy = false;
 
   }
 
 
-  scheduleScan(
-    450
-  );
+  scheduleScan(350);
 
 }
 
 
-
 /*
-===========================================================
-READ COLLECTOR NUMBER
-===========================================================
+=========================================================
+EXTRACT COLLECTOR NUMBER
+=========================================================
 */
 
 function extractCollectorNumber(text) {
 
   const setKey =
-
     document
-      .getElementById(
-        "setSelector"
-      )
+      .getElementById("setSelector")
       .value;
 
 
   const set =
-    SETS[
-      setKey
-    ];
+    SETS[setKey];
 
 
   const denominator =
     set.denominator;
 
 
-  const pattern1 =
+  /*
+    Standard result:
 
+    034/182
+  */
+
+  let pattern =
     new RegExp(
-
       "(\\d{1,3})\\s*[\\/|]\\s*" +
-
       denominator +
-
       "\\b"
-
     );
 
 
   let match =
-    text.match(
-      pattern1
-    );
+    text.match(pattern);
 
+
+  /*
+    OCR sometimes loses the slash:
+
+    034 182
+  */
 
   if (!match) {
 
-    const pattern2 =
-
+    pattern =
       new RegExp(
-
         "\\b(\\d{1,3})\\s+" +
-
         denominator +
-
         "\\b"
-
       );
 
 
     match =
-      text.match(
-        pattern2
+      text.match(pattern);
+
+  }
+
+
+  /*
+    OCR can occasionally merge the number:
+
+    034182
+
+    Because we already know this set's denominator,
+    we can recover it safely.
+  */
+
+  if (!match) {
+
+    pattern =
+      new RegExp(
+        "\\b(\\d{1,3})" +
+        denominator +
+        "\\b"
       );
+
+
+    match =
+      text.match(pattern);
 
   }
 
 
   if (!match) {
-
     return null;
-
   }
 
 
@@ -1129,9 +1147,7 @@ function extractCollectorNumber(text) {
     number < 1 ||
     number > set.maxNumber
   ) {
-
     return null;
-
   }
 
 
@@ -1140,58 +1156,44 @@ function extractCollectorNumber(text) {
 }
 
 
-
 /*
-===========================================================
+=========================================================
 SHOW DETECTED CARD
-===========================================================
+=========================================================
 */
 
 function showDetectedCard(
   number,
-  ocrText
+  ocrText,
+  mode
 ) {
 
-  scannerPaused =
-    true;
+  scannerPaused = true;
 
-
-  detectedNumber =
-    number;
+  detectedNumber = number;
 
 
   const setKey =
-
     document
-      .getElementById(
-        "setSelector"
-      )
+      .getElementById("setSelector")
       .value;
 
 
   const set =
-    SETS[
-      setKey
-    ];
+    SETS[setKey];
 
 
   const paddedNumber =
-
-    String(
-      number
-    )
-    .padStart(
-      3,
-      "0"
-    );
+    String(number)
+      .padStart(
+        3,
+        "0"
+      );
 
 
   document
-    .getElementById(
-      "detectedNumber"
-    )
+    .getElementById("detectedNumber")
     .innerText =
-
     "#" +
     paddedNumber +
     "/" +
@@ -1199,97 +1201,71 @@ function showDetectedCard(
 
 
   document
-    .getElementById(
-      "detectedSet"
-    )
+    .getElementById("detectedSet")
     .innerText =
     set.name;
 
 
   document
-    .getElementById(
-      "detectedImage"
-    )
+    .getElementById("detectedImage")
     .src =
-
     "https://images.pokemontcg.io/" +
-
     set.imageSet +
-
     "/" +
-
     number +
-
     ".png";
 
 
   document
-    .getElementById(
-      "detectedCard"
-    )
+    .getElementById("debugBox")
+    .innerText =
+    "Recognition mode: " +
+    mode +
+    "\nOCR read: " +
+    ocrText;
+
+
+  document
+    .getElementById("detectedCard")
     .style.display =
     "block";
 
 
-  document
-    .getElementById(
-      "debugBox"
-    )
-    .innerText =
-
-    "OCR read: " +
-    ocrText;
-
-
   setStatus(
-    "Card detected — check that it is correct.",
+    "✓ Card detected — check the result.",
     "success"
   );
 
 
   document
-    .getElementById(
-      "detectedCard"
-    )
+    .getElementById("detectedCard")
     .scrollIntoView({
-
-      behavior:
-        "smooth",
-
-      block:
-        "center"
-
+      behavior: "smooth",
+      block: "center"
     });
 
 }
 
 
-
 /*
-===========================================================
+=========================================================
 CONFIRM CARD
-===========================================================
+=========================================================
 */
 
 function confirmCard() {
 
   const setKey =
-
     document
-      .getElementById(
-        "setSelector"
-      )
+      .getElementById("setSelector")
       .value;
 
 
   const set =
-    SETS[
-      setKey
-    ];
+    SETS[setKey];
 
 
-  const paddedNumber =
-
+  const padded =
     String(
       detectedNumber
     )
@@ -1300,15 +1276,12 @@ function confirmCard() {
 
 
   setStatus(
-
-    "✓ Correct: " +
+    "✓ " +
     set.name +
     " #" +
-    paddedNumber +
-    ". Hold up the next card.",
-
+    padded +
+    " recognised. Hold up the next card.",
     "success"
-
   );
 
 
@@ -1317,17 +1290,16 @@ function confirmCard() {
 }
 
 
-
 /*
-===========================================================
-WRONG CARD
-===========================================================
+=========================================================
+REJECT CARD
+=========================================================
 */
 
 function rejectCard() {
 
   setStatus(
-    "Trying that card again.",
+    "Trying again...",
     "working"
   );
 
@@ -1337,57 +1309,52 @@ function rejectCard() {
 }
 
 
-
 /*
-===========================================================
+=========================================================
 NEXT CARD
-===========================================================
+=========================================================
 */
 
 function prepareNextCard() {
 
-  detectedNumber =
-    null;
+  detectedNumber = null;
 
 
   document
-    .getElementById(
-      "detectedCard"
-    )
+    .getElementById("detectedCard")
     .style.display =
     "none";
 
 
-  scannerPaused =
-    false;
+  scannerPaused = false;
 
 
-  scheduleScan(
-    700
-  );
+  /*
+    Start with colour again
+    for the next card.
+  */
+
+  scanPass = 0;
+
+
+  scheduleScan(500);
 
 }
 
 
-
 /*
-===========================================================
-STOP SCANNER
-===========================================================
+=========================================================
+STOP CAMERA
+=========================================================
 */
 
 function stopScanner() {
 
-  scannerRunning =
-    false;
+  scannerRunning = false;
 
+  scannerPaused = false;
 
-  scannerPaused =
-    false;
-
-
-  scanBusy =
-    false;
+  scanBusy = false;
 
 
   if (scanTimer) {
@@ -1396,8 +1363,7 @@ function stopScanner() {
       scanTimer
     );
 
-    scanTimer =
-      null;
+    scanTimer = null;
 
   }
 
@@ -1412,58 +1378,43 @@ function stopScanner() {
       );
 
 
-    cameraStream =
-      null;
+    cameraStream = null;
 
   }
 
 
-  const video =
-    document.getElementById(
-      "video"
-    );
-
-
-  video.srcObject =
+  document
+    .getElementById("video")
+    .srcObject =
     null;
 
 
   document
-    .getElementById(
-      "cameraBox"
-    )
+    .getElementById("cameraBox")
     .style.display =
     "none";
 
 
   document
-    .getElementById(
-      "ocrPreviewSection"
-    )
+    .getElementById("ocrPreviewSection")
     .style.display =
     "none";
 
 
   document
-    .getElementById(
-      "startButton"
-    )
+    .getElementById("detectedCard")
+    .style.display =
+    "none";
+
+
+  document
+    .getElementById("startButton")
     .style.display =
     "block";
 
 
   document
-    .getElementById(
-      "stopButton"
-    )
-    .style.display =
-    "none";
-
-
-  document
-    .getElementById(
-      "detectedCard"
-    )
+    .getElementById("stopButton")
     .style.display =
     "none";
 
@@ -1476,11 +1427,10 @@ function stopScanner() {
 }
 
 
-
 /*
-===========================================================
-STATUS MESSAGE
-===========================================================
+=========================================================
+STATUS
+=========================================================
 */
 
 function setStatus(
@@ -1489,11 +1439,8 @@ function setStatus(
 ) {
 
   const status =
-
     document
-      .getElementById(
-        "status"
-      );
+      .getElementById("status");
 
 
   status.innerText =
@@ -1506,17 +1453,14 @@ function setStatus(
 }
 
 
-
 /*
-===========================================================
-CLEAN UP CAMERA
-===========================================================
+=========================================================
+CAMERA CLEANUP
+=========================================================
 */
 
 window.addEventListener(
-
   "pagehide",
-
   function() {
 
     if (cameraStream) {
@@ -1531,7 +1475,6 @@ window.addEventListener(
     }
 
   }
-
 );
 
 </script>
