@@ -102,18 +102,14 @@
       background: #111;
     }
 
-    /*
-      Main white guide:
-      the whole card should sit inside this.
-    */
     #cardGuide {
       position: absolute;
 
-      left: 15%;
-      top: 4%;
+      left: 11%;
+      top: 5%;
 
-      width: 70%;
-      height: 92%;
+      width: 78%;
+      height: 90%;
 
       border: 3px solid white;
       border-radius: 14px;
@@ -121,20 +117,16 @@
       pointer-events: none;
     }
 
-    /*
-      Yellow guide:
-      scanner focuses on the lower part of the card.
-    */
     #numberGuide {
       position: absolute;
 
-      left: 15%;
-      top: 70%;
+      left: 13%;
+      top: 78%;
 
-      width: 70%;
-      height: 26%;
+      width: 48%;
+      height: 15%;
 
-      border: 2px dashed #ffd600;
+      border: 3px dashed #ffd600;
       border-radius: 8px;
 
       pointer-events: none;
@@ -191,6 +183,31 @@
       background: #f8d7da;
     }
 
+    #ocrPreviewSection {
+      display: none;
+      background: white;
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    #ocrPreviewLabel {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    #ocrCanvas {
+      display: block;
+      width: 100%;
+      max-height: 140px;
+      object-fit: contain;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+
     #detectedCard {
       display: none;
 
@@ -214,33 +231,29 @@
     #detectedNumber {
       font-size: 25px;
       font-weight: bold;
-
       margin-top: 10px;
     }
 
     #detectedSet {
       font-size: 15px;
       color: #666;
-
       margin-top: 3px;
     }
 
     #correctButton {
       margin-top: 14px;
-
       background: #4caf50;
       color: white;
     }
 
     #wrongButton {
       margin-top: 8px;
-
       background: #ddd;
       color: #222;
     }
 
     #debugBox {
-      display: none;
+      display: block;
 
       background: #eee;
 
@@ -255,10 +268,6 @@
       word-break: break-word;
 
       text-align: left;
-    }
-
-    #ocrCanvas {
-      display: none;
     }
 
     .smallText {
@@ -288,11 +297,9 @@
     </label>
 
     <select id="setSelector">
-
       <option value="destined-rivals">
         Destined Rivals
       </option>
-
     </select>
 
 
@@ -313,21 +320,15 @@
 
 
     <div class="smallText">
-
       Hold one card inside the white frame.
-
       <br>
-
-      The scanner will automatically look for the collector number.
-
+      Keep the collector number inside the yellow dashed box.
     </div>
 
   </div>
 
 
-
   <div id="status"></div>
-
 
 
   <div id="cameraBox">
@@ -339,33 +340,37 @@
       muted
     ></video>
 
-
     <div id="cardGuide"></div>
 
     <div id="numberGuide"></div>
 
-
     <div id="cameraMessage">
-
       Keep whole card inside frame
-
     </div>
 
   </div>
 
 
+  <div id="ocrPreviewSection">
 
-  <canvas id="ocrCanvas"></canvas>
+    <div id="ocrPreviewLabel">
+      Scanner is trying to read this:
+    </div>
 
+    <canvas id="ocrCanvas"></canvas>
+
+  </div>
 
 
   <div id="detectedCard">
 
-    <div style="
-      font-size:13px;
-      color:#777;
-      margin-bottom:8px;
-    ">
+    <div
+      style="
+        font-size:13px;
+        color:#777;
+        margin-bottom:8px;
+      "
+    >
       CARD DETECTED
     </div>
 
@@ -410,17 +415,6 @@
 ===========================================================
 SET DATABASE
 ===========================================================
-
-Each Pokémon set gets its own profile.
-
-Later we add:
-
-Ascended Heroes
-Perfect Order
-Chaos Rising
-etc.
-
-without rebuilding the scanner.
 */
 
 const SETS = {
@@ -433,31 +427,11 @@ const SETS = {
     code:
       "DRI",
 
-    /*
-      Printed collector denominator.
-
-      Examples:
-
-      027/182
-      140/182
-      183/182
-    */
-
     denominator:
       182,
 
-    /*
-      Highest actual card number
-      in our inventory list.
-    */
-
     maxNumber:
       244,
-
-    /*
-      Pokémon TCG image server
-      set identifier.
-    */
 
     imageSet:
       "sv10"
@@ -477,30 +451,23 @@ SCANNER VARIABLES
 let cameraStream =
   null;
 
-
 let scannerRunning =
   false;
-
 
 let scannerPaused =
   false;
 
-
 let scanBusy =
   false;
-
 
 let scanTimer =
   null;
 
-
 let ocrWorker =
   null;
 
-
 let scanStyle =
   0;
-
 
 let detectedNumber =
   null;
@@ -520,22 +487,17 @@ async function startScanner() {
     scannerPaused =
       false;
 
-
     setStatus(
       "Scanner ready — hold a card inside the frame.",
       "working"
     );
 
-
     scheduleScan(
       500
     );
 
-
     return;
-
   }
-
 
 
   if (
@@ -544,17 +506,12 @@ async function startScanner() {
   ) {
 
     setStatus(
-
       "Your browser does not support live camera scanning.",
-
       "error"
-
     );
 
     return;
-
   }
-
 
 
   try {
@@ -580,10 +537,6 @@ async function startScanner() {
 
           height: {
             ideal: 1920
-          },
-
-          aspectRatio: {
-            ideal: 0.75
           }
 
         },
@@ -592,7 +545,6 @@ async function startScanner() {
           false
 
       });
-
 
 
     const video =
@@ -608,10 +560,17 @@ async function startScanner() {
     await video.play();
 
 
-
     document
       .getElementById(
         "cameraBox"
+      )
+      .style.display =
+      "block";
+
+
+    document
+      .getElementById(
+        "ocrPreviewSection"
       )
       .style.display =
       "block";
@@ -633,14 +592,12 @@ async function startScanner() {
       "block";
 
 
-
     scannerRunning =
       true;
 
 
     scannerPaused =
       false;
-
 
 
     setStatus(
@@ -652,13 +609,9 @@ async function startScanner() {
     await createOcrWorker();
 
 
-
     setStatus(
-
       "Scanner ready — hold a card inside the frame.",
-
       "working"
-
     );
 
 
@@ -677,12 +630,9 @@ async function startScanner() {
 
 
     setStatus(
-
       "Camera error: " +
       error.message,
-
       "error"
-
     );
 
   }
@@ -700,9 +650,7 @@ OCR WORKER
 async function createOcrWorker() {
 
   if (ocrWorker) {
-
     return;
-
   }
 
 
@@ -728,7 +676,7 @@ async function createOcrWorker() {
 
 /*
 ===========================================================
-SCHEDULE NEXT SCAN
+SCHEDULE SCAN
 ===========================================================
 */
 
@@ -738,9 +686,7 @@ function scheduleScan(delay) {
     !scannerRunning ||
     scannerPaused
   ) {
-
     return;
-
   }
 
 
@@ -765,7 +711,7 @@ function scheduleScan(delay) {
 
 /*
 ===========================================================
-SCAN LIVE VIDEO FRAME
+SCAN LIVE VIDEO
 ===========================================================
 */
 
@@ -776,9 +722,7 @@ async function scanFrame() {
     scannerPaused ||
     scanBusy
   ) {
-
     return;
-
   }
 
 
@@ -798,13 +742,11 @@ async function scanFrame() {
     );
 
     return;
-
   }
 
 
   scanBusy =
     true;
-
 
 
   try {
@@ -817,211 +759,107 @@ async function scanFrame() {
 
     const ctx =
       canvas.getContext(
-
         "2d",
-
         {
           willReadFrequently:
             true
         }
-
       );
 
 
-
     /*
-    -------------------------------------------------------
-    CARD POSITION
-    -------------------------------------------------------
-
-    These values correspond to the
-    white card guide on screen.
+      Three slightly different
+      bottom-left crops.
     */
 
-    const cardX =
-      0.15;
-
-
-    const cardY =
-      0.04;
-
-
-    const cardWidth =
-      0.70;
-
-
-    const cardHeight =
-      0.92;
-
-
-
-    /*
-    -------------------------------------------------------
-    OCR PASSES
-    -------------------------------------------------------
-
-    We automatically alternate between
-    several lower-card crops and
-    contrast levels.
-
-    The user does not need to do anything.
-    */
-
-    const passes = [
+    const attempts = [
 
       {
-
-        cropStart:
-          0.68,
-
-        cropHeight:
-          0.30,
-
-        threshold:
-          155
-
+        x: 0.13,
+        y: 0.77,
+        w: 0.48,
+        h: 0.16,
+        threshold: 150
       },
 
-
       {
-
-        cropStart:
-          0.72,
-
-        cropHeight:
-          0.25,
-
-        threshold:
-          180
-
+        x: 0.12,
+        y: 0.74,
+        w: 0.52,
+        h: 0.19,
+        threshold: 175
       },
 
-
       {
-
-        cropStart:
-          0.62,
-
-        cropHeight:
-          0.36,
-
-        threshold:
-          205
-
+        x: 0.11,
+        y: 0.79,
+        w: 0.55,
+        h: 0.14,
+        threshold: 200
       }
 
     ];
 
 
-
     const pass =
-
-      passes[
+      attempts[
         scanStyle %
-        passes.length
+        attempts.length
       ];
 
 
     scanStyle++;
 
 
-
-    /*
-    -------------------------------------------------------
-    CONVERT GUIDE COORDINATES
-    INTO REAL VIDEO PIXELS
-    -------------------------------------------------------
-    */
-
-
     const sourceX =
-
       Math.floor(
-
         video.videoWidth *
-        cardX
-
+        pass.x
       );
 
 
     const sourceY =
-
       Math.floor(
-
         video.videoHeight *
-
-        (
-          cardY +
-
-          (
-            cardHeight *
-            pass.cropStart
-          )
-        )
-
+        pass.y
       );
 
 
     const sourceWidth =
-
       Math.floor(
-
         video.videoWidth *
-        cardWidth
-
+        pass.w
       );
 
 
     const sourceHeight =
-
       Math.floor(
-
         video.videoHeight *
-
-        (
-          cardHeight *
-          pass.cropHeight
-        )
-
+        pass.h
       );
-
 
 
     /*
-    -------------------------------------------------------
-    RESIZE OCR IMAGE
-    -------------------------------------------------------
+      Enlarge the tiny collector number.
     */
 
-
     const targetWidth =
-      Math.min(
-        1500,
-        sourceWidth
-      );
+      1600;
 
 
     const scale =
-
       targetWidth /
       sourceWidth;
 
 
     const targetHeight =
-
       Math.max(
-
         1,
-
         Math.floor(
-
           sourceHeight *
           scale
-
         )
-
       );
-
 
 
     canvas.width =
@@ -1032,36 +870,28 @@ async function scanFrame() {
       targetHeight;
 
 
-
     ctx.drawImage(
 
       video,
 
       sourceX,
       sourceY,
-
       sourceWidth,
       sourceHeight,
 
       0,
       0,
-
       canvas.width,
       canvas.height
 
     );
 
 
-
     /*
-    -------------------------------------------------------
-    BLACK + WHITE PROCESSING
-    -------------------------------------------------------
+      Convert image to high contrast.
     */
 
-
     const imageData =
-
       ctx.getImageData(
 
         0,
@@ -1077,33 +907,19 @@ async function scanFrame() {
       imageData.data;
 
 
-
     for (
-
       let i = 0;
-
       i < pixels.length;
-
       i += 4
-
     ) {
-
 
       const gray =
 
-        pixels[i] *
-        0.299
+        pixels[i] * 0.299 +
 
-        +
+        pixels[i + 1] * 0.587 +
 
-        pixels[i + 1] *
-        0.587
-
-        +
-
-        pixels[i + 2] *
-        0.114;
-
+        pixels[i + 2] * 0.114;
 
 
       const value =
@@ -1112,9 +928,7 @@ async function scanFrame() {
         pass.threshold
 
           ? 255
-
           : 0;
-
 
 
       pixels[i] =
@@ -1131,33 +945,17 @@ async function scanFrame() {
     }
 
 
-
     ctx.putImageData(
-
       imageData,
-
       0,
       0
-
     );
-
 
 
     setStatus(
-
-      "Looking for collector number...",
-
+      "Reading collector number...",
       "working"
-
     );
-
-
-
-    /*
-    -------------------------------------------------------
-    OCR
-    -------------------------------------------------------
-    */
 
 
     const result =
@@ -1165,7 +963,6 @@ async function scanFrame() {
       await ocrWorker.recognize(
         canvas
       );
-
 
 
     let text =
@@ -1193,38 +990,28 @@ async function scanFrame() {
       .trim();
 
 
-
     console.log(
-
       "OCR READ:",
-
       text
-
     );
 
 
-
     const number =
-
       extractCollectorNumber(
         text
       );
 
 
-
-    if (number !== null) {
+    if (
+      number !== null
+    ) {
 
       showDetectedCard(
-
         number,
-
         text
-
       );
 
-
       return;
-
     }
 
 
@@ -1233,11 +1020,8 @@ async function scanFrame() {
   catch (error) {
 
     console.error(
-
       "Scanner error:",
-
       error
-
     );
 
   }
@@ -1250,9 +1034,8 @@ async function scanFrame() {
   }
 
 
-
   scheduleScan(
-    500
+    450
   );
 
 }
@@ -1286,18 +1069,6 @@ function extractCollectorNumber(text) {
     set.denominator;
 
 
-
-  /*
-    Examples:
-
-    027/182
-    140/182
-    203/182
-
-    OCR occasionally reads slash as |
-  */
-
-
   const pattern1 =
 
     new RegExp(
@@ -1311,20 +1082,10 @@ function extractCollectorNumber(text) {
     );
 
 
-
   let match =
-
     text.match(
       pattern1
     );
-
-
-
-  /*
-    OCR may also remove the slash:
-
-    140 182
-  */
 
 
   if (!match) {
@@ -1343,13 +1104,11 @@ function extractCollectorNumber(text) {
 
 
     match =
-
       text.match(
         pattern2
       );
 
   }
-
 
 
   if (!match) {
@@ -1359,32 +1118,21 @@ function extractCollectorNumber(text) {
   }
 
 
-
   const number =
-
     parseInt(
-
       match[1],
-
       10
-
     );
 
 
-
   if (
-
     number < 1 ||
-
-    number >
-    set.maxNumber
-
+    number > set.maxNumber
   ) {
 
     return null;
 
   }
-
 
 
   return number;
@@ -1412,7 +1160,6 @@ function showDetectedCard(
     number;
 
 
-
   const setKey =
 
     document
@@ -1428,7 +1175,6 @@ function showDetectedCard(
     ];
 
 
-
   const paddedNumber =
 
     String(
@@ -1438,7 +1184,6 @@ function showDetectedCard(
       3,
       "0"
     );
-
 
 
   document
@@ -1453,15 +1198,12 @@ function showDetectedCard(
     set.denominator;
 
 
-
   document
     .getElementById(
       "detectedSet"
     )
     .innerText =
-
     set.name;
-
 
 
   document
@@ -1481,14 +1223,12 @@ function showDetectedCard(
     ".png";
 
 
-
   document
     .getElementById(
       "detectedCard"
     )
     .style.display =
     "block";
-
 
 
   document
@@ -1501,15 +1241,10 @@ function showDetectedCard(
     ocrText;
 
 
-
   setStatus(
-
     "Card detected — check that it is correct.",
-
     "success"
-
   );
-
 
 
   document
@@ -1532,19 +1267,11 @@ function showDetectedCard(
 
 /*
 ===========================================================
-CONFIRM DETECTION
+CONFIRM CARD
 ===========================================================
 */
 
 function confirmCard() {
-
-  /*
-    We are NOT saving to Google Sheets yet.
-
-    This button is only for testing
-    recognition accuracy.
-  */
-
 
   const setKey =
 
@@ -1561,7 +1288,6 @@ function confirmCard() {
     ];
 
 
-
   const paddedNumber =
 
     String(
@@ -1573,23 +1299,17 @@ function confirmCard() {
     );
 
 
-
   setStatus(
 
     "✓ Correct: " +
-
     set.name +
-
     " #" +
-
     paddedNumber +
-
     ". Hold up the next card.",
 
     "success"
 
   );
-
 
 
   prepareNextCard();
@@ -1600,18 +1320,15 @@ function confirmCard() {
 
 /*
 ===========================================================
-WRONG DETECTION
+WRONG CARD
 ===========================================================
 */
 
 function rejectCard() {
 
   setStatus(
-
-    "Okay — trying that card again.",
-
+    "Trying that card again.",
     "working"
-
   );
 
 
@@ -1655,7 +1372,7 @@ function prepareNextCard() {
 
 /*
 ===========================================================
-STOP CAMERA
+STOP SCANNER
 ===========================================================
 */
 
@@ -1673,7 +1390,6 @@ function stopScanner() {
     false;
 
 
-
   if (scanTimer) {
 
     clearTimeout(
@@ -1686,16 +1402,13 @@ function stopScanner() {
   }
 
 
-
   if (cameraStream) {
 
     cameraStream
       .getTracks()
       .forEach(
-
         track =>
           track.stop()
-
       );
 
 
@@ -1705,18 +1418,14 @@ function stopScanner() {
   }
 
 
-
   const video =
-
-    document
-      .getElementById(
-        "video"
-      );
+    document.getElementById(
+      "video"
+    );
 
 
   video.srcObject =
     null;
-
 
 
   document
@@ -1727,6 +1436,13 @@ function stopScanner() {
     "none";
 
 
+  document
+    .getElementById(
+      "ocrPreviewSection"
+    )
+    .style.display =
+    "none";
+
 
   document
     .getElementById(
@@ -1734,7 +1450,6 @@ function stopScanner() {
     )
     .style.display =
     "block";
-
 
 
   document
@@ -1745,7 +1460,6 @@ function stopScanner() {
     "none";
 
 
-
   document
     .getElementById(
       "detectedCard"
@@ -1754,13 +1468,9 @@ function stopScanner() {
     "none";
 
 
-
   setStatus(
-
     "Camera stopped.",
-
     "working"
-
   );
 
 }
@@ -1814,10 +1524,8 @@ window.addEventListener(
       cameraStream
         .getTracks()
         .forEach(
-
           track =>
             track.stop()
-
         );
 
     }
