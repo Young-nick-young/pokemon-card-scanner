@@ -127,8 +127,6 @@ button:disabled{
   display:none;
 }
 
-/* CANDIDATES */
-
 #candidateBox{
   display:none;
 }
@@ -191,8 +189,6 @@ button:disabled{
   font-size:22px;
 }
 
-/* MANUAL */
-
 #manualArea{
   margin-top:15px;
   padding-top:12px;
@@ -227,8 +223,6 @@ button:disabled{
   font-size:12px;
   margin-top:7px;
 }
-
-/* SELECTED CARD */
 
 #selectedBox{
   display:none;
@@ -306,7 +300,6 @@ button:disabled{
   text-align:center;
   font-weight:bold;
 }
-
 </style>
 </head>
 
@@ -320,7 +313,7 @@ button:disabled{
 
   <div id="status">
     Preparing scanner...
-    <div id="progress">Loading recognition engine.</div>
+    <div id="progress">Connecting to recognizer.</div>
   </div>
 
   <button id="startButton" disabled>
@@ -355,9 +348,6 @@ button:disabled{
 </div>
 
 <canvas id="cropCanvas"></canvas>
-
-
-<!-- CANDIDATE CHOICE -->
 
 <div id="candidateBox" class="box">
 
@@ -399,9 +389,6 @@ button:disabled{
 
 </div>
 
-
-<!-- SELECTED CARD -->
-
 <div id="selectedBox" class="box">
 
   <div class="cardHeader">
@@ -411,11 +398,8 @@ button:disabled{
     <div class="cardDetails">
 
       <div id="selectedName"></div>
-
       <div id="selectedNumber"></div>
-
       <div id="selectedRarity"></div>
-
       <div id="selectedType"></div>
 
     </div>
@@ -458,182 +442,105 @@ button:disabled{
 
 </div>
 
-
 <iframe
   name="sheetUpdateFrame"
   id="sheetUpdateFrame"
   style="display:none">
 </iframe>
 
+<script>
 
-<script type="module">
-
-import {
-  pipeline,
-  RawImage
-} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
-
-
-/* =========================================
-SETTINGS
-========================================= */
+/* ===============================
+   SETTINGS
+================================ */
 
 const SCRIPT_URL =
 "https://script.google.com/a/macros/ikns.edu.bh/s/AKfycbwDF5oxhER534DF16jG94SHwJ9jS2ySAWJXIKgUsOpXjsdy26JKiu1FOIAsQnOqk_6f/exec";
 
-const MODEL =
-"onnx-community/dinov2-small";
+const RECOGNIZER_URL =
+"https://pokemon-card-recognizer.onrender.com";
 
 const MAX_CARD = 244;
-
 const IMAGE_SET = "sv10";
-
 const DENOMINATOR = 182;
 
 
-/* =========================================
-STATE
-========================================= */
-
-let extractor = null;
-
-let references = [];
+/* ===============================
+   STATE
+================================ */
 
 let inventoryCards = [];
-
 let inventoryByNumber = {};
-
 let stream = null;
-
 let rankedMatches = [];
-
 let currentCard = null;
 
 
-/* =========================================
-ELEMENTS
-========================================= */
+/* ===============================
+   ELEMENTS
+================================ */
 
-const status =
-document.getElementById("status");
+const status = document.getElementById("status");
+const progress = document.getElementById("progress");
+const sheetStatus = document.getElementById("sheetStatus");
 
-const progress =
-document.getElementById("progress");
+const startButton = document.getElementById("startButton");
+const scanButton = document.getElementById("scanButton");
 
-const sheetStatus =
-document.getElementById("sheetStatus");
+const cameraBox = document.getElementById("cameraBox");
+const video = document.getElementById("video");
+const cardGuide = document.getElementById("cardGuide");
+const cropCanvas = document.getElementById("cropCanvas");
 
-const startButton =
-document.getElementById("startButton");
+const candidateBox = document.getElementById("candidateBox");
+const candidateList = document.getElementById("candidateList");
 
-const scanButton =
-document.getElementById("scanButton");
+const manualNumber = document.getElementById("manualNumber");
+const manualButton = document.getElementById("manualButton");
+const manualError = document.getElementById("manualError");
 
-const cameraBox =
-document.getElementById("cameraBox");
+const selectedBox = document.getElementById("selectedBox");
+const selectedImage = document.getElementById("selectedImage");
+const selectedName = document.getElementById("selectedName");
+const selectedNumber = document.getElementById("selectedNumber");
+const selectedRarity = document.getElementById("selectedRarity");
+const selectedType = document.getElementById("selectedType");
 
-const video =
-document.getElementById("video");
+const normalButton = document.getElementById("normalButton");
+const reverseButton = document.getElementById("reverseButton");
+const holoButton = document.getElementById("holoButton");
+const otherButton = document.getElementById("otherButton");
 
-const cardGuide =
-document.getElementById("cardGuide");
+const normalCount = document.getElementById("normalCount");
+const reverseCount = document.getElementById("reverseCount");
+const holoCount = document.getElementById("holoCount");
+const otherCount = document.getElementById("otherCount");
 
-const cropCanvas =
-document.getElementById("cropCanvas");
-
-const candidateBox =
-document.getElementById("candidateBox");
-
-const candidateList =
-document.getElementById("candidateList");
-
-const manualNumber =
-document.getElementById("manualNumber");
-
-const manualButton =
-document.getElementById("manualButton");
-
-const manualError =
-document.getElementById("manualError");
-
-const selectedBox =
-document.getElementById("selectedBox");
-
-const selectedImage =
-document.getElementById("selectedImage");
-
-const selectedName =
-document.getElementById("selectedName");
-
-const selectedNumber =
-document.getElementById("selectedNumber");
-
-const selectedRarity =
-document.getElementById("selectedRarity");
-
-const selectedType =
-document.getElementById("selectedType");
-
-const normalButton =
-document.getElementById("normalButton");
-
-const reverseButton =
-document.getElementById("reverseButton");
-
-const holoButton =
-document.getElementById("holoButton");
-
-const otherButton =
-document.getElementById("otherButton");
-
-const normalCount =
-document.getElementById("normalCount");
-
-const reverseCount =
-document.getElementById("reverseCount");
-
-const holoCount =
-document.getElementById("holoCount");
-
-const otherCount =
-document.getElementById("otherCount");
-
-const saved =
-document.getElementById("saved");
-
-const wrongButton =
-document.getElementById("wrongButton");
+const saved = document.getElementById("saved");
+const wrongButton = document.getElementById("wrongButton");
 
 
-/* =========================================
-GOOGLE SHEET DATABASE
-========================================= */
+/* ===============================
+   GOOGLE SHEET
+================================ */
 
 window.receiveCards = function(cards){
 
-  inventoryCards =
-    cards || [];
-
+  inventoryCards = cards || [];
   inventoryByNumber = {};
 
   inventoryCards.forEach(card => {
-
-    inventoryByNumber[
-      Number(card.number)
-    ] = card;
-
+    inventoryByNumber[Number(card.number)] = card;
   });
 
   sheetStatus.innerText =
     `✓ Google Sheet connected • ${inventoryCards.length} cards`;
-
 };
 
 
 function loadInventory(){
 
-  const script =
-    document.createElement("script");
+  const script = document.createElement("script");
 
   script.src =
     SCRIPT_URL +
@@ -643,438 +550,112 @@ function loadInventory(){
     Date.now();
 
   script.onerror = () => {
-
     sheetStatus.innerText =
       "⚠ Google Sheet connection failed.";
-
   };
 
   document.body.appendChild(script);
-
 }
 
 
-/* =========================================
-INDEXED DB
-========================================= */
+/* ===============================
+   CHECK RENDER BACKEND
+================================ */
 
-function openDatabase(){
+async function checkRecognizer(){
 
-  return new Promise(
-    (resolve,reject) => {
-
-      const request =
-        indexedDB.open(
-          "pokemonScannerDB",
-          1
-        );
-
-      request.onupgradeneeded =
-        event => {
-
-          const db =
-            event.target.result;
-
-          if(
-            !db.objectStoreNames.contains(
-              "data"
-            )
-          ){
-            db.createObjectStore("data");
-          }
-
-        };
-
-      request.onsuccess =
-        () => resolve(request.result);
-
-      request.onerror =
-        () => reject(request.error);
-
-    }
+  const response = await fetch(
+    RECOGNIZER_URL + "/health",
+    {cache:"no-store"}
   );
 
-}
-
-
-async function loadCachedReferences(){
-
-  try{
-
-    const db =
-      await openDatabase();
-
-    return await new Promise(
-      resolve => {
-
-        const transaction =
-          db.transaction(
-            "data",
-            "readonly"
-          );
-
-        const request =
-          transaction
-          .objectStore("data")
-          .get(
-            "destined-rivals-dinov2-v1"
-          );
-
-        request.onsuccess =
-          () => resolve(
-            request.result || null
-          );
-
-        request.onerror =
-          () => resolve(null);
-
-      }
-    );
-
-  }catch{
-
-    return null;
-
-  }
-
-}
-
-
-async function saveCachedReferences(data){
-
-  try{
-
-    const db =
-      await openDatabase();
-
-    await new Promise(
-      (resolve,reject) => {
-
-        const transaction =
-          db.transaction(
-            "data",
-            "readwrite"
-          );
-
-        transaction
-          .objectStore("data")
-          .put(
-            data,
-            "destined-rivals-dinov2-v1"
-          );
-
-        transaction.oncomplete =
-          resolve;
-
-        transaction.onerror =
-          () => reject(
-            transaction.error
-          );
-
-      }
-    );
-
-  }catch(error){
-
-    console.warn(error);
-
-  }
-
-}
-
-
-/* =========================================
-VECTOR FUNCTIONS
-========================================= */
-
-function normalizeVector(array){
-
-  let magnitude = 0;
-
-  for(
-    let i=0;
-    i<array.length;
-    i++
-  ){
-
-    magnitude +=
-      array[i] * array[i];
-
-  }
-
-  magnitude =
-    Math.sqrt(magnitude) || 1;
-
-  const result =
-    new Float32Array(
-      array.length
-    );
-
-  for(
-    let i=0;
-    i<array.length;
-    i++
-  ){
-
-    result[i] =
-      array[i] / magnitude;
-
-  }
-
-  return result;
-
-}
-
-
-function cosineSimilarity(a,b){
-
-  let score = 0;
-
-  const length =
-    Math.min(
-      a.length,
-      b.length
-    );
-
-  for(
-    let i=0;
-    i<length;
-    i++
-  ){
-
-    score +=
-      a[i] * b[i];
-
-  }
-
-  return score;
-
-}
-
-
-/* =========================================
-EMBEDDING
-========================================= */
-
-async function getEmbedding(image){
-
-  const output =
-    await extractor(
-      image,
-      {
-        pooling:"mean",
-        normalize:true
-      }
-    );
-
-  const data =
-    output.data;
-
-  if(
-    !data ||
-    !data.length
-  ){
-
+  if(!response.ok){
     throw new Error(
-      "No image features returned."
+      "Recognition server unavailable."
     );
-
   }
+
+  const data = await response.json();
 
   if(
-    output.dims &&
-    output.dims.length === 3
+    data.library_ready === false
   ){
-
-    const tokenCount =
-      output.dims[1];
-
-    const dimension =
-      output.dims[2];
-
-    const pooled =
-      new Float32Array(
-        dimension
-      );
-
-    for(
-      let token=0;
-      token<tokenCount;
-      token++
-    ){
-
-      const offset =
-        token * dimension;
-
-      for(
-        let d=0;
-        d<dimension;
-        d++
-      ){
-
-        pooled[d] +=
-          data[offset+d];
-
-      }
-
-    }
-
-    for(
-      let d=0;
-      d<dimension;
-      d++
-    ){
-
-      pooled[d] /=
-        tokenCount;
-
-    }
-
-    return normalizeVector(
-      pooled
-    );
-
-  }
-
-  return normalizeVector(data);
-
-}
-
-
-/* =========================================
-REFERENCE CARDS
-========================================= */
-
-async function getReferenceImage(number){
-
-  return await RawImage.fromURL(
-    `https://images.pokemontcg.io/${IMAGE_SET}/${number}.png`
-  );
-
-}
-
-
-async function prepareReferences(){
-
-  const cached =
-    await loadCachedReferences();
-
-  if(
-    cached &&
-    cached.length === MAX_CARD
-  ){
-
-    references =
-      cached.map(
-        item => ({
-          number:item.number,
-          vector:
-            new Float32Array(
-              item.vector
-            )
-        })
-      );
-
-    progress.innerText =
-      "244 reference cards loaded.";
-
-    return;
-
-  }
-
-  references = [];
-
-  for(
-    let number=1;
-    number<=MAX_CARD;
-    number++
-  ){
-
-    progress.innerText =
-      `Preparing cards: ${number} / ${MAX_CARD}`;
-
-    try{
-
-      const image =
-        await getReferenceImage(
-          number
-        );
-
-      const vector =
-        await getEmbedding(
-          image
-        );
-
-      references.push({
-        number,
-        vector
-      });
-
-    }catch(error){
-
-      console.error(
-        number,
-        error
-      );
-
-    }
-
-  }
-
-  if(
-    references.length < 230
-  ){
-
     throw new Error(
-      "Reference library failed."
+      "Card library is still loading."
     );
-
   }
 
-  await saveCachedReferences(
-
-    references.map(
-      item => ({
-        number:item.number,
-        vector:
-          Array.from(
-            item.vector
-          )
-      })
-    )
-
-  );
-
+  return data;
 }
 
 
-/* =========================================
-START
-========================================= */
+/* ===============================
+   INITIALIZE
+================================ */
 
 async function initialize(){
 
+  loadInventory();
+
+  status.firstChild.textContent =
+    "Connecting to recognizer...";
+
+  progress.innerText =
+    "Checking the Destined Rivals card library.";
+
   try{
 
-    loadInventory();
+    const response = await fetch(
+      RECOGNIZER_URL + "/",
+      {cache:"no-store"}
+    );
 
-    status.firstChild.textContent =
-      "Loading recognition model...";
+    if(!response.ok){
+      throw new Error("Server unavailable.");
+    }
 
-    extractor =
-      await pipeline(
-        "image-feature-extraction",
-        MODEL,
-        {
-          device:"wasm",
-          dtype:"q8"
-        }
-      );
+    const data = await response.json();
 
-    status.firstChild.textContent =
-      "Preparing card library...";
+    if(!data.library_ready){
 
-    await prepareReferences();
+      status.firstChild.textContent =
+        "Recognizer warming up...";
+
+      progress.innerText =
+        "Please wait while the card library loads.";
+
+      let ready = false;
+
+      for(let i=0; i<30; i++){
+
+        await new Promise(
+          resolve => setTimeout(resolve,2000)
+        );
+
+        try{
+
+          const check = await fetch(
+            RECOGNIZER_URL + "/",
+            {cache:"no-store"}
+          );
+
+          const result = await check.json();
+
+          if(result.library_ready){
+            ready = true;
+            break;
+          }
+
+        }catch(error){}
+
+      }
+
+      if(!ready){
+        throw new Error(
+          "Recognizer is taking too long to start."
+        );
+      }
+    }
 
     status.firstChild.textContent =
       "✓ Scanner ready";
@@ -1082,9 +663,7 @@ async function initialize(){
     progress.innerText =
       "Press START CAMERA.";
 
-    startButton.disabled =
-      false;
-
+    startButton.disabled = false;
     startButton.innerText =
       "📷 START CAMERA";
 
@@ -1093,19 +672,18 @@ async function initialize(){
     console.error(error);
 
     status.firstChild.textContent =
-      "Scanner failed.";
+      "Recognizer unavailable";
 
     progress.innerText =
-      error.message;
+      "Render may be waking up. Refresh this page in about one minute.";
 
   }
-
 }
 
 
-/* =========================================
-CAMERA
-========================================= */
+/* ===============================
+   CAMERA
+================================ */
 
 async function startCamera(){
 
@@ -1131,8 +709,7 @@ async function startCamera(){
 
       });
 
-    video.srcObject =
-      stream;
+    video.srcObject = stream;
 
     await video.play();
 
@@ -1153,20 +730,20 @@ async function startCamera(){
 
   }catch(error){
 
+    console.error(error);
+
     status.firstChild.textContent =
       "Camera could not start.";
 
     progress.innerText =
       error.message;
-
   }
-
 }
 
 
-/* =========================================
-CAPTURE
-========================================= */
+/* ===============================
+   CAPTURE CARD
+================================ */
 
 function captureCard(){
 
@@ -1185,52 +762,43 @@ function captureCard(){
     videoRect.height;
 
   const guideX =
-    (
-      guideRect.left -
-      videoRect.left
-    ) * scaleX;
-
-  const guideY =
-    (
-      guideRect.top -
-      videoRect.top
-    ) * scaleY;
-
-  const guideWidth =
-    guideRect.width *
+    (guideRect.left - videoRect.left) *
     scaleX;
 
-  const guideHeight =
-    guideRect.height *
+  const guideY =
+    (guideRect.top - videoRect.top) *
     scaleY;
 
+  const guideWidth =
+    guideRect.width * scaleX;
+
+  const guideHeight =
+    guideRect.height * scaleY;
+
+  /*
+    Actual Pokémon card = 63 × 88 mm.
+    White guide = 73 × 98 mm.
+
+    Therefore we crop the centered card-sized
+    region inside the guide.
+  */
+
   const cardWidth =
-    guideWidth *
-    (63/73);
+    guideWidth * (63/73);
 
   const cardHeight =
-    guideHeight *
-    (88/98);
+    guideHeight * (88/98);
 
   const sourceX =
     guideX +
-    (
-      guideWidth -
-      cardWidth
-    ) / 2;
+    (guideWidth-cardWidth)/2;
 
   const sourceY =
     guideY +
-    (
-      guideHeight -
-      cardHeight
-    ) / 2;
+    (guideHeight-cardHeight)/2;
 
-  cropCanvas.width =
-    448;
-
-  cropCanvas.height =
-    624;
+  cropCanvas.width = 630;
+  cropCanvas.height = 880;
 
   const ctx =
     cropCanvas.getContext("2d");
@@ -1245,66 +813,98 @@ function captureCard(){
 
     0,
     0,
-    448,
-    624
+    630,
+    880
   );
 
   return cropCanvas;
-
 }
 
 
-async function canvasToImage(canvas){
+/* ===============================
+   CANVAS → JPEG
+================================ */
 
-  const blob =
-    await new Promise(
-      resolve =>
-        canvas.toBlob(
-          resolve,
-          "image/jpeg",
-          .92
-        )
-    );
+function canvasToBlob(canvas){
 
-  if(!blob){
+  return new Promise(
+    (resolve,reject) => {
 
-    throw new Error(
-      "Could not capture card."
-    );
+      canvas.toBlob(
+        blob => {
 
-  }
+          if(blob){
+            resolve(blob);
+          }else{
+            reject(
+              new Error(
+                "Could not capture card image."
+              )
+            );
+          }
 
-  const url =
-    URL.createObjectURL(blob);
+        },
+        "image/jpeg",
+        0.94
+      );
 
-  try{
-
-    return await RawImage.fromURL(
-      url
-    );
-
-  }finally{
-
-    setTimeout(
-      () =>
-        URL.revokeObjectURL(url),
-      1000
-    );
-
-  }
-
+    }
+  );
 }
 
 
-/* =========================================
-SCAN
-========================================= */
+/* ===============================
+   SEND TO SIFT SERVER
+================================ */
+
+async function recognizeCard(blob){
+
+  const formData =
+    new FormData();
+
+  formData.append(
+    "file",
+    blob,
+    "card.jpg"
+  );
+
+  const response =
+    await fetch(
+      RECOGNIZER_URL + "/recognize",
+      {
+        method:"POST",
+        body:formData
+      }
+    );
+
+  if(!response.ok){
+
+    let message =
+      "Recognition server error.";
+
+    try{
+      const error =
+        await response.json();
+
+      message =
+        error.detail || message;
+
+    }catch(error){}
+
+    throw new Error(message);
+  }
+
+  return await response.json();
+}
+
+
+/* ===============================
+   SCAN
+================================ */
 
 async function scanCard(){
 
-  scanButton.disabled =
-    true;
-
+  scanButton.disabled = true;
   scanButton.innerText =
     "ANALYZING...";
 
@@ -1321,51 +921,99 @@ async function scanCard(){
     "Analyzing card...";
 
   progress.innerText =
-    "Finding the closest matches.";
+    "Sending image to the SIFT recognizer.";
 
   try{
 
     const canvas =
       captureCard();
 
-    const image =
-      await canvasToImage(
-        canvas
-      );
+    const blob =
+      await canvasToBlob(canvas);
 
-    const liveVector =
-      await getEmbedding(
-        image
+    const result =
+      await recognizeCard(blob);
+
+    if(
+      result.status !== "matched" ||
+      !result.best_match
+    ){
+      throw new Error(
+        "No reliable card match found."
       );
+    }
 
     rankedMatches =
-      references
-      .map(
-        reference => ({
-          number:
-            reference.number,
+      (result.top_matches || [])
+      .map(match => ({
+        number:Number(match.number),
+        score:Number(match.score || 0),
+        inliers:Number(match.inliers || 0),
+        inlier_ratio:
+          Number(match.inlier_ratio || 0)
+      }));
 
-          score:
-            cosineSimilarity(
-              liveVector,
-              reference.vector
-            )
-        })
+    /*
+      If backend did not include the best match
+      in top_matches, add it.
+    */
+
+    if(
+      !rankedMatches.some(
+        match =>
+          match.number ===
+          Number(result.best_match.number)
       )
-      .sort(
-        (a,b) =>
-          b.score -
-          a.score
-      )
-      .slice(0,5);
+    ){
 
-    showCandidates();
+      rankedMatches.unshift({
+        number:
+          Number(result.best_match.number),
+        score:
+          Number(result.best_match.score || 0),
+        inliers:
+          Number(result.best_match.inliers || 0),
+        inlier_ratio:
+          Number(
+            result.best_match.inlier_ratio || 0
+          )
+      });
+    }
 
-    status.firstChild.textContent =
-      "Choose the correct card";
+    /*
+      Confident result:
+      go directly to inventory card.
 
-    progress.innerText =
-      "The scanner found these five possibilities.";
+      Otherwise show candidate choices.
+    */
+
+    if(
+      result.confident === true &&
+      inventoryByNumber[
+        Number(result.best_match.number)
+      ]
+    ){
+
+      chooseCard(
+        Number(result.best_match.number)
+      );
+
+      status.firstChild.textContent =
+        "✓ Card recognized";
+
+      progress.innerText =
+        "Strong visual match. Choose the version you are adding.";
+
+    }else{
+
+      showCandidates();
+
+      status.firstChild.textContent =
+        "Check the match";
+
+      progress.innerText =
+        "The scanner was not fully confident. Tap the correct card.";
+    }
 
   }catch(error){
 
@@ -1379,132 +1027,106 @@ async function scanCard(){
 
   }
 
-  scanButton.disabled =
-    false;
+  scanButton.disabled = false;
 
   scanButton.innerText =
     "🔍 SCAN AGAIN";
-
 }
 
 
-/* =========================================
-SHOW FIVE CANDIDATES
-========================================= */
+/* ===============================
+   SHOW CANDIDATES
+================================ */
 
 function showCandidates(){
 
   candidateList.innerHTML = "";
 
-  rankedMatches.forEach(
-    match => {
+  rankedMatches
+  .slice(0,5)
+  .forEach(match => {
 
-      const card =
-        inventoryByNumber[
-          Number(match.number)
-        ];
+    const card =
+      inventoryByNumber[
+        Number(match.number)
+      ];
 
-      const row =
-        document.createElement(
-          "div"
-        );
+    const row =
+      document.createElement("div");
 
-      row.className =
-        "candidate";
+    row.className =
+      "candidate";
 
-      const image =
-        document.createElement(
-          "img"
-        );
+    const image =
+      document.createElement("img");
 
-      image.src =
-        `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
+    image.src =
+      `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
 
-      const info =
-        document.createElement(
-          "div"
-        );
+    const info =
+      document.createElement("div");
 
-      info.className =
-        "candidateInfo";
+    info.className =
+      "candidateInfo";
 
-      const name =
-        document.createElement(
-          "div"
-        );
+    const name =
+      document.createElement("div");
 
-      name.className =
-        "candidateName";
+    name.className =
+      "candidateName";
 
-      name.innerText =
-        card
-          ? card.name
-          : "Destined Rivals Card";
+    name.innerText =
+      card
+      ? card.name
+      : "Destined Rivals Card";
 
-      const number =
-        document.createElement(
-          "div"
-        );
+    const number =
+      document.createElement("div");
 
-      number.className =
-        "candidateNumber";
+    number.className =
+      "candidateNumber";
 
-      number.innerText =
-        "#" +
-        String(
-          match.number
-        ).padStart(3,"0") +
-        "/" +
-        DENOMINATOR;
+    number.innerText =
+      "#" +
+      String(match.number)
+      .padStart(3,"0") +
+      "/" +
+      DENOMINATOR;
 
-      const score =
-        document.createElement(
-          "div"
-        );
+    const score =
+      document.createElement("div");
 
-      score.className =
-        "candidateScore";
+    score.className =
+      "candidateScore";
 
-      score.innerText =
-        "Similarity " +
-        (
-          match.score * 100
-        ).toFixed(1) +
-        "%";
+    score.innerText =
+      match.inliers
+      ? `${match.inliers} verified feature matches`
+      : "Possible match";
 
-      const choose =
-        document.createElement(
-          "div"
-        );
+    const choose =
+      document.createElement("div");
 
-      choose.className =
-        "choose";
+    choose.className =
+      "choose";
 
-      choose.innerText =
-        "›";
+    choose.innerText = "›";
 
-      info.appendChild(name);
-      info.appendChild(number);
-      info.appendChild(score);
+    info.appendChild(name);
+    info.appendChild(number);
+    info.appendChild(score);
 
-      row.appendChild(image);
-      row.appendChild(info);
-      row.appendChild(choose);
+    row.appendChild(image);
+    row.appendChild(info);
+    row.appendChild(choose);
 
-      row.addEventListener(
-        "click",
-        () =>
-          chooseCard(
-            match.number
-          )
-      );
+    row.addEventListener(
+      "click",
+      () => chooseCard(match.number)
+    );
 
-      candidateList.appendChild(
-        row
-      );
-
-    }
-  );
+    candidateList.appendChild(row);
+  });
 
   candidateBox.style.display =
     "block";
@@ -1513,13 +1135,12 @@ function showCandidates(){
     behavior:"smooth",
     block:"start"
   });
-
 }
 
 
-/* =========================================
-MANUAL NUMBER
-========================================= */
+/* ===============================
+   MANUAL NUMBER
+================================ */
 
 function findManualCard(){
 
@@ -1527,9 +1148,7 @@ function findManualCard(){
     "none";
 
   const number =
-    Number(
-      manualNumber.value
-    );
+    Number(manualNumber.value);
 
   if(
     !number ||
@@ -1544,7 +1163,6 @@ function findManualCard(){
       "block";
 
     return;
-
   }
 
   const card =
@@ -1559,17 +1177,15 @@ function findManualCard(){
       "block";
 
     return;
-
   }
 
   chooseCard(number);
-
 }
 
 
-/* =========================================
-SELECT CARD
-========================================= */
+/* ===============================
+   SELECT CARD
+================================ */
 
 function chooseCard(number){
 
@@ -1587,11 +1203,9 @@ function chooseCard(number){
       "block";
 
     return;
-
   }
 
-  currentCard =
-    card;
+  currentCard = card;
 
   selectedImage.src =
     `https://images.pokemontcg.io/${IMAGE_SET}/${Number(card.number)}.png`;
@@ -1601,9 +1215,8 @@ function chooseCard(number){
 
   selectedNumber.innerText =
     "#" +
-    String(
-      card.number
-    ).padStart(3,"0") +
+    String(card.number)
+    .padStart(3,"0") +
     "/" +
     DENOMINATOR;
 
@@ -1615,9 +1228,7 @@ function chooseCard(number){
 
   updateCounts();
 
-  if(
-    card.reverse === null
-  ){
+  if(card.reverse === null){
 
     reverseButton.style.display =
       "none";
@@ -1626,7 +1237,6 @@ function chooseCard(number){
 
     reverseButton.style.display =
       "flex";
-
   }
 
   saved.style.display =
@@ -1648,44 +1258,38 @@ function chooseCard(number){
     behavior:"smooth",
     block:"start"
   });
-
 }
 
 
-/* =========================================
-COUNTS
-========================================= */
+/* ===============================
+   COUNTS
+================================ */
 
 function updateCounts(){
 
+  if(!currentCard){
+    return;
+  }
+
   normalCount.innerText =
-    Number(
-      currentCard.normal
-    ) || 0;
+    Number(currentCard.normal) || 0;
 
   reverseCount.innerText =
     currentCard.reverse === null
-      ? "-"
-      : Number(
-          currentCard.reverse
-        ) || 0;
+    ? "-"
+    : Number(currentCard.reverse) || 0;
 
   holoCount.innerText =
-    Number(
-      currentCard.holo
-    ) || 0;
+    Number(currentCard.holo) || 0;
 
   otherCount.innerText =
-    Number(
-      currentCard.other
-    ) || 0;
-
+    Number(currentCard.other) || 0;
 }
 
 
-/* =========================================
-ADD TO GOOGLE SHEET
-========================================= */
+/* ===============================
+   ADD TO GOOGLE SHEET
+================================ */
 
 function addCard(variant){
 
@@ -1701,75 +1305,39 @@ function addCard(variant){
   }
 
   currentCard[variant] =
-    (
-      Number(
-        currentCard[variant]
-      ) || 0
-    ) + 1;
+    (Number(currentCard[variant]) || 0) + 1;
 
   updateCounts();
 
   const form =
-    document.createElement(
-      "form"
-    );
+    document.createElement("form");
 
-  form.method =
-    "POST";
-
-  form.action =
-    SCRIPT_URL;
-
-  form.target =
-    "sheetUpdateFrame";
-
-  form.style.display =
-    "none";
+  form.method = "POST";
+  form.action = SCRIPT_URL;
+  form.target = "sheetUpdateFrame";
+  form.style.display = "none";
 
   const fields = {
-
-    action:
-      "changeQuantity",
-
-    row:
-      currentCard.row,
-
-    variant:
-      variant,
-
-    change:
-      1
-
+    action:"changeQuantity",
+    row:currentCard.row,
+    variant:variant,
+    change:1
   };
 
   Object.entries(fields)
-  .forEach(
-    ([name,value]) => {
+  .forEach(([name,value]) => {
 
-      const input =
-        document.createElement(
-          "input"
-        );
+    const input =
+      document.createElement("input");
 
-      input.type =
-        "hidden";
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
 
-      input.name =
-        name;
+    form.appendChild(input);
+  });
 
-      input.value =
-        value;
-
-      form.appendChild(
-        input
-      );
-
-    }
-  );
-
-  document.body.appendChild(
-    form
-  );
+  document.body.appendChild(form);
 
   form.submit();
 
@@ -1784,33 +1352,23 @@ function addCard(variant){
   saved.style.display =
     "block";
 
-  /*
-  Automatically return to camera
-  so bulk scanning stays fast.
-  */
-
   setTimeout(
     resetForNextCard,
     850
   );
-
 }
 
 
-/* =========================================
-NEXT CARD
-========================================= */
+/* ===============================
+   NEXT CARD
+================================ */
 
 function resetForNextCard(){
 
-  currentCard =
-    null;
+  currentCard = null;
+  rankedMatches = [];
 
-  rankedMatches =
-    [];
-
-  manualNumber.value =
-    "";
+  manualNumber.value = "";
 
   manualError.style.display =
     "none";
@@ -1837,13 +1395,12 @@ function resetForNextCard(){
     top:0,
     behavior:"smooth"
   });
-
 }
 
 
-/* =========================================
-BUTTONS
-========================================= */
+/* ===============================
+   BUTTON EVENTS
+================================ */
 
 startButton.addEventListener(
   "click",
@@ -1864,16 +1421,12 @@ manualNumber.addEventListener(
   "keydown",
   event => {
 
-    if(
-      event.key === "Enter"
-    ){
+    if(event.key === "Enter"){
 
       event.preventDefault();
 
       findManualCard();
-
     }
-
   }
 );
 
@@ -1904,22 +1457,34 @@ wrongButton.addEventListener(
     selectedBox.style.display =
       "none";
 
-    candidateBox.style.display =
-      "block";
+    if(rankedMatches.length){
 
-    status.firstChild.textContent =
-      "Choose the correct card";
+      showCandidates();
 
-    progress.innerText =
-      "Select a candidate or enter the card number.";
+      status.firstChild.textContent =
+        "Choose the correct card";
 
+      progress.innerText =
+        "Select a candidate or enter the card number.";
+
+    }else{
+
+      candidateBox.style.display =
+        "block";
+
+      status.firstChild.textContent =
+        "Enter card number";
+
+      progress.innerText =
+        "Use the manual card number box.";
+    }
   }
 );
 
 
-/* =========================================
-CLEANUP
-========================================= */
+/* ===============================
+   CLEANUP
+================================ */
 
 window.addEventListener(
   "pagehide",
@@ -1930,19 +1495,16 @@ window.addEventListener(
       stream
       .getTracks()
       .forEach(
-        track =>
-          track.stop()
+        track => track.stop()
       );
-
     }
-
   }
 );
 
 
-/* =========================================
-INITIALIZE
-========================================= */
+/* ===============================
+   START
+================================ */
 
 initialize();
 
