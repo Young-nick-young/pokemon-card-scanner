@@ -178,6 +178,11 @@
       transform:scale(0.98);
     }
 
+    .variantButton:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+
     #wrongButton{
       width:100%;
       border:none;
@@ -282,6 +287,23 @@
       font-size:30px;
       font-weight:800;
       margin-top:1px;
+    }
+
+    #undoButton{
+      margin-top:8px;
+      padding:10px 15px;
+      border:none;
+      border-radius:10px;
+      background:#e9e9e9;
+      color:#333;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    #undoButton:disabled{
+      opacity:.4;
+      cursor:not-allowed;
     }
 
     canvas{
@@ -432,6 +454,13 @@
       0
     </div>
 
+    <button
+      id="undoButton"
+      disabled
+    >
+      ↶ UNDO LAST ADD
+    </button>
+
   </div>
 
 </div>
@@ -463,6 +492,8 @@ let currentMatches = [];
 
 let sessionCount = 0;
 
+let lastAdd = null;
+
 let cameraReady = false;
 let recognizerReady = false;
 let sheetReady = false;
@@ -471,9 +502,6 @@ let scanning = false;
 
 const video =
   document.getElementById("video");
-
-const cameraWrap =
-  document.getElementById("cameraWrap");
 
 const guide =
   document.getElementById("cardGuide");
@@ -522,6 +550,9 @@ const addMessage =
 
 const sessionCountElement =
   document.getElementById("sessionCount");
+
+const undoButton =
+  document.getElementById("undoButton");
 
 const captureCanvas =
   document.getElementById("captureCanvas");
@@ -1404,7 +1435,8 @@ function resetForNextCard(){
 
 function addQuantity(
   row,
-  variant
+  variant,
+  change = 1
 ){
 
   return new Promise(
@@ -1457,7 +1489,7 @@ function addQuantity(
           variant,
 
         change:
-          1
+          change
 
       };
 
@@ -1560,6 +1592,14 @@ async function chooseVariant(
     "block";
 
 
+  lastAdd = {
+    row:row,
+    variant:variant
+  };
+
+  undoButton.disabled = false;
+
+
   sessionCount++;
 
   sessionCountElement.textContent =
@@ -1568,7 +1608,8 @@ async function chooseVariant(
 
   await addQuantity(
     row,
-    variant
+    variant,
+    1
   );
 
 
@@ -1587,6 +1628,72 @@ async function chooseVariant(
     resetForNextCard();
 
   },350);
+
+}
+
+
+async function undoLastAdd(){
+
+  if(!lastAdd){
+    return;
+  }
+
+
+  const itemToUndo =
+    lastAdd;
+
+  lastAdd = null;
+
+  undoButton.disabled = true;
+
+  status.textContent =
+    "Undoing last add...";
+
+
+  try{
+
+    await addQuantity(
+      itemToUndo.row,
+      itemToUndo.variant,
+      -1
+    );
+
+
+    sessionCount =
+      Math.max(
+        0,
+        sessionCount - 1
+      );
+
+    sessionCountElement.textContent =
+      sessionCount;
+
+
+    status.textContent =
+      "✓ Last add undone";
+
+
+    setTimeout(()=>{
+
+      status.textContent =
+        "Ready for next card";
+
+    },800);
+
+  }catch(error){
+
+    console.error(error);
+
+    lastAdd =
+      itemToUndo;
+
+    undoButton.disabled =
+      false;
+
+    status.textContent =
+      "Undo failed";
+
+  }
 
 }
 
@@ -1671,6 +1778,12 @@ manualNumber.addEventListener(
     }
 
   }
+);
+
+
+undoButton.addEventListener(
+  "click",
+  undoLastAdd
 );
 
 
