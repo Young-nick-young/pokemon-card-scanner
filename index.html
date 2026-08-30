@@ -67,7 +67,9 @@ button{
   cursor:pointer;
 }
 
-button:disabled{opacity:.45}
+button:disabled{
+  opacity:.45;
+}
 
 #startButton{
   background:#222;
@@ -78,7 +80,9 @@ button:disabled{opacity:.45}
   display:none;
   background:#1976d2;
   color:white;
-  font-size:17px;
+  font-size:18px;
+  margin:0 0 8px;
+  padding:15px;
 }
 
 #cameraBox{
@@ -88,7 +92,7 @@ button:disabled{opacity:.45}
   overflow:hidden;
   background:#111;
   border-radius:13px;
-  margin-bottom:8px;
+  margin-bottom:7px;
 }
 
 #video{
@@ -97,7 +101,7 @@ button:disabled{opacity:.45}
   height:auto;
 }
 
-/* LOCKED 73 × 98 GUIDE */
+/* LOCKED WHITE GUIDE — DO NOT CHANGE */
 #cardGuide{
   position:absolute;
   width:73%;
@@ -123,7 +127,9 @@ button:disabled{opacity:.45}
   white-space:nowrap;
 }
 
-#cropCanvas{display:none}
+#cropCanvas{
+  display:none;
+}
 
 #resultBox{
   display:none;
@@ -259,7 +265,9 @@ button:disabled{opacity:.45}
   border-radius:5px;
 }
 
-.candidateInfo{flex:1}
+.candidateInfo{
+  flex:1;
+}
 
 .candidateName{
   font-size:14px;
@@ -349,10 +357,6 @@ button:disabled{opacity:.45}
     PLEASE WAIT...
   </button>
 
-  <button id="scanButton">
-    🔍 SCAN CARD
-  </button>
-
   <div id="sheetStatus">
     Connecting to Google Sheet...
   </div>
@@ -376,6 +380,10 @@ button:disabled{opacity:.45}
 
 </div>
 
+<button id="scanButton">
+  🔍 SCAN CARD
+</button>
+
 <canvas id="cropCanvas"></canvas>
 
 <div id="resultBox">
@@ -385,13 +393,11 @@ button:disabled{opacity:.45}
     <img id="selectedImage">
 
     <div class="cardDetails">
-
       <div id="selectedName"></div>
       <div id="selectedNumber"></div>
       <div id="selectedRarity"></div>
       <div id="selectedType"></div>
       <div id="recognitionInfo"></div>
-
     </div>
 
   </div>
@@ -489,10 +495,6 @@ button:disabled{opacity:.45}
 
 <script>
 
-/* =====================================================
-   SETTINGS
-===================================================== */
-
 const SCRIPT_URL =
 "https://script.google.com/a/macros/ikns.edu.bh/s/AKfycbwDF5oxhER534DF16jG94SHwJ9jS2ySAWJXIKgUsOpXjsdy26JKiu1FOIAsQnOqk_6f/exec";
 
@@ -506,29 +508,14 @@ const DENOMINATOR = 182;
 const UPLOAD_WIDTH = 360;
 const UPLOAD_HEIGHT = 483;
 
-
-/* =====================================================
-   STATE
-===================================================== */
-
 let inventoryCards = [];
 let inventoryByNumber = {};
-
 let stream = null;
-
 let rankedMatches = [];
-
 let currentCard = null;
 let currentRecognition = null;
-
 let sessionAdded = 0;
-
 let scanning = false;
-
-
-/* =====================================================
-   ELEMENTS
-===================================================== */
 
 const topStatus =
 document.getElementById("topStatus");
@@ -627,21 +614,15 @@ const sessionCount =
 document.getElementById("sessionCount");
 
 
-/* =====================================================
-   GOOGLE SHEET
-===================================================== */
-
 window.receiveCards = function(cards){
 
   inventoryCards = cards || [];
   inventoryByNumber = {};
 
   inventoryCards.forEach(card => {
-
     inventoryByNumber[
       Number(card.number)
     ] = card;
-
   });
 
   sheetStatus.innerText =
@@ -662,19 +643,13 @@ function loadInventory(){
     Date.now();
 
   script.onerror = function(){
-
     sheetStatus.innerText =
       "⚠ Google Sheet connection failed.";
-
   };
 
   document.body.appendChild(script);
 }
 
-
-/* =====================================================
-   INITIALIZE
-===================================================== */
 
 async function initialize(){
 
@@ -743,7 +718,6 @@ async function initialize(){
     }
 
     if(!data.library_ready){
-
       throw new Error(
         "Card library did not finish loading."
       );
@@ -754,7 +728,8 @@ async function initialize(){
       "Press START CAMERA."
     );
 
-    startButton.disabled = false;
+    startButton.disabled =
+      false;
 
     startButton.innerText =
       "📷 START CAMERA";
@@ -772,7 +747,6 @@ async function initialize(){
 
 
 function sleep(ms){
-
   return new Promise(
     resolve =>
       setTimeout(resolve,ms)
@@ -780,10 +754,7 @@ function sleep(ms){
 }
 
 
-function setStatus(
-  title,
-  message
-){
+function setStatus(title,message){
 
   topStatus.childNodes[0].nodeValue =
     title;
@@ -792,10 +763,6 @@ function setStatus(
     message;
 }
 
-
-/* =====================================================
-   CAMERA
-===================================================== */
 
 async function startCamera(){
 
@@ -852,10 +819,6 @@ async function startCamera(){
   }
 }
 
-
-/* =====================================================
-   CAPTURE WHITE GUIDE
-===================================================== */
 
 function captureGuide(){
 
@@ -953,10 +916,6 @@ function captureGuide(){
 }
 
 
-/* =====================================================
-   JPEG
-===================================================== */
-
 function canvasToBlob(canvas){
 
   return new Promise(
@@ -966,11 +925,8 @@ function canvasToBlob(canvas){
         blob => {
 
           if(blob){
-
             resolve(blob);
-
           }else{
-
             reject(
               new Error(
                 "Could not capture card."
@@ -979,7 +935,6 @@ function canvasToBlob(canvas){
           }
 
         },
-
         "image/jpeg",
         0.82
       );
@@ -987,10 +942,6 @@ function canvasToBlob(canvas){
   );
 }
 
-
-/* =====================================================
-   SERVER RECOGNITION
-===================================================== */
 
 async function recognizeCard(blob){
 
@@ -1041,9 +992,7 @@ async function recognizeCard(blob){
 
       }catch(error){}
 
-      throw new Error(
-        message
-      );
+      throw new Error(message);
     }
 
     return await response.json();
@@ -1051,7 +1000,6 @@ async function recognizeCard(blob){
   }catch(error){
 
     if(error.name === "AbortError"){
-
       throw new Error(
         "Recognition timed out. Scan again."
       );
@@ -1065,10 +1013,6 @@ async function recognizeCard(blob){
   }
 }
 
-
-/* =====================================================
-   SCAN
-===================================================== */
 
 async function scanCard(){
 
@@ -1105,10 +1049,8 @@ async function scanCard(){
   const slowMessage =
     setTimeout(
       () => {
-
         progress.innerText =
           "Still working — recognizer may be waking up.";
-
       },
       8000
     );
@@ -1137,7 +1079,6 @@ async function scanCard(){
       "matched" ||
       !result.best_match
     ){
-
       throw new Error(
         "No reliable card match found."
       );
@@ -1150,31 +1091,20 @@ async function scanCard(){
       (result.top_matches || [])
       .map(
         match => ({
-
           number:
-            Number(
-              match.number
-            ),
+            Number(match.number),
 
           good_matches:
-            Number(
-              match.good_matches || 0
-            ),
+            Number(match.good_matches || 0),
 
           inliers:
-            Number(
-              match.inliers || 0
-            ),
+            Number(match.inliers || 0),
 
           inlier_ratio:
-            Number(
-              match.inlier_ratio || 0
-            ),
+            Number(match.inlier_ratio || 0),
 
           score:
-            Number(
-              match.score || 0
-            )
+            Number(match.score || 0)
         })
       );
 
@@ -1225,7 +1155,8 @@ async function scanCard(){
 
   }finally{
 
-    scanning = false;
+    scanning =
+      false;
 
     scanButton.disabled =
       false;
@@ -1235,10 +1166,6 @@ async function scanCard(){
   }
 }
 
-
-/* =====================================================
-   SHOW RECOGNIZED CARD
-===================================================== */
 
 function showCard(
   number,
@@ -1318,12 +1245,9 @@ function showCard(
   updateCounts();
 
   if(card.reverse === null){
-
     reverseButton.style.display =
       "none";
-
   }else{
-
     reverseButton.style.display =
       "block";
   }
@@ -1335,10 +1259,6 @@ function showCard(
     "none";
 }
 
-
-/* =====================================================
-   COUNTS
-===================================================== */
 
 function updateCounts(){
 
@@ -1381,10 +1301,6 @@ function updateCounts(){
     );
 }
 
-
-/* =====================================================
-   ADD CARD
-===================================================== */
 
 function addCard(variant){
 
@@ -1435,18 +1351,10 @@ function addCard(variant){
     "none";
 
   const fields = {
-
-    action:
-      "changeQuantity",
-
-    row:
-      currentCard.row,
-
-    variant:
-      variant,
-
-    change:
-      1
+    action:"changeQuantity",
+    row:currentCard.row,
+    variant:variant,
+    change:1
   };
 
   Object.entries(
@@ -1496,21 +1404,12 @@ function addCard(variant){
     "Replace the card with the next one."
   );
 
-  /*
-    Very short confirmation.
-    Then immediately return to scanning.
-  */
-
   setTimeout(
     prepareNextCard,
     650
   );
 }
 
-
-/* =====================================================
-   PREPARE NEXT CARD
-===================================================== */
 
 function prepareNextCard(){
 
@@ -1545,13 +1444,7 @@ function prepareNextCard(){
     "Replace the card, then tap SCAN CARD."
   );
 
-  /*
-    Keep the page positioned around
-    the camera/scanner rather than
-    jumping down the page.
-  */
-
-  cameraBox.scrollIntoView({
+  scanButton.scrollIntoView({
     behavior:"smooth",
     block:"center"
   });
@@ -1575,10 +1468,6 @@ function disableVariantButtons(
     disabled;
 }
 
-
-/* =====================================================
-   CANDIDATES
-===================================================== */
 
 function showCandidates(){
 
@@ -1684,29 +1573,13 @@ function showCandidates(){
       choose.innerText =
         "›";
 
-      info.appendChild(
-        name
-      );
+      info.appendChild(name);
+      info.appendChild(number);
+      info.appendChild(score);
 
-      info.appendChild(
-        number
-      );
-
-      info.appendChild(
-        score
-      );
-
-      row.appendChild(
-        image
-      );
-
-      row.appendChild(
-        info
-      );
-
-      row.appendChild(
-        choose
-      );
+      row.appendChild(image);
+      row.appendChild(info);
+      row.appendChild(choose);
 
       row.addEventListener(
         "click",
@@ -1734,10 +1607,6 @@ function showCandidates(){
     "block";
 }
 
-
-/* =====================================================
-   MANUAL CARD
-===================================================== */
 
 function findManualCard(){
 
@@ -1790,10 +1659,6 @@ function findManualCard(){
   );
 }
 
-
-/* =====================================================
-   EVENTS
-===================================================== */
 
 startButton.addEventListener(
   "click",
@@ -1877,10 +1742,6 @@ manualNumber.addEventListener(
 );
 
 
-/* =====================================================
-   CLEANUP
-===================================================== */
-
 window.addEventListener(
   "pagehide",
   () => {
@@ -1897,10 +1758,6 @@ window.addEventListener(
   }
 );
 
-
-/* =====================================================
-   START
-===================================================== */
 
 initialize();
 
