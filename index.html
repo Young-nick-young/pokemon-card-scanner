@@ -1,683 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1, viewport-fit=cover"
->
-
-<title>Pokémon Card Scanner</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<title>Pokémon Inventory Scanner</title>
 
 <style>
+*{box-sizing:border-box}
 
-* {
-  box-sizing: border-box;
+body{
+  margin:0;
+  padding:12px;
+  font-family:Arial,sans-serif;
+  background:#f3f3f3;
+  color:#222;
 }
 
-body {
-
-  margin: 0;
-  padding: 12px;
-
-  font-family:
-    Arial,
-    sans-serif;
-
-  background:
-    #f4f4f4;
-
-  color:
-    #222;
-
+.container{
+  width:100%;
+  max-width:520px;
+  margin:auto;
 }
 
-.container {
-
-  width: 100%;
-  max-width: 520px;
-
-  margin: auto;
-
+h1{
+  text-align:center;
+  font-size:21px;
+  margin:5px 0 12px;
 }
 
-h1 {
-
-  text-align: center;
-
-  font-size: 21px;
-
-  margin:
-    6px 0 14px;
-
+.box{
+  background:white;
+  border-radius:14px;
+  padding:13px;
+  margin-bottom:10px;
 }
 
-.box {
-
-  background:
-    white;
-
-  padding:
-    13px;
-
-  border-radius:
-    14px;
-
-  margin-bottom:
-    10px;
-
+#status{
+  text-align:center;
+  font-weight:bold;
 }
 
-#status {
-
-  text-align:
-    center;
-
-  line-height:
-    1.45;
-
-  font-weight:
-    bold;
-
+#progress{
+  margin-top:6px;
+  font-size:12px;
+  font-weight:normal;
+  color:#666;
 }
 
-#progress {
-
-  margin-top:
-    7px;
-
-  font-size:
-    12px;
-
-  font-weight:
-    normal;
-
-  color:
-    #666;
-
+#sheetStatus{
+  margin-top:7px;
+  text-align:center;
+  font-size:11px;
+  color:#777;
 }
 
-
-button {
-
-  width:
-    100%;
-
-  padding:
-    14px;
-
-  border:
-    0;
-
-  border-radius:
-    10px;
-
-  font-size:
-    16px;
-
-  font-weight:
-    bold;
-
-  margin-top:
-    8px;
-
-  cursor:
-    pointer;
-
+button{
+  width:100%;
+  padding:14px;
+  margin-top:8px;
+  border:0;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-
-button:disabled {
-
-  opacity:
-    .55;
-
+button:disabled{
+  opacity:.5;
 }
 
-
-#startButton {
-
-  background:
-    #222;
-
-  color:
-    white;
-
+#startButton{
+  background:#222;
+  color:white;
 }
 
-
-#scanButton {
-
-  background:
-    #1976d2;
-
-  color:
-    white;
-
-  display:
-    none;
-
+#scanButton{
+  display:none;
+  background:#1976d2;
+  color:white;
 }
 
-
-#wrongButton {
-
-  background:
-    #eeeeee;
-
-  color:
-    #333;
-
+#cameraBox{
+  display:none;
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  background:#111;
+  border-radius:14px;
+  margin-bottom:10px;
 }
 
-
-#cameraBox {
-
-  display:
-    none;
-
-  position:
-    relative;
-
-  width:
-    100%;
-
-  overflow:
-    hidden;
-
-  background:
-    #111;
-
-  border-radius:
-    14px;
-
-  margin-bottom:
-    10px;
-
+#video{
+  display:block;
+  width:100%;
+  height:auto;
 }
 
-
-#video {
-
-  display:
-    block;
-
-  width:
-    100%;
-
-  height:
-    auto;
-
+/* LOCKED 73 × 98 GUIDE — DO NOT CHANGE */
+#cardGuide{
+  position:absolute;
+  width:73%;
+  aspect-ratio:73 / 98;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  border:3px solid white;
+  border-radius:14px;
+  pointer-events:none;
 }
 
-
-/*
-LOCKED WHITE FRAME.
-
-73 mm × 98 mm ratio.
-
-DO NOT CHANGE.
-*/
-
-#cardGuide {
-
-  position:
-    absolute;
-
-  width:
-    73%;
-
-  aspect-ratio:
-    73 / 98;
-
-  left:
-    50%;
-
-  top:
-    50%;
-
-  transform:
-    translate(
-      -50%,
-      -50%
-    );
-
-  border:
-    3px solid white;
-
-  border-radius:
-    14px;
-
-  pointer-events:
-    none;
-
+#guideText{
+  position:absolute;
+  top:8px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.7);
+  color:white;
+  border-radius:20px;
+  padding:6px 10px;
+  font-size:11px;
+  white-space:nowrap;
 }
 
-
-#guideText {
-
-  position:
-    absolute;
-
-  top:
-    8px;
-
-  left:
-    50%;
-
-  transform:
-    translateX(-50%);
-
-  padding:
-    6px 10px;
-
-  background:
-    rgba(
-      0,
-      0,
-      0,
-      .7
-    );
-
-  color:
-    white;
-
-  border-radius:
-    20px;
-
-  font-size:
-    11px;
-
-  white-space:
-    nowrap;
-
+#cropCanvas{
+  display:none;
 }
 
+/* CANDIDATES */
 
-#cropCanvas {
-
-  display:
-    none;
-
+#candidateBox{
+  display:none;
 }
 
-
-/*
-=================================================
-IDENTIFIED CARD
-=================================================
-*/
-
-#identifiedCard {
-
-  display:
-    none;
-
+.sectionTitle{
+  font-size:15px;
+  font-weight:bold;
+  margin-bottom:5px;
 }
 
-
-.cardResult {
-
-  display:
-    flex;
-
-  gap:
-    14px;
-
-  align-items:
-    flex-start;
-
+.helpText{
+  font-size:12px;
+  color:#666;
+  margin-bottom:9px;
 }
 
-
-#identifiedImage {
-
-  width:
-    115px;
-
-  border-radius:
-    8px;
-
+.candidate{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:9px;
+  margin-top:8px;
+  border:2px solid #ddd;
+  border-radius:11px;
+  background:#fafafa;
+  cursor:pointer;
 }
 
-
-.cardInfo {
-
-  flex:
-    1;
-
+.candidate:first-child{
+  border-color:#8ab4f8;
+  background:#eef5ff;
 }
 
-
-#identifiedName {
-
-  font-size:
-    20px;
-
-  font-weight:
-    bold;
-
-  margin-bottom:
-    4px;
-
+.candidate img{
+  width:68px;
+  border-radius:6px;
 }
 
-
-#identifiedNumber {
-
-  font-size:
-    16px;
-
-  font-weight:
-    bold;
-
+.candidateInfo{
+  flex:1;
 }
 
-
-#identifiedRarity,
-#identifiedType {
-
-  margin-top:
-    4px;
-
-  color:
-    #666;
-
-  font-size:
-    13px;
-
+.candidateName{
+  font-size:16px;
+  font-weight:bold;
 }
 
-
-.confidence {
-
-  margin-top:
-    8px;
-
-  font-size:
-    11px;
-
-  color:
-    #888;
-
+.candidateNumber{
+  margin-top:3px;
+  font-size:14px;
 }
 
-
-/*
-=================================================
-QUANTITY BUTTONS
-=================================================
-*/
-
-.variantTitle {
-
-  margin-top:
-    14px;
-
-  margin-bottom:
-    5px;
-
-  font-size:
-    13px;
-
-  font-weight:
-    bold;
-
+.candidateScore{
+  margin-top:4px;
+  font-size:11px;
+  color:#888;
 }
 
-
-.variantButton {
-
-  display:
-    flex;
-
-  justify-content:
-    space-between;
-
-  align-items:
-    center;
-
-  background:
-    #1976d2;
-
-  color:
-    white;
-
+.choose{
+  font-size:22px;
 }
 
+/* MANUAL */
 
-.variantButton.reverse {
-
-  background:
-    #7b1fa2;
-
+#manualArea{
+  margin-top:15px;
+  padding-top:12px;
+  border-top:1px solid #ddd;
 }
 
-
-.variantButton.holo {
-
-  background:
-    #00897b;
-
+.manualRow{
+  display:flex;
+  gap:7px;
 }
 
-
-.variantButton.other {
-
-  background:
-    #555;
-
+#manualNumber{
+  flex:1;
+  min-width:0;
+  padding:13px;
+  border:1px solid #bbb;
+  border-radius:9px;
+  font-size:17px;
 }
 
-
-.variantButton span {
-
-  font-size:
-    14px;
-
+#manualButton{
+  width:auto;
+  margin:0;
+  background:#444;
+  color:white;
+  padding:12px 16px;
 }
 
-
-.count {
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      .22
-    );
-
-  padding:
-    4px 9px;
-
-  border-radius:
-    20px;
-
+#manualError{
+  display:none;
+  color:#b00020;
+  font-size:12px;
+  margin-top:7px;
 }
 
+/* SELECTED CARD */
 
-#saveMessage {
-
-  display:
-    none;
-
-  margin-top:
-    10px;
-
-  padding:
-    10px;
-
-  background:
-    #e5f6e9;
-
-  border-radius:
-    8px;
-
-  text-align:
-    center;
-
-  font-weight:
-    bold;
-
-  color:
-    #176b2c;
-
+#selectedBox{
+  display:none;
 }
 
-
-/*
-=================================================
-TOP MATCHES / CORRECTION
-=================================================
-*/
-
-#correctionArea {
-
-  display:
-    none;
-
-  margin-top:
-    12px;
-
+.cardHeader{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
 }
 
-
-.correctionCard {
-
-  display:
-    flex;
-
-  align-items:
-    center;
-
-  gap:
-    10px;
-
-  background:
-    #eee;
-
-  border-radius:
-    9px;
-
-  padding:
-    8px;
-
-  margin-top:
-    7px;
-
-  cursor:
-    pointer;
-
+#selectedImage{
+  width:115px;
+  border-radius:8px;
 }
 
-
-.correctionCard img {
-
-  width:
-    48px;
-
-  border-radius:
-    5px;
-
+.cardDetails{
+  flex:1;
 }
 
-
-.correctionText {
-
-  flex:
-    1;
-
+#selectedName{
+  font-size:20px;
+  font-weight:bold;
 }
 
-
-.correctionName {
-
-  font-weight:
-    bold;
-
+#selectedNumber{
+  margin-top:4px;
+  font-size:16px;
+  font-weight:bold;
 }
 
-
-.correctionNumber {
-
-  font-size:
-    12px;
-
-  color:
-    #666;
-
+#selectedRarity,
+#selectedType{
+  margin-top:4px;
+  font-size:13px;
+  color:#666;
 }
 
+.variantTitle{
+  margin-top:14px;
+  font-size:13px;
+  font-weight:bold;
+}
 
-#sheetStatus {
+.variant{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:white;
+}
 
-  margin-top:
-    8px;
+#normalButton{background:#1976d2}
+#reverseButton{background:#7b1fa2}
+#holoButton{background:#00897b}
+#otherButton{background:#555}
 
-  font-size:
-    11px;
+.count{
+  background:rgba(255,255,255,.22);
+  padding:4px 9px;
+  border-radius:20px;
+}
 
-  color:
-    #777;
+#wrongButton{
+  background:#eee;
+  color:#333;
+}
 
-  text-align:
-    center;
-
+#saved{
+  display:none;
+  margin-top:10px;
+  padding:11px;
+  border-radius:9px;
+  background:#e3f5e7;
+  color:#176b2c;
+  text-align:center;
+  font-weight:bold;
 }
 
 </style>
-
 </head>
-
 
 <body>
 
-
 <div class="container">
 
-
-<h1>
-  Pokémon Card Scanner
-</h1>
-
+<h1>Pokémon Inventory Scanner</h1>
 
 <div class="box">
 
   <div id="status">
-
     Preparing scanner...
-
-    <div id="progress">
-      Loading recognition engine.
-    </div>
-
+    <div id="progress">Loading recognition engine.</div>
   </div>
 
-
-  <button
-    id="startButton"
-    disabled
-  >
+  <button id="startButton" disabled>
     PLEASE WAIT...
   </button>
 
-
   <button id="scanButton">
-    🔍 IDENTIFY CARD
+    🔍 SCAN CARD
   </button>
 
-
   <div id="sheetStatus">
-    Loading Google Sheet inventory...
+    Connecting to Google Sheet...
   </div>
 
 </div>
-
 
 <div id="cameraBox">
 
@@ -685,8 +343,8 @@ TOP MATCHES / CORRECTION
     id="video"
     autoplay
     muted
-    playsinline
-  ></video>
+    playsinline>
+  </video>
 
   <div id="cardGuide"></div>
 
@@ -696,476 +354,286 @@ TOP MATCHES / CORRECTION
 
 </div>
 
-
 <canvas id="cropCanvas"></canvas>
 
 
-<div
-  id="identifiedCard"
-  class="box"
->
+<!-- CANDIDATE CHOICE -->
 
-  <div class="cardResult">
+<div id="candidateBox" class="box">
 
-    <img
-      id="identifiedImage"
-      alt="Identified card"
-    >
+  <div class="sectionTitle">
+    Which card is this?
+  </div>
 
-    <div class="cardInfo">
+  <div class="helpText">
+    Tap the correct card.
+  </div>
 
-      <div id="identifiedName">
-        Card
-      </div>
+  <div id="candidateList"></div>
 
-      <div id="identifiedNumber">
-        #000/182
-      </div>
+  <div id="manualArea">
 
-      <div id="identifiedRarity"></div>
+    <div class="helpText">
+      Not listed? Enter the card number.
+    </div>
 
-      <div id="identifiedType"></div>
+    <div class="manualRow">
 
-      <div
-        id="confidence"
-        class="confidence"
-      ></div>
+      <input
+        id="manualNumber"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        placeholder="e.g. 153">
+
+      <button id="manualButton">
+        FIND
+      </button>
+
+    </div>
+
+    <div id="manualError">
+      Card number not found.
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- SELECTED CARD -->
+
+<div id="selectedBox" class="box">
+
+  <div class="cardHeader">
+
+    <img id="selectedImage">
+
+    <div class="cardDetails">
+
+      <div id="selectedName"></div>
+
+      <div id="selectedNumber"></div>
+
+      <div id="selectedRarity"></div>
+
+      <div id="selectedType"></div>
 
     </div>
 
   </div>
 
-
   <div class="variantTitle">
-    ADD THIS CARD TO INVENTORY
+    WHICH VERSION ARE YOU ADDING?
   </div>
 
-
-  <button
-    id="normalButton"
-    class="variantButton"
-  >
-
-    <span>
-      + NORMAL
-    </span>
-
-    <span
-      id="normalCount"
-      class="count"
-    >
-      0
-    </span>
-
+  <button id="normalButton" class="variant">
+    <span>+ NORMAL</span>
+    <span id="normalCount" class="count">0</span>
   </button>
 
-
-  <button
-    id="reverseButton"
-    class="variantButton reverse"
-  >
-
-    <span>
-      + REVERSE HOLO
-    </span>
-
-    <span
-      id="reverseCount"
-      class="count"
-    >
-      0
-    </span>
-
+  <button id="reverseButton" class="variant">
+    <span>+ REVERSE HOLO</span>
+    <span id="reverseCount" class="count">0</span>
   </button>
 
-
-  <button
-    id="holoButton"
-    class="variantButton holo"
-  >
-
-    <span>
-      + HOLO
-    </span>
-
-    <span
-      id="holoCount"
-      class="count"
-    >
-      0
-    </span>
-
+  <button id="holoButton" class="variant">
+    <span>+ HOLO</span>
+    <span id="holoCount" class="count">0</span>
   </button>
 
-
-  <button
-    id="otherButton"
-    class="variantButton other"
-  >
-
-    <span>
-      + OTHER
-    </span>
-
-    <span
-      id="otherCount"
-      class="count"
-    >
-      0
-    </span>
-
+  <button id="otherButton" class="variant">
+    <span>+ OTHER</span>
+    <span id="otherCount" class="count">0</span>
   </button>
 
-
-  <div id="saveMessage">
+  <div id="saved">
     ✓ Added to Google Sheet
   </div>
 
-
   <button id="wrongButton">
-    WRONG CARD / SHOW OTHER MATCHES
+    ← WRONG CARD
   </button>
 
-
-  <div id="correctionArea">
-
-    <strong>
-      Other possible matches
-    </strong>
-
-    <div id="correctionMatches"></div>
-
-  </div>
+</div>
 
 </div>
 
-
-</div>
-
-
-<!--
-Hidden iframe receives Apps Script POSTs.
-
-This lets the GitHub page update the Google Sheet
-without exposing anything sensitive in the browser.
--->
 
 <iframe
   name="sheetUpdateFrame"
   id="sheetUpdateFrame"
-  style="display:none;"
-></iframe>
+  style="display:none">
+</iframe>
 
 
 <script type="module">
 
-
 import {
   pipeline,
   RawImage
-}
-from
-"https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
 
-/*
-=================================================
+/* =========================================
 SETTINGS
-=================================================
-*/
-
+========================================= */
 
 const SCRIPT_URL =
-  "https://script.google.com/a/macros/ikns.edu.bh/s/AKfycbwDF5oxhER534DF16jG94SHwJ9jS2ySAWJXIKgUsOpXjsdy26JKiu1FOIAsQnOqk_6f/exec";
-
+"https://script.google.com/a/macros/ikns.edu.bh/s/AKfycbwDF5oxhER534DF16jG94SHwJ9jS2ySAWJXIKgUsOpXjsdy26JKiu1FOIAsQnOqk_6f/exec";
 
 const MODEL =
-  "onnx-community/dinov2-small";
+"onnx-community/dinov2-small";
+
+const MAX_CARD = 244;
+
+const IMAGE_SET = "sv10";
+
+const DENOMINATOR = 182;
 
 
-const MAX_CARD =
-  244;
-
-
-const IMAGE_SET =
-  "sv10";
-
-
-const DENOMINATOR =
-  182;
-
-
-/*
-=================================================
+/* =========================================
 STATE
-=================================================
-*/
+========================================= */
+
+let extractor = null;
+
+let references = [];
+
+let inventoryCards = [];
+
+let inventoryByNumber = {};
+
+let stream = null;
+
+let rankedMatches = [];
+
+let currentCard = null;
 
 
-let extractor =
-  null;
-
-
-let references =
-  [];
-
-
-let inventoryCards =
-  [];
-
-
-let inventoryByNumber =
-  {};
-
-
-let stream =
-  null;
-
-
-let rankedMatches =
-  [];
-
-
-let currentCard =
-  null;
-
-
-/*
-=================================================
+/* =========================================
 ELEMENTS
-=================================================
-*/
-
+========================================= */
 
 const status =
-  document.getElementById(
-    "status"
-  );
-
+document.getElementById("status");
 
 const progress =
-  document.getElementById(
-    "progress"
-  );
-
-
-const startButton =
-  document.getElementById(
-    "startButton"
-  );
-
-
-const scanButton =
-  document.getElementById(
-    "scanButton"
-  );
-
-
-const video =
-  document.getElementById(
-    "video"
-  );
-
-
-const cameraBox =
-  document.getElementById(
-    "cameraBox"
-  );
-
-
-const cardGuide =
-  document.getElementById(
-    "cardGuide"
-  );
-
-
-const cropCanvas =
-  document.getElementById(
-    "cropCanvas"
-  );
-
-
-const identifiedCard =
-  document.getElementById(
-    "identifiedCard"
-  );
-
-
-const identifiedImage =
-  document.getElementById(
-    "identifiedImage"
-  );
-
-
-const identifiedName =
-  document.getElementById(
-    "identifiedName"
-  );
-
-
-const identifiedNumber =
-  document.getElementById(
-    "identifiedNumber"
-  );
-
-
-const identifiedRarity =
-  document.getElementById(
-    "identifiedRarity"
-  );
-
-
-const identifiedType =
-  document.getElementById(
-    "identifiedType"
-  );
-
-
-const confidence =
-  document.getElementById(
-    "confidence"
-  );
-
-
-const normalButton =
-  document.getElementById(
-    "normalButton"
-  );
-
-
-const reverseButton =
-  document.getElementById(
-    "reverseButton"
-  );
-
-
-const holoButton =
-  document.getElementById(
-    "holoButton"
-  );
-
-
-const otherButton =
-  document.getElementById(
-    "otherButton"
-  );
-
-
-const normalCount =
-  document.getElementById(
-    "normalCount"
-  );
-
-
-const reverseCount =
-  document.getElementById(
-    "reverseCount"
-  );
-
-
-const holoCount =
-  document.getElementById(
-    "holoCount"
-  );
-
-
-const otherCount =
-  document.getElementById(
-    "otherCount"
-  );
-
-
-const saveMessage =
-  document.getElementById(
-    "saveMessage"
-  );
-
-
-const wrongButton =
-  document.getElementById(
-    "wrongButton"
-  );
-
-
-const correctionArea =
-  document.getElementById(
-    "correctionArea"
-  );
-
-
-const correctionMatches =
-  document.getElementById(
-    "correctionMatches"
-  );
-
+document.getElementById("progress");
 
 const sheetStatus =
-  document.getElementById(
-    "sheetStatus"
-  );
+document.getElementById("sheetStatus");
+
+const startButton =
+document.getElementById("startButton");
+
+const scanButton =
+document.getElementById("scanButton");
+
+const cameraBox =
+document.getElementById("cameraBox");
+
+const video =
+document.getElementById("video");
+
+const cardGuide =
+document.getElementById("cardGuide");
+
+const cropCanvas =
+document.getElementById("cropCanvas");
+
+const candidateBox =
+document.getElementById("candidateBox");
+
+const candidateList =
+document.getElementById("candidateList");
+
+const manualNumber =
+document.getElementById("manualNumber");
+
+const manualButton =
+document.getElementById("manualButton");
+
+const manualError =
+document.getElementById("manualError");
+
+const selectedBox =
+document.getElementById("selectedBox");
+
+const selectedImage =
+document.getElementById("selectedImage");
+
+const selectedName =
+document.getElementById("selectedName");
+
+const selectedNumber =
+document.getElementById("selectedNumber");
+
+const selectedRarity =
+document.getElementById("selectedRarity");
+
+const selectedType =
+document.getElementById("selectedType");
+
+const normalButton =
+document.getElementById("normalButton");
+
+const reverseButton =
+document.getElementById("reverseButton");
+
+const holoButton =
+document.getElementById("holoButton");
+
+const otherButton =
+document.getElementById("otherButton");
+
+const normalCount =
+document.getElementById("normalCount");
+
+const reverseCount =
+document.getElementById("reverseCount");
+
+const holoCount =
+document.getElementById("holoCount");
+
+const otherCount =
+document.getElementById("otherCount");
+
+const saved =
+document.getElementById("saved");
+
+const wrongButton =
+document.getElementById("wrongButton");
 
 
-/*
-=================================================
-GOOGLE SHEET CARD DATABASE
+/* =========================================
+GOOGLE SHEET DATABASE
+========================================= */
 
-Apps Script returns data using JSONP.
-This avoids cross-origin fetch problems.
-=================================================
-*/
+window.receiveCards = function(cards){
 
+  inventoryCards =
+    cards || [];
 
-window.receiveCards =
-  function(cards) {
+  inventoryByNumber = {};
 
-    inventoryCards =
-      cards || [];
+  inventoryCards.forEach(card => {
 
+    inventoryByNumber[
+      Number(card.number)
+    ] = card;
 
-    inventoryByNumber =
-      {};
+  });
 
+  sheetStatus.innerText =
+    `✓ Google Sheet connected • ${inventoryCards.length} cards`;
 
-    inventoryCards.forEach(
-      card => {
-
-        inventoryByNumber[
-          Number(card.number)
-        ] =
-          card;
-
-      }
-    );
+};
 
 
-    sheetStatus.innerText =
-      `✓ Google Sheet connected • ${inventoryCards.length} cards`;
-
-  };
-
-
-function loadInventoryFromSheet() {
-
-  const oldScript =
-    document.getElementById(
-      "sheetDataScript"
-    );
-
-
-  if (oldScript) {
-    oldScript.remove();
-  }
-
+function loadInventory(){
 
   const script =
-    document.createElement(
-      "script"
-    );
-
-
-  script.id =
-    "sheetDataScript";
-
+    document.createElement("script");
 
   script.src =
     SCRIPT_URL +
@@ -1174,34 +642,26 @@ function loadInventoryFromSheet() {
     "&t=" +
     Date.now();
 
+  script.onerror = () => {
 
-  script.onerror =
-    function() {
+    sheetStatus.innerText =
+      "⚠ Google Sheet connection failed.";
 
-      sheetStatus.innerText =
-        "⚠ Could not load Google Sheet inventory.";
+  };
 
-    };
-
-
-  document.body.appendChild(
-    script
-  );
+  document.body.appendChild(script);
 
 }
 
 
-/*
-=================================================
+/* =========================================
 INDEXED DB
-=================================================
-*/
+========================================= */
 
-
-function openDatabase() {
+function openDatabase(){
 
   return new Promise(
-    (resolve, reject) => {
+    (resolve,reject) => {
 
       const request =
         indexedDB.open(
@@ -1209,41 +669,27 @@ function openDatabase() {
           1
         );
 
-
       request.onupgradeneeded =
         event => {
 
           const db =
             event.target.result;
 
-
-          if (
+          if(
             !db.objectStoreNames.contains(
               "data"
             )
-          ) {
-
-            db.createObjectStore(
-              "data"
-            );
-
+          ){
+            db.createObjectStore("data");
           }
 
         };
 
-
       request.onsuccess =
-        () =>
-          resolve(
-            request.result
-          );
-
+        () => resolve(request.result);
 
       request.onerror =
-        () =>
-          reject(
-            request.error
-          );
+        () => reject(request.error);
 
     }
   );
@@ -1251,13 +697,12 @@ function openDatabase() {
 }
 
 
-async function loadCachedReferences() {
+async function loadCachedReferences(){
 
-  try {
+  try{
 
     const db =
       await openDatabase();
-
 
     return await new Promise(
       resolve => {
@@ -1268,39 +713,25 @@ async function loadCachedReferences() {
             "readonly"
           );
 
-
-        const store =
-          transaction.objectStore(
-            "data"
-          );
-
-
         const request =
-          store.get(
+          transaction
+          .objectStore("data")
+          .get(
             "destined-rivals-dinov2-v1"
           );
 
-
         request.onsuccess =
-          () =>
-            resolve(
-              request.result ||
-              null
-            );
-
+          () => resolve(
+            request.result || null
+          );
 
         request.onerror =
-          () =>
-            resolve(
-              null
-            );
+          () => resolve(null);
 
       }
     );
 
-  }
-
-  catch {
+  }catch{
 
     return null;
 
@@ -1309,18 +740,15 @@ async function loadCachedReferences() {
 }
 
 
-async function saveCachedReferences(
-  data
-) {
+async function saveCachedReferences(data){
 
-  try {
+  try{
 
     const db =
       await openDatabase();
 
-
     await new Promise(
-      (resolve, reject) => {
+      (resolve,reject) => {
 
         const transaction =
           db.transaction(
@@ -1328,110 +756,79 @@ async function saveCachedReferences(
             "readwrite"
           );
 
-
         transaction
-          .objectStore(
-            "data"
-          )
+          .objectStore("data")
           .put(
             data,
             "destined-rivals-dinov2-v1"
           );
 
-
         transaction.oncomplete =
           resolve;
 
-
         transaction.onerror =
-          () =>
-            reject(
-              transaction.error
-            );
+          () => reject(
+            transaction.error
+          );
 
       }
     );
 
-  }
+  }catch(error){
 
-  catch (error) {
-
-    console.warn(
-      "Reference cache error:",
-      error
-    );
+    console.warn(error);
 
   }
 
 }
 
 
-/*
-=================================================
-VECTOR HELPERS
-=================================================
-*/
+/* =========================================
+VECTOR FUNCTIONS
+========================================= */
 
+function normalizeVector(array){
 
-function normalizeVector(
-  array
-) {
+  let magnitude = 0;
 
-  let magnitude =
-    0;
-
-
-  for (
-    let i = 0;
-    i < array.length;
+  for(
+    let i=0;
+    i<array.length;
     i++
-  ) {
+  ){
 
     magnitude +=
-      array[i] *
-      array[i];
+      array[i] * array[i];
 
   }
 
-
   magnitude =
-    Math.sqrt(
-      magnitude
-    ) || 1;
-
+    Math.sqrt(magnitude) || 1;
 
   const result =
     new Float32Array(
       array.length
     );
 
-
-  for (
-    let i = 0;
-    i < array.length;
+  for(
+    let i=0;
+    i<array.length;
     i++
-  ) {
+  ){
 
     result[i] =
-      array[i] /
-      magnitude;
+      array[i] / magnitude;
 
   }
-
 
   return result;
 
 }
 
 
-function cosineSimilarity(
-  a,
-  b
-) {
+function cosineSimilarity(a,b){
 
-  let score =
-    0;
-
+  let score = 0;
 
   const length =
     Math.min(
@@ -1439,122 +836,99 @@ function cosineSimilarity(
       b.length
     );
 
-
-  for (
-    let i = 0;
-    i < length;
+  for(
+    let i=0;
+    i<length;
     i++
-  ) {
+  ){
 
     score +=
-      a[i] *
-      b[i];
+      a[i] * b[i];
 
   }
-
 
   return score;
 
 }
 
 
-/*
-=================================================
-IMAGE EMBEDDING
-=================================================
-*/
+/* =========================================
+EMBEDDING
+========================================= */
 
-
-async function getEmbedding(
-  image
-) {
+async function getEmbedding(image){
 
   const output =
     await extractor(
       image,
       {
-        pooling:
-          "mean",
-
-        normalize:
-          true
+        pooling:"mean",
+        normalize:true
       }
     );
-
 
   const data =
     output.data;
 
-
-  if (
+  if(
     !data ||
     !data.length
-  ) {
+  ){
 
     throw new Error(
-      "Recognition model returned no image features."
+      "No image features returned."
     );
 
   }
 
-
-  if (
+  if(
     output.dims &&
     output.dims.length === 3
-  ) {
+  ){
 
     const tokenCount =
       output.dims[1];
 
-
     const dimension =
       output.dims[2];
-
 
     const pooled =
       new Float32Array(
         dimension
       );
 
-
-    for (
-      let token = 0;
-      token < tokenCount;
+    for(
+      let token=0;
+      token<tokenCount;
       token++
-    ) {
+    ){
 
       const offset =
-        token *
-        dimension;
+        token * dimension;
 
-
-      for (
-        let d = 0;
-        d < dimension;
+      for(
+        let d=0;
+        d<dimension;
         d++
-      ) {
+      ){
 
         pooled[d] +=
-          data[
-            offset + d
-          ];
+          data[offset+d];
 
       }
 
     }
 
-
-    for (
-      let d = 0;
-      d < dimension;
+    for(
+      let d=0;
+      d<dimension;
       d++
-    ) {
+    ){
 
       pooled[d] /=
         tokenCount;
 
     }
-
 
     return normalizeVector(
       pooled
@@ -1562,53 +936,38 @@ async function getEmbedding(
 
   }
 
-
-  return normalizeVector(
-    data
-  );
+  return normalizeVector(data);
 
 }
 
 
-/*
-=================================================
-REFERENCE LIBRARY
-=================================================
-*/
+/* =========================================
+REFERENCE CARDS
+========================================= */
 
-
-async function getReferenceImage(
-  number
-) {
-
-  const url =
-    `https://images.pokemontcg.io/${IMAGE_SET}/${number}.png`;
-
+async function getReferenceImage(number){
 
   return await RawImage.fromURL(
-    url
+    `https://images.pokemontcg.io/${IMAGE_SET}/${number}.png`
   );
 
 }
 
 
-async function prepareReferences() {
+async function prepareReferences(){
 
   const cached =
     await loadCachedReferences();
 
-
-  if (
+  if(
     cached &&
     cached.length === MAX_CARD
-  ) {
+  ){
 
     references =
       cached.map(
         item => ({
-          number:
-            item.number,
-
+          number:item.number,
           vector:
             new Float32Array(
               item.vector
@@ -1616,55 +975,44 @@ async function prepareReferences() {
         })
       );
 
-
     progress.innerText =
-      "244 reference cards loaded from phone cache.";
-
+      "244 reference cards loaded.";
 
     return;
 
   }
 
+  references = [];
 
-  references =
-    [];
-
-
-  for (
-    let number = 1;
-    number <= MAX_CARD;
+  for(
+    let number=1;
+    number<=MAX_CARD;
     number++
-  ) {
+  ){
 
     progress.innerText =
-      `Preparing Destined Rivals cards: ${number} / ${MAX_CARD}`;
+      `Preparing cards: ${number} / ${MAX_CARD}`;
 
-
-    try {
+    try{
 
       const image =
         await getReferenceImage(
           number
         );
 
-
       const vector =
         await getEmbedding(
           image
         );
-
 
       references.push({
         number,
         vector
       });
 
-    }
-
-    catch (error) {
+    }catch(error){
 
       console.error(
-        "Reference failed:",
         number,
         error
       );
@@ -1673,204 +1021,140 @@ async function prepareReferences() {
 
   }
 
-
-  if (
+  if(
     references.length < 230
-  ) {
+  ){
 
     throw new Error(
-      `Only ${references.length} of 244 reference cards were prepared.`
+      "Reference library failed."
     );
 
   }
 
+  await saveCachedReferences(
 
-  const cacheData =
     references.map(
       item => ({
-        number:
-          item.number,
-
+        number:item.number,
         vector:
           Array.from(
             item.vector
           )
       })
-    );
+    )
 
-
-  await saveCachedReferences(
-    cacheData
   );
-
-
-  progress.innerText =
-    `${references.length} reference cards ready.`;
 
 }
 
 
-/*
-=================================================
-INITIALISE
-=================================================
-*/
+/* =========================================
+START
+========================================= */
 
+async function initialize(){
 
-async function initialize() {
+  try{
 
-  try {
-
-    loadInventoryFromSheet();
-
+    loadInventory();
 
     status.firstChild.textContent =
       "Loading recognition model...";
-
-
-    progress.innerText =
-      "Please wait while the scanner starts.";
-
 
     extractor =
       await pipeline(
         "image-feature-extraction",
         MODEL,
         {
-          device:
-            "wasm",
-
-          dtype:
-            "q8"
+          device:"wasm",
+          dtype:"q8"
         }
       );
 
-
     status.firstChild.textContent =
-      "Recognition model loaded.";
-
-
-    progress.innerText =
-      "Preparing Destined Rivals card library...";
-
+      "Preparing card library...";
 
     await prepareReferences();
-
 
     status.firstChild.textContent =
       "✓ Scanner ready";
 
-
     progress.innerText =
       "Press START CAMERA.";
-
 
     startButton.disabled =
       false;
 
-
     startButton.innerText =
       "📷 START CAMERA";
 
-  }
+  }catch(error){
 
-  catch (error) {
-
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     status.firstChild.textContent =
-      "Scanner failed to initialise.";
-
+      "Scanner failed.";
 
     progress.innerText =
       error.message;
-
-
-    startButton.innerText =
-      "INITIALISATION FAILED";
 
   }
 
 }
 
 
-/*
-=================================================
+/* =========================================
 CAMERA
-=================================================
-*/
+========================================= */
 
+async function startCamera(){
 
-async function startCamera() {
-
-  try {
+  try{
 
     stream =
-      await navigator
-        .mediaDevices
-        .getUserMedia({
+      await navigator.mediaDevices
+      .getUserMedia({
 
-          video: {
-
-            facingMode: {
-              ideal:
-                "environment"
-            },
-
-            width: {
-              ideal:
-                1920
-            },
-
-            height: {
-              ideal:
-                1080
-            }
-
+        video:{
+          facingMode:{
+            ideal:"environment"
           },
+          width:{
+            ideal:1920
+          },
+          height:{
+            ideal:1080
+          }
+        },
 
-          audio:
-            false
+        audio:false
 
-        });
-
+      });
 
     video.srcObject =
       stream;
 
-
     await video.play();
-
 
     cameraBox.style.display =
       "block";
 
-
     startButton.style.display =
       "none";
-
 
     scanButton.style.display =
       "block";
 
-
     status.firstChild.textContent =
       "Camera ready";
-
 
     progress.innerText =
       "Place a card inside the white frame.";
 
-  }
-
-  catch (error) {
+  }catch(error){
 
     status.firstChild.textContent =
       "Camera could not start.";
-
 
     progress.innerText =
       error.message;
@@ -1880,75 +1164,53 @@ async function startCamera() {
 }
 
 
-/*
-=================================================
-CAPTURE CARD
-=================================================
-*/
+/* =========================================
+CAPTURE
+========================================= */
 
-
-function captureCard() {
+function captureCard(){
 
   const videoRect =
     video.getBoundingClientRect();
 
-
   const guideRect =
     cardGuide.getBoundingClientRect();
-
 
   const scaleX =
     video.videoWidth /
     videoRect.width;
 
-
   const scaleY =
     video.videoHeight /
     videoRect.height;
-
 
   const guideX =
     (
       guideRect.left -
       videoRect.left
-    ) *
-    scaleX;
-
+    ) * scaleX;
 
   const guideY =
     (
       guideRect.top -
       videoRect.top
-    ) *
-    scaleY;
-
+    ) * scaleY;
 
   const guideWidth =
     guideRect.width *
     scaleX;
 
-
   const guideHeight =
     guideRect.height *
     scaleY;
 
-
-  /*
-  Actual Pokémon card is 63 × 88 mm.
-
-  White guide is 73 × 98 mm.
-  */
-
-
   const cardWidth =
     guideWidth *
-    (63 / 73);
-
+    (63/73);
 
   const cardHeight =
     guideHeight *
-    (88 / 98);
-
+    (88/98);
 
   const sourceX =
     guideX +
@@ -1957,7 +1219,6 @@ function captureCard() {
       cardWidth
     ) / 2;
 
-
   const sourceY =
     guideY +
     (
@@ -1965,48 +1226,35 @@ function captureCard() {
       cardHeight
     ) / 2;
 
-
   cropCanvas.width =
     448;
-
 
   cropCanvas.height =
     624;
 
-
   const ctx =
-    cropCanvas.getContext(
-      "2d"
-    );
-
+    cropCanvas.getContext("2d");
 
   ctx.drawImage(
-
     video,
 
     sourceX,
     sourceY,
-
     cardWidth,
     cardHeight,
 
     0,
     0,
-
-    cropCanvas.width,
-    cropCanvas.height
-
+    448,
+    624
   );
-
 
   return cropCanvas;
 
 }
 
 
-async function canvasToRawImage(
-  canvas
-) {
+async function canvasToImage(canvas){
 
   const blob =
     await new Promise(
@@ -2018,37 +1266,28 @@ async function canvasToRawImage(
         )
     );
 
-
-  if (!blob) {
+  if(!blob){
 
     throw new Error(
-      "Could not capture card image."
+      "Could not capture card."
     );
 
   }
 
-
   const url =
-    URL.createObjectURL(
-      blob
-    );
+    URL.createObjectURL(blob);
 
-
-  try {
+  try{
 
     return await RawImage.fromURL(
       url
     );
 
-  }
-
-  finally {
+  }finally{
 
     setTimeout(
       () =>
-        URL.revokeObjectURL(
-          url
-        ),
+        URL.revokeObjectURL(url),
       1000
     );
 
@@ -2057,366 +1296,409 @@ async function canvasToRawImage(
 }
 
 
-/*
-=================================================
-IDENTIFY
-=================================================
-*/
+/* =========================================
+SCAN
+========================================= */
 
-
-async function identifyCard() {
-
-  if (!extractor) {
-    return;
-  }
-
+async function scanCard(){
 
   scanButton.disabled =
     true;
 
-
   scanButton.innerText =
-    "IDENTIFYING...";
+    "ANALYZING...";
 
-
-  identifiedCard.style.display =
+  candidateBox.style.display =
     "none";
 
-
-  correctionArea.style.display =
+  selectedBox.style.display =
     "none";
 
-
-  saveMessage.style.display =
+  manualError.style.display =
     "none";
-
 
   status.firstChild.textContent =
     "Analyzing card...";
 
-
   progress.innerText =
-    "Comparing with Destined Rivals.";
+    "Finding the closest matches.";
 
-
-  try {
+  try{
 
     const canvas =
       captureCard();
 
-
     const image =
-      await canvasToRawImage(
+      await canvasToImage(
         canvas
       );
-
 
     const liveVector =
       await getEmbedding(
         image
       );
 
-
     rankedMatches =
       references
-        .map(
-          reference => ({
+      .map(
+        reference => ({
+          number:
+            reference.number,
 
-            number:
-              reference.number,
+          score:
+            cosineSimilarity(
+              liveVector,
+              reference.vector
+            )
+        })
+      )
+      .sort(
+        (a,b) =>
+          b.score -
+          a.score
+      )
+      .slice(0,5);
 
-            score:
-              cosineSimilarity(
-                liveVector,
-                reference.vector
-              )
-
-          })
-        )
-        .sort(
-          (a, b) =>
-            b.score -
-            a.score
-        )
-        .slice(
-          0,
-          5
-        );
-
-
-    selectMatch(
-      rankedMatches[0]
-    );
-
+    showCandidates();
 
     status.firstChild.textContent =
-      "✓ Card identified";
-
+      "Choose the correct card";
 
     progress.innerText =
-      "Choose the version below.";
+      "The scanner found these five possibilities.";
 
-  }
+  }catch(error){
 
-  catch (error) {
-
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     status.firstChild.textContent =
-      "Recognition error";
-
+      "Scan failed";
 
     progress.innerText =
       error.message;
 
   }
 
-
   scanButton.disabled =
     false;
 
-
   scanButton.innerText =
-    "🔍 SCAN ANOTHER CARD";
+    "🔍 SCAN AGAIN";
 
 }
 
 
-/*
-=================================================
-SELECT MATCH
-=================================================
-*/
+/* =========================================
+SHOW FIVE CANDIDATES
+========================================= */
 
+function showCandidates(){
 
-function selectMatch(
-  match
-) {
+  candidateList.innerHTML = "";
 
-  const sheetCard =
-    inventoryByNumber[
-      Number(
-        match.number
-      )
-    ];
+  rankedMatches.forEach(
+    match => {
 
+      const card =
+        inventoryByNumber[
+          Number(match.number)
+        ];
 
-  /*
-  If Google Sheet data has not loaded,
-  still allow identification.
-  */
+      const row =
+        document.createElement(
+          "div"
+        );
 
+      row.className =
+        "candidate";
 
-  currentCard =
-    sheetCard || {
+      const image =
+        document.createElement(
+          "img"
+        );
 
-      row:
-        START_ROW_FALLBACK(
-          match.number
-        ),
+      image.src =
+        `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
 
-      number:
+      const info =
+        document.createElement(
+          "div"
+        );
+
+      info.className =
+        "candidateInfo";
+
+      const name =
+        document.createElement(
+          "div"
+        );
+
+      name.className =
+        "candidateName";
+
+      name.innerText =
+        card
+          ? card.name
+          : "Destined Rivals Card";
+
+      const number =
+        document.createElement(
+          "div"
+        );
+
+      number.className =
+        "candidateNumber";
+
+      number.innerText =
+        "#" +
         String(
           match.number
-        ).padStart(
-          3,
-          "0"
-        ),
+        ).padStart(3,"0") +
+        "/" +
+        DENOMINATOR;
 
-      name:
-        "Destined Rivals Card",
+      const score =
+        document.createElement(
+          "div"
+        );
 
-      rarity:
-        "",
+      score.className =
+        "candidateScore";
 
-      type:
-        "",
+      score.innerText =
+        "Similarity " +
+        (
+          match.score * 100
+        ).toFixed(1) +
+        "%";
 
-      normal:
-        0,
+      const choose =
+        document.createElement(
+          "div"
+        );
 
-      reverse:
-        0,
+      choose.className =
+        "choose";
 
-      holo:
-        0,
+      choose.innerText =
+        "›";
 
-      other:
-        0
+      info.appendChild(name);
+      info.appendChild(number);
+      info.appendChild(score);
 
-    };
+      row.appendChild(image);
+      row.appendChild(info);
+      row.appendChild(choose);
+
+      row.addEventListener(
+        "click",
+        () =>
+          chooseCard(
+            match.number
+          )
+      );
+
+      candidateList.appendChild(
+        row
+      );
+
+    }
+  );
+
+  candidateBox.style.display =
+    "block";
+
+  candidateBox.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+}
 
 
-  identifiedImage.src =
-    `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
+/* =========================================
+MANUAL NUMBER
+========================================= */
+
+function findManualCard(){
+
+  manualError.style.display =
+    "none";
+
+  const number =
+    Number(
+      manualNumber.value
+    );
+
+  if(
+    !number ||
+    number < 1 ||
+    number > MAX_CARD
+  ){
+
+    manualError.innerText =
+      "Enter a card number from 1 to 244.";
+
+    manualError.style.display =
+      "block";
+
+    return;
+
+  }
+
+  const card =
+    inventoryByNumber[number];
+
+  if(!card){
+
+    manualError.innerText =
+      "That card was not found in the Google Sheet.";
+
+    manualError.style.display =
+      "block";
+
+    return;
+
+  }
+
+  chooseCard(number);
+
+}
 
 
-  identifiedName.innerText =
-    currentCard.name;
+/* =========================================
+SELECT CARD
+========================================= */
 
+function chooseCard(number){
 
-  identifiedNumber.innerText =
+  const card =
+    inventoryByNumber[
+      Number(number)
+    ];
+
+  if(!card){
+
+    manualError.innerText =
+      "Google Sheet data is not available for this card.";
+
+    manualError.style.display =
+      "block";
+
+    return;
+
+  }
+
+  currentCard =
+    card;
+
+  selectedImage.src =
+    `https://images.pokemontcg.io/${IMAGE_SET}/${Number(card.number)}.png`;
+
+  selectedName.innerText =
+    card.name;
+
+  selectedNumber.innerText =
     "#" +
     String(
-      match.number
-    ).padStart(
-      3,
-      "0"
-    ) +
+      card.number
+    ).padStart(3,"0") +
     "/" +
     DENOMINATOR;
 
+  selectedRarity.innerText =
+    card.rarity || "";
 
-  identifiedRarity.innerText =
-    currentCard.rarity || "";
-
-
-  identifiedType.innerText =
-    currentCard.type || "";
-
-
-  confidence.innerText =
-    "Recognition similarity: " +
-    (
-      match.score *
-      100
-    ).toFixed(
-      1
-    ) +
-    "%";
-
+  selectedType.innerText =
+    card.type || "";
 
   updateCounts();
 
-
-  /*
-  Destined Rivals only shows Reverse Holo
-  when that card actually has one.
-  */
-
-
-  if (
-    currentCard.reverse === null
-  ) {
+  if(
+    card.reverse === null
+  ){
 
     reverseButton.style.display =
       "none";
 
-  }
-
-  else {
+  }else{
 
     reverseButton.style.display =
       "flex";
 
   }
 
+  saved.style.display =
+    "none";
 
-  identifiedCard.style.display =
+  candidateBox.style.display =
+    "none";
+
+  selectedBox.style.display =
     "block";
 
+  status.firstChild.textContent =
+    "Card selected";
 
-  correctionArea.style.display =
-    "none";
+  progress.innerText =
+    "Choose the version you are adding.";
 
-
-  saveMessage.style.display =
-    "none";
-
-
-  identifiedCard.scrollIntoView({
-    behavior:
-      "smooth",
-
-    block:
-      "start"
+  selectedBox.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
   });
 
 }
 
 
-/*
-Only used if Google Sheet card data has not
-finished loading.
-
-Row 13 = card 1.
-*/
-
-function START_ROW_FALLBACK(
-  cardNumber
-) {
-
-  return 12 +
-    Number(
-      cardNumber
-    );
-
-}
-
-
-/*
-=================================================
+/* =========================================
 COUNTS
-=================================================
-*/
+========================================= */
 
-
-function updateCounts() {
+function updateCounts(){
 
   normalCount.innerText =
-    currentCard.normal || 0;
-
+    Number(
+      currentCard.normal
+    ) || 0;
 
   reverseCount.innerText =
     currentCard.reverse === null
       ? "-"
-      : currentCard.reverse || 0;
-
+      : Number(
+          currentCard.reverse
+        ) || 0;
 
   holoCount.innerText =
-    currentCard.holo || 0;
-
+    Number(
+      currentCard.holo
+    ) || 0;
 
   otherCount.innerText =
-    currentCard.other || 0;
+    Number(
+      currentCard.other
+    ) || 0;
 
 }
 
 
-/*
-=================================================
-WRITE TO GOOGLE SHEET
-=================================================
-*/
+/* =========================================
+ADD TO GOOGLE SHEET
+========================================= */
 
+function addCard(variant){
 
-function addCard(
-  variant
-) {
-
-  if (!currentCard) {
+  if(!currentCard){
     return;
   }
 
-
-  if (
+  if(
     variant === "reverse" &&
     currentCard.reverse === null
-  ) {
-
+  ){
     return;
-
   }
-
-
-  /*
-  Optimistically update the number shown
-  on screen immediately.
-  */
-
 
   currentCard[variant] =
     (
@@ -2425,46 +1707,24 @@ function addCard(
       ) || 0
     ) + 1;
 
-
   updateCounts();
-
-
-  saveMessage.innerText =
-    "✓ Added to Google Sheet";
-
-
-  saveMessage.style.display =
-    "block";
-
-
-  /*
-  Submit to Apps Script through hidden iframe.
-  This avoids CORS problems between
-  GitHub Pages and Apps Script.
-  */
-
 
   const form =
     document.createElement(
       "form"
     );
 
-
   form.method =
     "POST";
-
 
   form.action =
     SCRIPT_URL;
 
-
   form.target =
     "sheetUpdateFrame";
 
-
   form.style.display =
     "none";
-
 
   const fields = {
 
@@ -2482,29 +1742,23 @@ function addCard(
 
   };
 
-
-  Object.entries(
-    fields
-  ).forEach(
-    ([name, value]) => {
+  Object.entries(fields)
+  .forEach(
+    ([name,value]) => {
 
       const input =
         document.createElement(
           "input"
         );
 
-
       input.type =
         "hidden";
-
 
       input.name =
         name;
 
-
       input.value =
         value;
-
 
       form.appendChild(
         input
@@ -2513,297 +1767,172 @@ function addCard(
     }
   );
 
-
   document.body.appendChild(
     form
   );
 
-
   form.submit();
 
-
   setTimeout(
-    () =>
-      form.remove(),
+    () => form.remove(),
     1000
   );
 
+  saved.innerText =
+    "✓ Added to Google Sheet";
 
-  /*
-  After adding the card, leave the result
-  visible briefly and then return attention
-  to the camera for fast bulk scanning.
-  */
-
-
-  setTimeout(
-    () => {
-
-      saveMessage.style.display =
-        "none";
-
-
-      identifiedCard.style.display =
-        "none";
-
-
-      correctionArea.style.display =
-        "none";
-
-
-      status.firstChild.textContent =
-        "Ready for next card";
-
-
-      progress.innerText =
-        "Place the next card inside the white frame.";
-
-
-      scanButton.innerText =
-        "🔍 IDENTIFY CARD";
-
-
-      window.scrollTo({
-        top:
-          0,
-
-        behavior:
-          "smooth"
-      });
-
-    },
-    900
-  );
-
-}
-
-
-/*
-=================================================
-WRONG CARD / OTHER MATCHES
-=================================================
-*/
-
-
-function showCorrections() {
-
-  correctionMatches.innerHTML =
-    "";
-
-
-  rankedMatches.forEach(
-    match => {
-
-      const card =
-        inventoryByNumber[
-          Number(
-            match.number
-          )
-        ];
-
-
-      const row =
-        document.createElement(
-          "div"
-        );
-
-
-      row.className =
-        "correctionCard";
-
-
-      const image =
-        document.createElement(
-          "img"
-        );
-
-
-      image.src =
-        `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
-
-
-      const text =
-        document.createElement(
-          "div"
-        );
-
-
-      text.className =
-        "correctionText";
-
-
-      const name =
-        document.createElement(
-          "div"
-        );
-
-
-      name.className =
-        "correctionName";
-
-
-      name.innerText =
-        card
-          ? card.name
-          : "Destined Rivals Card";
-
-
-      const number =
-        document.createElement(
-          "div"
-        );
-
-
-      number.className =
-        "correctionNumber";
-
-
-      number.innerText =
-        "#" +
-        String(
-          match.number
-        ).padStart(
-          3,
-          "0"
-        ) +
-        "/" +
-        DENOMINATOR +
-        " • " +
-        (
-          match.score *
-          100
-        ).toFixed(
-          1
-        ) +
-        "%";
-
-
-      text.appendChild(
-        name
-      );
-
-
-      text.appendChild(
-        number
-      );
-
-
-      row.appendChild(
-        image
-      );
-
-
-      row.appendChild(
-        text
-      );
-
-
-      row.addEventListener(
-        "click",
-        () => {
-
-          selectMatch(
-            match
-          );
-
-        }
-      );
-
-
-      correctionMatches.appendChild(
-        row
-      );
-
-    }
-  );
-
-
-  correctionArea.style.display =
+  saved.style.display =
     "block";
 
+  /*
+  Automatically return to camera
+  so bulk scanning stays fast.
+  */
+
+  setTimeout(
+    resetForNextCard,
+    850
+  );
+
 }
 
 
-/*
-=================================================
-BUTTONS
-=================================================
-*/
+/* =========================================
+NEXT CARD
+========================================= */
 
+function resetForNextCard(){
+
+  currentCard =
+    null;
+
+  rankedMatches =
+    [];
+
+  manualNumber.value =
+    "";
+
+  manualError.style.display =
+    "none";
+
+  saved.style.display =
+    "none";
+
+  selectedBox.style.display =
+    "none";
+
+  candidateBox.style.display =
+    "none";
+
+  status.firstChild.textContent =
+    "Ready for next card";
+
+  progress.innerText =
+    "Place the next card inside the white frame.";
+
+  scanButton.innerText =
+    "🔍 SCAN CARD";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* =========================================
+BUTTONS
+========================================= */
 
 startButton.addEventListener(
   "click",
   startCamera
 );
 
-
 scanButton.addEventListener(
   "click",
-  identifyCard
+  scanCard
 );
 
+manualButton.addEventListener(
+  "click",
+  findManualCard
+);
+
+manualNumber.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.key === "Enter"
+    ){
+
+      event.preventDefault();
+
+      findManualCard();
+
+    }
+
+  }
+);
 
 normalButton.addEventListener(
   "click",
-  () =>
-    addCard(
-      "normal"
-    )
+  () => addCard("normal")
 );
-
 
 reverseButton.addEventListener(
   "click",
-  () =>
-    addCard(
-      "reverse"
-    )
+  () => addCard("reverse")
 );
-
 
 holoButton.addEventListener(
   "click",
-  () =>
-    addCard(
-      "holo"
-    )
+  () => addCard("holo")
 );
-
 
 otherButton.addEventListener(
   "click",
-  () =>
-    addCard(
-      "other"
-    )
+  () => addCard("other")
 );
-
 
 wrongButton.addEventListener(
   "click",
-  showCorrections
+  () => {
+
+    selectedBox.style.display =
+      "none";
+
+    candidateBox.style.display =
+      "block";
+
+    status.firstChild.textContent =
+      "Choose the correct card";
+
+    progress.innerText =
+      "Select a candidate or enter the card number.";
+
+  }
 );
 
 
-/*
-=================================================
+/* =========================================
 CLEANUP
-=================================================
-*/
-
+========================================= */
 
 window.addEventListener(
   "pagehide",
   () => {
 
-    if (stream) {
+    if(stream){
 
       stream
-        .getTracks()
-        .forEach(
-          track =>
-            track.stop()
-        );
+      .getTracks()
+      .forEach(
+        track =>
+          track.stop()
+      );
 
     }
 
@@ -2811,19 +1940,13 @@ window.addEventListener(
 );
 
 
-/*
-=================================================
-START
-=================================================
-*/
-
+/* =========================================
+INITIALIZE
+========================================= */
 
 initialize();
 
-
 </script>
 
-
 </body>
-
 </html>
