@@ -3,87 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
-<title>Pokémon Scanner Feature Test</title>
+<title>Pokémon Card Scanner</title>
 
 <style>
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  padding: 18px;
+  padding: 12px;
   font-family: Arial, sans-serif;
-  background: #f3f3f3;
+  background: #f4f4f4;
   color: #222;
 }
 
 .container {
+  width: 100%;
   max-width: 520px;
   margin: auto;
 }
 
 h1 {
   text-align: center;
-  font-size: 22px;
+  font-size: 21px;
+  margin: 6px 0 14px;
 }
 
-.intro {
+.box {
   background: white;
-  padding: 15px;
-  border-radius: 14px;
-  margin-bottom: 15px;
-  line-height: 1.45;
-}
-
-.result {
-  background: white;
-  padding: 15px;
-  border-radius: 11px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.name {
-  font-weight: bold;
-}
-
-.pass {
-  color: #16833b;
-  font-weight: bold;
-}
-
-.fail {
-  color: #c62828;
-  font-weight: bold;
-}
-
-.wait {
-  color: #777;
-  font-weight: bold;
-}
-
-#overall {
-  background: white;
-  padding: 18px;
-  margin-top: 15px;
-  border-radius: 14px;
-  text-align: center;
-  font-weight: bold;
-  line-height: 1.5;
-}
-
-#details {
-  margin-top: 15px;
   padding: 13px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+
+#status {
+  text-align: center;
+  line-height: 1.45;
+  font-weight: bold;
+}
+
+#progress {
+  margin-top: 7px;
+  font-size: 12px;
+  font-weight: normal;
+  color: #666;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+#startButton {
   background: #222;
   color: white;
-  border-radius: 10px;
-  font-family: monospace;
+}
+
+#scanButton {
+  background: #1976d2;
+  color: white;
+  display: none;
+}
+
+#nextButton {
+  background: #444;
+  color: white;
+  display: none;
+}
+
+#cameraBox {
+  display: none;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #111;
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+
+#video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* LOCKED WHITE FRAME — DO NOT CHANGE */
+#cardGuide {
+  position: absolute;
+  width: 73%;
+  aspect-ratio: 73 / 98;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 3px solid white;
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+#guideText {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background: rgba(0,0,0,.7);
+  color: white;
+  border-radius: 20px;
   font-size: 11px;
-  white-space: pre-wrap;
-  word-break: break-word;
+  white-space: nowrap;
+}
+
+#cropBox {
+  display: none;
+  text-align: center;
+}
+
+#cropCanvas {
+  width: 150px;
+  max-width: 50%;
+  border-radius: 8px;
+  border: 2px solid #333;
+}
+
+#results {
+  display: none;
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px;
+  margin-top: 8px;
+  background: #eee;
+  border-radius: 10px;
+}
+
+.match:first-child {
+  background: #dff3e4;
+}
+
+.match img {
+  width: 60px;
+  border-radius: 5px;
+}
+
+.matchText {
+  flex: 1;
+}
+
+.number {
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.score {
+  color: #666;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+#modelInfo {
+  font-size: 11px;
+  color: #777;
+  text-align: center;
+  margin-top: 8px;
 }
 </style>
 </head>
@@ -92,426 +180,636 @@ h1 {
 
 <div class="container">
 
-<h1>Pokémon Scanner Feature Test</h1>
+<h1>Pokémon Card Scanner</h1>
 
-<div class="intro">
-OpenCV downloaded successfully in the previous test.
-This page now waits for the Promise-based OpenCV build to initialise,
-then checks the image-matching features directly.
+<div class="box">
+  <div id="status">
+    Preparing scanner...
+    <div id="progress">
+      Loading recognition engine.
+    </div>
+  </div>
+
+  <button id="startButton" disabled>
+    PLEASE WAIT...
+  </button>
+
+  <button id="scanButton">
+    🔍 IDENTIFY CARD
+  </button>
+
+  <button id="nextButton">
+    SCAN NEXT CARD
+  </button>
+
+  <div id="modelInfo">
+    Destined Rivals • 244 cards
+  </div>
 </div>
 
-<div class="result">
-  <span class="name">OpenCV</span>
-  <span id="opencv" class="wait">LOADING...</span>
+<div id="cameraBox">
+  <video id="video" autoplay muted playsinline></video>
+  <div id="cardGuide"></div>
+  <div id="guideText">Place card inside white frame</div>
 </div>
 
-<div class="result">
-  <span class="name">Mat</span>
-  <span id="mat" class="wait">WAITING</span>
+<div id="cropBox" class="box">
+  <div style="font-size:12px;color:#666;margin-bottom:7px;">
+    Image being identified:
+  </div>
+
+  <canvas id="cropCanvas"></canvas>
 </div>
 
-<div class="result">
-  <span class="name">ORB</span>
-  <span id="orb" class="wait">WAITING</span>
-</div>
-
-<div class="result">
-  <span class="name">ORB Create</span>
-  <span id="orbCreate" class="wait">WAITING</span>
-</div>
-
-<div class="result">
-  <span class="name">BFMatcher</span>
-  <span id="bf" class="wait">WAITING</span>
-</div>
-
-<div class="result">
-  <span class="name">DescriptorMatcher</span>
-  <span id="descriptor" class="wait">WAITING</span>
-</div>
-
-<div class="result">
-  <span class="name">Hamming</span>
-  <span id="hamming" class="wait">WAITING</span>
-</div>
-
-<div class="result">
-  <span class="name">AKAZE</span>
-  <span id="akaze" class="wait">WAITING</span>
-</div>
-
-<div id="overall">
-Loading OpenCV...
-</div>
-
-<div id="details">
-Starting...
+<div id="results" class="box">
+  <strong>Closest matches</strong>
+  <div id="matches"></div>
 </div>
 
 </div>
 
+<script type="module">
 
-<script src="https://docs.opencv.org/4.x/opencv.js"></script>
-
-<script>
-
-const details = [];
-
-function log(text) {
-  details.push(text);
-
-  document.getElementById("details").innerText =
-    details.join("\n");
-}
+import {
+  pipeline,
+  RawImage
+} from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 
 
-function result(id, available) {
+const MODEL =
+  "onnx-community/dinov2-small";
 
-  const element =
-    document.getElementById(id);
+const MAX_CARD =
+  244;
 
-  if (available) {
+const IMAGE_SET =
+  "sv10";
 
-    element.innerText =
-      "✓ AVAILABLE";
-
-    element.className =
-      "pass";
-
-  } else {
-
-    element.innerText =
-      "✕ NOT AVAILABLE";
-
-    element.className =
-      "fail";
-  }
-}
+const DENOMINATOR =
+  182;
 
 
-function failRemaining() {
+/*
+  We deliberately use a two-stage system.
 
-  [
-    "opencv",
-    "mat",
-    "orb",
-    "orbCreate",
-    "bf",
-    "descriptor",
-    "hamming",
-    "akaze"
-  ].forEach(function(id) {
+  Stage 1:
+  Build embeddings for all 244 official cards.
 
-    const el =
-      document.getElementById(id);
+  Stage 2:
+  Camera image receives one embedding and is
+  compared to the 244 normalized reference vectors.
 
-    if (
-      el.innerText === "WAITING" ||
-      el.innerText === "LOADING..."
-    ) {
-      result(id, false);
-    }
+  This first working version caches reference
+  vectors in IndexedDB so subsequent visits
+  do NOT need to calculate all 244 again.
+*/
+
+
+let extractor = null;
+let references = [];
+let stream = null;
+
+const status =
+  document.getElementById("status");
+
+const progress =
+  document.getElementById("progress");
+
+const startButton =
+  document.getElementById("startButton");
+
+const scanButton =
+  document.getElementById("scanButton");
+
+const nextButton =
+  document.getElementById("nextButton");
+
+const video =
+  document.getElementById("video");
+
+const cameraBox =
+  document.getElementById("cameraBox");
+
+const cropBox =
+  document.getElementById("cropBox");
+
+const cropCanvas =
+  document.getElementById("cropCanvas");
+
+const results =
+  document.getElementById("results");
+
+const matches =
+  document.getElementById("matches");
+
+
+/* ===============================
+   INDEXED DB
+================================ */
+
+function openDatabase() {
+
+  return new Promise((resolve, reject) => {
+
+    const request =
+      indexedDB.open(
+        "pokemonScannerDB",
+        1
+      );
+
+    request.onupgradeneeded =
+      event => {
+
+        const db =
+          event.target.result;
+
+        if (
+          !db.objectStoreNames.contains(
+            "data"
+          )
+        ) {
+
+          db.createObjectStore(
+            "data"
+          );
+
+        }
+
+      };
+
+    request.onsuccess =
+      () => resolve(request.result);
+
+    request.onerror =
+      () => reject(request.error);
 
   });
+
 }
 
 
-async function initialiseOpenCV() {
-
-  log("Page loaded.");
-  log("Checking window.cv...");
+async function loadCachedReferences() {
 
   try {
 
-    if (typeof window.cv === "undefined") {
+    const db =
+      await openDatabase();
 
-      throw new Error(
-        "window.cv does not exist."
-      );
-    }
+    return await new Promise(resolve => {
+
+      const transaction =
+        db.transaction(
+          "data",
+          "readonly"
+        );
+
+      const store =
+        transaction.objectStore(
+          "data"
+        );
+
+      const request =
+        store.get(
+          "destined-rivals-dinov2-v1"
+        );
+
+      request.onsuccess =
+        () => resolve(
+          request.result || null
+        );
+
+      request.onerror =
+        () => resolve(null);
+
+    });
+
+  } catch {
+
+    return null;
+
+  }
+
+}
 
 
-    log(
-      "window.cv type: " +
-      typeof window.cv
+async function saveCachedReferences(data) {
+
+  try {
+
+    const db =
+      await openDatabase();
+
+    await new Promise((resolve, reject) => {
+
+      const transaction =
+        db.transaction(
+          "data",
+          "readwrite"
+        );
+
+      transaction
+        .objectStore("data")
+        .put(
+          data,
+          "destined-rivals-dinov2-v1"
+        );
+
+      transaction.oncomplete =
+        resolve;
+
+      transaction.onerror =
+        () => reject(
+          transaction.error
+        );
+
+    });
+
+  } catch (error) {
+
+    console.warn(
+      "Could not cache references:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ===============================
+   VECTOR HELPERS
+================================ */
+
+function normalizeVector(array) {
+
+  let magnitude = 0;
+
+  for (
+    let i = 0;
+    i < array.length;
+    i++
+  ) {
+
+    magnitude +=
+      array[i] *
+      array[i];
+
+  }
+
+  magnitude =
+    Math.sqrt(magnitude);
+
+  if (!magnitude) {
+    magnitude = 1;
+  }
+
+  const result =
+    new Float32Array(
+      array.length
+    );
+
+  for (
+    let i = 0;
+    i < array.length;
+    i++
+  ) {
+
+    result[i] =
+      array[i] /
+      magnitude;
+
+  }
+
+  return result;
+
+}
+
+
+function cosineSimilarity(a, b) {
+
+  let score = 0;
+
+  const length =
+    Math.min(
+      a.length,
+      b.length
+    );
+
+  for (
+    let i = 0;
+    i < length;
+    i++
+  ) {
+
+    score +=
+      a[i] *
+      b[i];
+
+  }
+
+  return score;
+
+}
+
+
+/* ===============================
+   GET EMBEDDING
+================================ */
+
+async function getEmbedding(image) {
+
+  const output =
+    await extractor(
+      image,
+      {
+        pooling: "mean",
+        normalize: true
+      }
     );
 
 
-    /*
-      THIS IS THE IMPORTANT CHANGE.
+  /*
+    Different model/pipeline versions can
+    return slightly different tensor shapes.
 
-      Your previous screenshot showed that
-      window.cv is Promise-based.
+    We use the returned numerical data.
+  */
 
-      We resolve that Promise directly.
-    */
+  const data =
+    output.data;
 
-    let CV;
 
-    if (
-      window.cv &&
-      typeof window.cv.then === "function"
+  if (!data || !data.length) {
+
+    throw new Error(
+      "Recognition model returned no image features."
+    );
+
+  }
+
+
+  /*
+    If output contains patch tokens rather than
+    one pooled vector, average them ourselves.
+  */
+
+  if (
+    output.dims &&
+    output.dims.length === 3
+  ) {
+
+    const tokenCount =
+      output.dims[1];
+
+    const dimension =
+      output.dims[2];
+
+    const pooled =
+      new Float32Array(
+        dimension
+      );
+
+    for (
+      let token = 0;
+      token < tokenCount;
+      token++
     ) {
 
-      log("Promise-based OpenCV detected.");
-      log("Awaiting OpenCV Promise...");
+      const offset =
+        token *
+        dimension;
 
-      CV =
-        await window.cv;
+      for (
+        let d = 0;
+        d < dimension;
+        d++
+      ) {
 
-      log("OpenCV Promise resolved.");
+        pooled[d] +=
+          data[offset + d];
 
-    } else {
+      }
 
-      log("Non-Promise OpenCV detected.");
-
-      CV =
-        window.cv;
     }
 
+    for (
+      let d = 0;
+      d < dimension;
+      d++
+    ) {
 
-    if (!CV) {
+      pooled[d] /=
+        tokenCount;
 
-      throw new Error(
-        "OpenCV resolved to an empty object."
-      );
     }
 
-
-    result(
-      "opencv",
-      true
+    return normalizeVector(
+      pooled
     );
 
+  }
 
-    /*
-      MAT
-    */
 
-    let matWorks =
-      false;
+  return normalizeVector(
+    data
+  );
+
+}
+
+
+/* ===============================
+   REFERENCE IMAGE
+================================ */
+
+async function getReferenceImage(number) {
+
+  const url =
+    `https://images.pokemontcg.io/${IMAGE_SET}/${number}.png`;
+
+  return await RawImage.fromURL(
+    url
+  );
+
+}
+
+
+/* ===============================
+   BUILD REFERENCE DATABASE
+================================ */
+
+async function prepareReferences() {
+
+  const cached =
+    await loadCachedReferences();
+
+
+  if (
+    cached &&
+    cached.length === MAX_CARD
+  ) {
+
+    references =
+      cached.map(item => ({
+        number:
+          item.number,
+
+        vector:
+          new Float32Array(
+            item.vector
+          )
+      }));
+
+    progress.innerText =
+      "244 reference cards loaded from phone cache.";
+
+    return;
+
+  }
+
+
+  references = [];
+
+
+  /*
+    First startup is intentionally sequential.
+
+    It is slower, but far less likely to exhaust
+    memory on a phone than running many model
+    inferences simultaneously.
+  */
+
+  for (
+    let number = 1;
+    number <= MAX_CARD;
+    number++
+  ) {
+
+    progress.innerText =
+      `Preparing Destined Rivals reference cards: ${number} / ${MAX_CARD}`;
+
 
     try {
 
-      const testMat =
-        new CV.Mat(
-          5,
-          5,
-          CV.CV_8UC1
+      const image =
+        await getReferenceImage(
+          number
         );
 
-      matWorks =
-        true;
+      const vector =
+        await getEmbedding(
+          image
+        );
 
-      testMat.delete();
+      references.push({
+        number,
+        vector
+      });
 
     } catch (error) {
 
-      log(
-        "Mat test error: " +
-        error.message
+      console.error(
+        "Reference failed:",
+        number,
+        error
       );
-    }
-
-    result(
-      "mat",
-      matWorks
-    );
-
-
-    /*
-      ORB
-    */
-
-    const orb =
-      typeof CV.ORB ===
-      "function";
-
-    result(
-      "orb",
-      orb
-    );
-
-    log(
-      "typeof CV.ORB: " +
-      typeof CV.ORB
-    );
-
-
-    /*
-      ORB CREATE
-    */
-
-    const orbCreate =
-      typeof CV.ORB_create ===
-      "function";
-
-    result(
-      "orbCreate",
-      orbCreate
-    );
-
-    log(
-      "typeof CV.ORB_create: " +
-      typeof CV.ORB_create
-    );
-
-
-    /*
-      BF MATCHER
-    */
-
-    const bf =
-      typeof CV.BFMatcher ===
-      "function";
-
-    result(
-      "bf",
-      bf
-    );
-
-    log(
-      "typeof CV.BFMatcher: " +
-      typeof CV.BFMatcher
-    );
-
-
-    /*
-      DESCRIPTOR MATCHER
-    */
-
-    const descriptor =
-      typeof CV.DescriptorMatcher ===
-      "function";
-
-    result(
-      "descriptor",
-      descriptor
-    );
-
-    log(
-      "typeof CV.DescriptorMatcher: " +
-      typeof CV.DescriptorMatcher
-    );
-
-
-    /*
-      HAMMING
-    */
-
-    const hamming =
-      typeof CV.NORM_HAMMING !==
-      "undefined";
-
-    result(
-      "hamming",
-      hamming
-    );
-
-    log(
-      "CV.NORM_HAMMING: " +
-      String(
-        CV.NORM_HAMMING
-      )
-    );
-
-
-    /*
-      AKAZE
-    */
-
-    const akaze =
-      typeof CV.AKAZE ===
-      "function";
-
-    result(
-      "akaze",
-      akaze
-    );
-
-    log(
-      "typeof CV.AKAZE: " +
-      typeof CV.AKAZE
-    );
-
-
-    /*
-      DECISION
-    */
-
-    if (
-      orb &&
-      bf &&
-      hamming
-    ) {
-
-      document.getElementById(
-        "overall"
-      ).innerHTML =
-
-        "🟢 YES — ORB MATCHING IS AVAILABLE" +
-
-        "<br><br>" +
-
-        "We can build the proper feature-based card matcher.";
 
     }
 
-    else if (
-      orb &&
-      descriptor &&
-      hamming
-    ) {
-
-      document.getElementById(
-        "overall"
-      ).innerHTML =
-
-        "🟢 YES — ORB MATCHING IS AVAILABLE" +
-
-        "<br><br>" +
-
-        "DescriptorMatcher can be used for matching.";
-
-    }
-
-    else if (
-      akaze &&
-      (
-        bf ||
-        descriptor
-      )
-    ) {
-
-      document.getElementById(
-        "overall"
-      ).innerHTML =
-
-        "🟡 ALTERNATIVE MATCHER AVAILABLE" +
-
-        "<br><br>" +
-
-        "ORB is unavailable, but AKAZE may work.";
-
-    }
-
-    else {
-
-      document.getElementById(
-        "overall"
-      ).innerHTML =
-
-        "🔴 ORB IS NOT AVAILABLE" +
-
-        "<br><br>" +
-
-        "We should stop trying to use ORB in this OpenCV.js build and use another recognition method.";
-
-    }
+  }
 
 
-    log("");
-    log("TEST FINISHED.");
+  if (
+    references.length <
+    230
+  ) {
+
+    throw new Error(
+      `Only ${references.length} of 244 reference cards were prepared.`
+    );
+
+  }
+
+
+  const cacheData =
+    references.map(item => ({
+      number:
+        item.number,
+
+      vector:
+        Array.from(
+          item.vector
+        )
+    }));
+
+
+  await saveCachedReferences(
+    cacheData
+  );
+
+
+  progress.innerText =
+    `${references.length} reference cards ready and cached.`;
+
+}
+
+
+/* ===============================
+   INITIALIZE MODEL
+================================ */
+
+async function initialize() {
+
+  try {
+
+    status.firstChild.textContent =
+      "Loading recognition model...";
+
+
+    progress.innerText =
+      "The first load may take a little while.";
+
+
+    /*
+      WASM is the safe browser fallback.
+
+      We're deliberately NOT requiring WebGPU.
+    */
+
+    extractor =
+      await pipeline(
+        "image-feature-extraction",
+        MODEL,
+        {
+          device: "wasm",
+          dtype: "q8"
+        }
+      );
+
+
+    status.firstChild.textContent =
+      "Recognition model loaded.";
+
+
+    progress.innerText =
+      "Preparing Destined Rivals card library...";
+
+
+    await prepareReferences();
+
+
+    status.firstChild.textContent =
+      "✓ Scanner ready";
+
+
+    progress.innerText =
+      "Destined Rivals reference library is ready.";
+
+
+    startButton.disabled =
+      false;
+
+    startButton.innerText =
+      "📷 START CAMERA";
 
   }
 
@@ -519,44 +817,589 @@ async function initialiseOpenCV() {
 
     console.error(error);
 
-    failRemaining();
 
-    document.getElementById(
-      "overall"
-    ).innerHTML =
+    status.firstChild.textContent =
+      "Scanner failed to initialise.";
 
-      "🔴 OPENCV INITIALISATION FAILED" +
 
-      "<br><br>" +
-
+    progress.innerText =
       error.message;
 
 
-    log("");
-    log(
-      "ERROR: " +
-      error.message
-    );
+    startButton.innerText =
+      "INITIALISATION FAILED";
+
   }
+
 }
 
 
-/*
-  Give the external script one moment
-  after page load, then run the test.
-*/
+/* ===============================
+   CAMERA
+================================ */
 
-window.addEventListener(
-  "load",
-  function() {
+async function startCamera() {
 
-    setTimeout(
-      initialiseOpenCV,
-      300
+  try {
+
+    stream =
+      await navigator.mediaDevices.getUserMedia({
+
+        video: {
+
+          facingMode: {
+            ideal: "environment"
+          },
+
+          width: {
+            ideal: 1920
+          },
+
+          height: {
+            ideal: 1080
+          }
+
+        },
+
+        audio: false
+
+      });
+
+
+    video.srcObject =
+      stream;
+
+
+    await video.play();
+
+
+    cameraBox.style.display =
+      "block";
+
+
+    startButton.style.display =
+      "none";
+
+
+    scanButton.style.display =
+      "block";
+
+
+    status.firstChild.textContent =
+      "Camera ready";
+
+
+    progress.innerText =
+      "Put one card roughly inside the white frame, then press IDENTIFY CARD.";
+
+  }
+
+  catch (error) {
+
+    status.firstChild.textContent =
+      "Camera could not start.";
+
+
+    progress.innerText =
+      error.message;
+
+  }
+
+}
+
+
+/* ===============================
+   CROP WHITE GUIDE
+================================ */
+
+function captureCard() {
+
+  const videoRect =
+    video.getBoundingClientRect();
+
+
+  const guide =
+    document.getElementById(
+      "cardGuide"
+    );
+
+
+  const guideRect =
+    guide.getBoundingClientRect();
+
+
+  const scaleX =
+    video.videoWidth /
+    videoRect.width;
+
+
+  const scaleY =
+    video.videoHeight /
+    videoRect.height;
+
+
+  /*
+    White frame is 73 × 98.
+
+    Actual card is 63 × 88.
+
+    Crop expected physical card area from
+    the centre of the white guide.
+  */
+
+  const guideX =
+    (
+      guideRect.left -
+      videoRect.left
+    ) *
+    scaleX;
+
+
+  const guideY =
+    (
+      guideRect.top -
+      videoRect.top
+    ) *
+    scaleY;
+
+
+  const guideWidth =
+    guideRect.width *
+    scaleX;
+
+
+  const guideHeight =
+    guideRect.height *
+    scaleY;
+
+
+  const cardWidth =
+    guideWidth *
+    (63 / 73);
+
+
+  const cardHeight =
+    guideHeight *
+    (88 / 98);
+
+
+  const sourceX =
+    guideX +
+    (
+      guideWidth -
+      cardWidth
+    ) / 2;
+
+
+  const sourceY =
+    guideY +
+    (
+      guideHeight -
+      cardHeight
+    ) / 2;
+
+
+  /*
+    Keep a reasonably detailed portrait image
+    for ML while avoiding unnecessarily huge
+    camera frames.
+  */
+
+  cropCanvas.width =
+    448;
+
+
+  cropCanvas.height =
+    624;
+
+
+  const ctx =
+    cropCanvas.getContext(
+      "2d"
+    );
+
+
+  ctx.drawImage(
+    video,
+
+    sourceX,
+    sourceY,
+    cardWidth,
+    cardHeight,
+
+    0,
+    0,
+    cropCanvas.width,
+    cropCanvas.height
+  );
+
+
+  cropBox.style.display =
+    "block";
+
+
+  return cropCanvas;
+
+}
+
+
+/* ===============================
+   CANVAS -> RAW IMAGE
+================================ */
+
+async function canvasToRawImage(canvas) {
+
+  const blob =
+    await new Promise(
+      resolve =>
+        canvas.toBlob(
+          resolve,
+          "image/jpeg",
+          0.92
+        )
+    );
+
+
+  if (!blob) {
+
+    throw new Error(
+      "Could not capture card image."
     );
 
   }
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  try {
+
+    return await RawImage.fromURL(
+      url
+    );
+
+  }
+
+  finally {
+
+    /*
+      RawImage has already read the blob.
+    */
+
+    setTimeout(
+      () =>
+        URL.revokeObjectURL(url),
+      1000
+    );
+
+  }
+
+}
+
+
+/* ===============================
+   IDENTIFY
+================================ */
+
+async function identifyCard() {
+
+  if (!extractor) {
+    return;
+  }
+
+
+  scanButton.disabled =
+    true;
+
+
+  scanButton.innerText =
+    "IDENTIFYING...";
+
+
+  results.style.display =
+    "none";
+
+
+  status.firstChild.textContent =
+    "Analyzing card...";
+
+
+  progress.innerText =
+    "Comparing it with Destined Rivals.";
+
+
+  try {
+
+    const canvas =
+      captureCard();
+
+
+    const image =
+      await canvasToRawImage(
+        canvas
+      );
+
+
+    const liveVector =
+      await getEmbedding(
+        image
+      );
+
+
+    const ranked =
+      references
+        .map(reference => ({
+
+          number:
+            reference.number,
+
+          score:
+            cosineSimilarity(
+              liveVector,
+              reference.vector
+            )
+
+        }))
+        .sort(
+          (a, b) =>
+            b.score -
+            a.score
+        )
+        .slice(
+          0,
+          5
+        );
+
+
+    showResults(
+      ranked
+    );
+
+
+    status.firstChild.textContent =
+      `Best match: #${String(ranked[0].number).padStart(3,"0")}/${DENOMINATOR}`;
+
+
+    progress.innerText =
+      "Check the top matches below.";
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+
+    status.firstChild.textContent =
+      "Recognition error";
+
+
+    progress.innerText =
+      error.message;
+
+  }
+
+
+  scanButton.disabled =
+    false;
+
+
+  scanButton.innerText =
+    "🔍 IDENTIFY AGAIN";
+
+}
+
+
+/* ===============================
+   RESULTS
+================================ */
+
+function showResults(ranked) {
+
+  matches.innerHTML =
+    "";
+
+
+  for (
+    const match of ranked
+  ) {
+
+    const row =
+      document.createElement(
+        "div"
+      );
+
+
+    row.className =
+      "match";
+
+
+    const image =
+      document.createElement(
+        "img"
+      );
+
+
+    image.src =
+      `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
+
+
+    const text =
+      document.createElement(
+        "div"
+      );
+
+
+    text.className =
+      "matchText";
+
+
+    const number =
+      document.createElement(
+        "div"
+      );
+
+
+    number.className =
+      "number";
+
+
+    number.innerText =
+      `#${String(match.number).padStart(3,"0")}/${DENOMINATOR}`;
+
+
+    const score =
+      document.createElement(
+        "div"
+      );
+
+
+    score.className =
+      "score";
+
+
+    score.innerText =
+      `Similarity: ${(match.score * 100).toFixed(2)}%`;
+
+
+    text.appendChild(
+      number
+    );
+
+
+    text.appendChild(
+      score
+    );
+
+
+    row.appendChild(
+      image
+    );
+
+
+    row.appendChild(
+      text
+    );
+
+
+    matches.appendChild(
+      row
+    );
+
+  }
+
+
+  results.style.display =
+    "block";
+
+
+  nextButton.style.display =
+    "block";
+
+}
+
+
+/* ===============================
+   NEXT
+================================ */
+
+function nextCard() {
+
+  results.style.display =
+    "none";
+
+
+  cropBox.style.display =
+    "none";
+
+
+  nextButton.style.display =
+    "none";
+
+
+  status.firstChild.textContent =
+    "Ready for next card";
+
+
+  progress.innerText =
+    "Place the next card inside the white frame.";
+
+}
+
+
+/* ===============================
+   BUTTONS
+================================ */
+
+startButton.addEventListener(
+  "click",
+  startCamera
 );
+
+
+scanButton.addEventListener(
+  "click",
+  identifyCard
+);
+
+
+nextButton.addEventListener(
+  "click",
+  nextCard
+);
+
+
+/* ===============================
+   CLEANUP
+================================ */
+
+window.addEventListener(
+  "pagehide",
+  () => {
+
+    if (stream) {
+
+      stream
+        .getTracks()
+        .forEach(
+          track =>
+            track.stop()
+        );
+
+    }
+
+  }
+);
+
+
+/* ===============================
+   GO
+================================ */
+
+initialize();
 
 </script>
 
