@@ -11,7 +11,7 @@
 
 body{
   margin:0;
-  padding:12px;
+  padding:8px;
   font-family:Arial,sans-serif;
   background:#f3f3f3;
   color:#222;
@@ -25,48 +25,49 @@ body{
 
 h1{
   text-align:center;
-  font-size:21px;
-  margin:5px 0 12px;
+  font-size:19px;
+  margin:4px 0 8px;
 }
 
 .box{
   background:white;
-  border-radius:14px;
-  padding:13px;
-  margin-bottom:10px;
+  border-radius:13px;
+  padding:10px;
+  margin-bottom:8px;
 }
 
-#status{
+#topStatus{
   text-align:center;
+  font-size:13px;
   font-weight:bold;
 }
 
 #progress{
-  margin-top:6px;
-  font-size:12px;
+  margin-top:3px;
+  font-size:11px;
   font-weight:normal;
   color:#666;
 }
 
 #sheetStatus{
-  margin-top:7px;
+  margin-top:4px;
   text-align:center;
-  font-size:11px;
+  font-size:10px;
   color:#777;
 }
 
 button{
   width:100%;
-  padding:14px;
-  margin-top:8px;
+  padding:12px;
+  margin-top:7px;
   border:0;
-  border-radius:10px;
-  font-size:16px;
+  border-radius:9px;
+  font-size:15px;
   font-weight:bold;
   cursor:pointer;
 }
 
-button:disabled{opacity:.5}
+button:disabled{opacity:.45}
 
 #startButton{
   background:#222;
@@ -77,6 +78,7 @@ button:disabled{opacity:.5}
   display:none;
   background:#1976d2;
   color:white;
+  font-size:17px;
 }
 
 #cameraBox{
@@ -85,8 +87,8 @@ button:disabled{opacity:.5}
   width:100%;
   overflow:hidden;
   background:#111;
-  border-radius:14px;
-  margin-bottom:10px;
+  border-radius:13px;
+  margin-bottom:8px;
 }
 
 #video{
@@ -95,8 +97,8 @@ button:disabled{opacity:.5}
   height:auto;
 }
 
-/* LOCKED WHITE GUIDE — 73 mm × 98 mm */
-#cardGuide {
+/* LOCKED 73 × 98 GUIDE */
+#cardGuide{
   position:absolute;
   width:73%;
   aspect-ratio:73 / 98;
@@ -110,41 +112,139 @@ button:disabled{opacity:.5}
 
 #guideText{
   position:absolute;
-  top:8px;
+  top:7px;
   left:50%;
   transform:translateX(-50%);
-  background:rgba(0,0,0,.7);
+  background:rgba(0,0,0,.72);
   color:white;
   border-radius:20px;
-  padding:6px 10px;
-  font-size:11px;
+  padding:5px 9px;
+  font-size:10px;
   white-space:nowrap;
 }
 
 #cropCanvas{display:none}
-#candidateBox{display:none}
-#selectedBox{display:none}
+
+#resultBox{
+  display:none;
+  background:white;
+  border-radius:13px;
+  padding:10px;
+  margin-bottom:8px;
+}
+
+.resultTop{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+#selectedImage{
+  width:75px;
+  border-radius:6px;
+}
+
+.cardDetails{
+  flex:1;
+  min-width:0;
+}
+
+#selectedName{
+  font-size:18px;
+  font-weight:bold;
+}
+
+#selectedNumber{
+  margin-top:2px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+#selectedRarity,
+#selectedType{
+  margin-top:2px;
+  font-size:11px;
+  color:#666;
+}
+
+#recognitionInfo{
+  margin-top:4px;
+  font-size:10px;
+  color:#34753e;
+  font-weight:bold;
+}
+
+.variantGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:8px;
+}
+
+.variantGrid button{
+  margin:0;
+  min-height:50px;
+  color:white;
+  font-size:13px;
+}
+
+#normalButton{background:#1976d2}
+#reverseButton{background:#7b1fa2}
+#holoButton{background:#00897b}
+#otherButton{background:#555}
+
+.variantCount{
+  display:block;
+  margin-top:3px;
+  font-size:11px;
+  font-weight:normal;
+  opacity:.9;
+}
+
+#wrongButton{
+  background:#eee;
+  color:#333;
+  margin-top:7px;
+  padding:9px;
+  font-size:12px;
+}
+
+#savedMessage{
+  display:none;
+  background:#dff3e3;
+  color:#176b2c;
+  border-radius:8px;
+  padding:8px;
+  margin-top:7px;
+  text-align:center;
+  font-size:12px;
+  font-weight:bold;
+}
+
+#candidateBox{
+  display:none;
+}
 
 .sectionTitle{
   font-size:15px;
   font-weight:bold;
-  margin-bottom:5px;
+  margin-bottom:4px;
 }
 
 .helpText{
-  font-size:12px;
+  font-size:11px;
   color:#666;
-  margin-bottom:9px;
+  margin-bottom:7px;
 }
 
 .candidate{
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:9px;
-  margin-top:8px;
+  gap:9px;
+  padding:7px;
+  margin-top:6px;
   border:2px solid #ddd;
-  border-radius:11px;
+  border-radius:9px;
   background:#fafafa;
   cursor:pointer;
 }
@@ -155,48 +255,50 @@ button:disabled{opacity:.5}
 }
 
 .candidate img{
-  width:68px;
-  border-radius:6px;
+  width:55px;
+  border-radius:5px;
 }
 
 .candidateInfo{flex:1}
 
 .candidateName{
-  font-size:16px;
+  font-size:14px;
   font-weight:bold;
 }
 
 .candidateNumber{
-  margin-top:3px;
-  font-size:14px;
+  margin-top:2px;
+  font-size:12px;
 }
 
 .candidateScore{
-  margin-top:4px;
-  font-size:11px;
-  color:#888;
+  margin-top:2px;
+  font-size:10px;
+  color:#777;
 }
 
-.choose{font-size:22px}
+.choose{
+  font-size:20px;
+}
 
 #manualArea{
-  margin-top:15px;
-  padding-top:12px;
+  margin-top:10px;
+  padding-top:9px;
   border-top:1px solid #ddd;
 }
 
 .manualRow{
   display:flex;
-  gap:7px;
+  gap:6px;
 }
 
 #manualNumber{
   flex:1;
   min-width:0;
-  padding:13px;
+  padding:10px;
   border:1px solid #bbb;
-  border-radius:9px;
-  font-size:17px;
+  border-radius:8px;
+  font-size:16px;
 }
 
 #manualButton{
@@ -204,94 +306,26 @@ button:disabled{opacity:.5}
   margin:0;
   background:#444;
   color:white;
-  padding:12px 16px;
+  padding:10px 15px;
 }
 
 #manualError{
   display:none;
   color:#b00020;
-  font-size:12px;
-  margin-top:7px;
+  font-size:11px;
+  margin-top:5px;
 }
 
-.cardHeader{
-  display:flex;
-  gap:14px;
-  align-items:flex-start;
-}
-
-#selectedImage{
-  width:115px;
-  border-radius:8px;
-}
-
-.cardDetails{flex:1}
-
-#selectedName{
-  font-size:20px;
-  font-weight:bold;
-}
-
-#selectedNumber{
-  margin-top:4px;
-  font-size:16px;
-  font-weight:bold;
-}
-
-#selectedRarity,
-#selectedType{
-  margin-top:4px;
-  font-size:13px;
-  color:#666;
-}
-
-#recognitionInfo{
-  margin-top:8px;
-  padding:7px;
-  background:#f2f7ff;
-  border-radius:7px;
+#sessionBox{
+  text-align:center;
   font-size:11px;
   color:#555;
 }
 
-.variantTitle{
-  margin-top:14px;
-  font-size:13px;
+#sessionCount{
+  font-size:18px;
   font-weight:bold;
-}
-
-.variant{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  color:white;
-}
-
-#normalButton{background:#1976d2}
-#reverseButton{background:#7b1fa2}
-#holoButton{background:#00897b}
-#otherButton{background:#555}
-
-.count{
-  background:rgba(255,255,255,.22);
-  padding:4px 9px;
-  border-radius:20px;
-}
-
-#wrongButton{
-  background:#eee;
-  color:#333;
-}
-
-#saved{
-  display:none;
-  margin-top:10px;
-  padding:11px;
-  border-radius:9px;
-  background:#e3f5e7;
-  color:#176b2c;
-  text-align:center;
-  font-weight:bold;
+  color:#222;
 }
 </style>
 </head>
@@ -303,91 +337,146 @@ button:disabled{opacity:.5}
 <h1>Pokémon Inventory Scanner</h1>
 
 <div class="box">
-  <div id="status">
+
+  <div id="topStatus">
     Preparing scanner...
-    <div id="progress">Connecting to recognizer.</div>
+    <div id="progress">
+      Connecting to recognizer.
+    </div>
   </div>
 
-  <button id="startButton" disabled>PLEASE WAIT...</button>
-  <button id="scanButton">🔍 SCAN CARD</button>
+  <button id="startButton" disabled>
+    PLEASE WAIT...
+  </button>
+
+  <button id="scanButton">
+    🔍 SCAN CARD
+  </button>
 
   <div id="sheetStatus">
     Connecting to Google Sheet...
   </div>
+
 </div>
 
 <div id="cameraBox">
-  <video id="video" autoplay muted playsinline></video>
+
+  <video
+    id="video"
+    autoplay
+    muted
+    playsinline>
+  </video>
+
   <div id="cardGuide"></div>
-  <div id="guideText">Place card inside white frame</div>
+
+  <div id="guideText">
+    Place card inside white frame
+  </div>
+
 </div>
 
 <canvas id="cropCanvas"></canvas>
 
-<div id="candidateBox" class="box">
-  <div class="sectionTitle">Which card is this?</div>
-  <div class="helpText">Tap the correct card.</div>
+<div id="resultBox">
 
-  <div id="candidateList"></div>
+  <div class="resultTop">
 
-  <div id="manualArea">
-    <div class="helpText">Not listed? Enter the card number.</div>
-
-    <div class="manualRow">
-      <input id="manualNumber"
-             inputmode="numeric"
-             pattern="[0-9]*"
-             placeholder="e.g. 153">
-
-      <button id="manualButton">FIND</button>
-    </div>
-
-    <div id="manualError">Card number not found.</div>
-  </div>
-</div>
-
-<div id="selectedBox" class="box">
-
-  <div class="cardHeader">
     <img id="selectedImage">
 
     <div class="cardDetails">
+
       <div id="selectedName"></div>
       <div id="selectedNumber"></div>
       <div id="selectedRarity"></div>
       <div id="selectedType"></div>
       <div id="recognitionInfo"></div>
+
     </div>
+
   </div>
 
-  <div class="variantTitle">
-    WHICH VERSION ARE YOU ADDING?
+  <div class="variantGrid">
+
+    <button id="normalButton">
+      + NORMAL
+      <span id="normalCount" class="variantCount">
+        Current: 0
+      </span>
+    </button>
+
+    <button id="reverseButton">
+      + REVERSE HOLO
+      <span id="reverseCount" class="variantCount">
+        Current: 0
+      </span>
+    </button>
+
+    <button id="holoButton">
+      + HOLO
+      <span id="holoCount" class="variantCount">
+        Current: 0
+      </span>
+    </button>
+
+    <button id="otherButton">
+      + OTHER
+      <span id="otherCount" class="variantCount">
+        Current: 0
+      </span>
+    </button>
+
   </div>
 
-  <button id="normalButton" class="variant">
-    <span>+ NORMAL</span>
-    <span id="normalCount" class="count">0</span>
+  <div id="savedMessage">
+    ✓ Added to Google Sheet
+  </div>
+
+  <button id="wrongButton">
+    WRONG CARD / OTHER MATCHES
   </button>
 
-  <button id="reverseButton" class="variant">
-    <span>+ REVERSE HOLO</span>
-    <span id="reverseCount" class="count">0</span>
-  </button>
+</div>
 
-  <button id="holoButton" class="variant">
-    <span>+ HOLO</span>
-    <span id="holoCount" class="count">0</span>
-  </button>
+<div id="candidateBox" class="box">
 
-  <button id="otherButton" class="variant">
-    <span>+ OTHER</span>
-    <span id="otherCount" class="count">0</span>
-  </button>
+  <div class="sectionTitle">
+    Choose the correct card
+  </div>
 
-  <div id="saved">✓ Added to Google Sheet</div>
+  <div class="helpText">
+    Tap a match below or enter the card number.
+  </div>
 
-  <button id="wrongButton">← WRONG CARD / OTHER MATCHES</button>
+  <div id="candidateList"></div>
 
+  <div id="manualArea">
+
+    <div class="manualRow">
+
+      <input
+        id="manualNumber"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        placeholder="Card #">
+
+      <button id="manualButton">
+        FIND
+      </button>
+
+    </div>
+
+    <div id="manualError">
+      Card number not found.
+    </div>
+
+  </div>
+
+</div>
+
+<div id="sessionBox" class="box">
+  Cards added this session:
+  <div id="sessionCount">0</div>
 </div>
 
 </div>
@@ -400,9 +489,9 @@ button:disabled{opacity:.5}
 
 <script>
 
-/* =========================================
+/* =====================================================
    SETTINGS
-========================================= */
+===================================================== */
 
 const SCRIPT_URL =
 "https://script.google.com/a/macros/ikns.edu.bh/s/AKfycbwDF5oxhER534DF16jG94SHwJ9jS2ySAWJXIKgUsOpXjsdy26JKiu1FOIAsQnOqk_6f/exec";
@@ -414,80 +503,133 @@ const MAX_CARD = 244;
 const IMAGE_SET = "sv10";
 const DENOMINATOR = 182;
 
-/*
-  Small upload size.
-
-  This is deliberate.
-
-  SIFT does NOT need a 1920px image from the
-  phone to identify the card.
-
-  Smaller image = much faster server processing.
-*/
 const UPLOAD_WIDTH = 360;
 const UPLOAD_HEIGHT = 483;
 
 
-/* =========================================
+/* =====================================================
    STATE
-========================================= */
+===================================================== */
 
 let inventoryCards = [];
 let inventoryByNumber = {};
+
 let stream = null;
+
 let rankedMatches = [];
+
 let currentCard = null;
 let currentRecognition = null;
 
+let sessionAdded = 0;
 
-/* =========================================
+let scanning = false;
+
+
+/* =====================================================
    ELEMENTS
-========================================= */
+===================================================== */
 
-const status = document.getElementById("status");
-const progress = document.getElementById("progress");
-const sheetStatus = document.getElementById("sheetStatus");
+const topStatus =
+document.getElementById("topStatus");
 
-const startButton = document.getElementById("startButton");
-const scanButton = document.getElementById("scanButton");
+const progress =
+document.getElementById("progress");
 
-const cameraBox = document.getElementById("cameraBox");
-const video = document.getElementById("video");
-const cardGuide = document.getElementById("cardGuide");
-const cropCanvas = document.getElementById("cropCanvas");
+const sheetStatus =
+document.getElementById("sheetStatus");
 
-const candidateBox = document.getElementById("candidateBox");
-const candidateList = document.getElementById("candidateList");
+const startButton =
+document.getElementById("startButton");
 
-const manualNumber = document.getElementById("manualNumber");
-const manualButton = document.getElementById("manualButton");
-const manualError = document.getElementById("manualError");
+const scanButton =
+document.getElementById("scanButton");
 
-const selectedBox = document.getElementById("selectedBox");
-const selectedImage = document.getElementById("selectedImage");
-const selectedName = document.getElementById("selectedName");
-const selectedNumber = document.getElementById("selectedNumber");
-const selectedRarity = document.getElementById("selectedRarity");
-const selectedType = document.getElementById("selectedType");
-const recognitionInfo = document.getElementById("recognitionInfo");
+const cameraBox =
+document.getElementById("cameraBox");
 
-const normalButton = document.getElementById("normalButton");
-const reverseButton = document.getElementById("reverseButton");
-const holoButton = document.getElementById("holoButton");
-const otherButton = document.getElementById("otherButton");
+const video =
+document.getElementById("video");
 
-const normalCount = document.getElementById("normalCount");
-const reverseCount = document.getElementById("reverseCount");
-const holoCount = document.getElementById("holoCount");
-const otherCount = document.getElementById("otherCount");
+const cardGuide =
+document.getElementById("cardGuide");
 
-const saved = document.getElementById("saved");
-const wrongButton = document.getElementById("wrongButton");
+const cropCanvas =
+document.getElementById("cropCanvas");
+
+const resultBox =
+document.getElementById("resultBox");
+
+const selectedImage =
+document.getElementById("selectedImage");
+
+const selectedName =
+document.getElementById("selectedName");
+
+const selectedNumber =
+document.getElementById("selectedNumber");
+
+const selectedRarity =
+document.getElementById("selectedRarity");
+
+const selectedType =
+document.getElementById("selectedType");
+
+const recognitionInfo =
+document.getElementById("recognitionInfo");
+
+const normalButton =
+document.getElementById("normalButton");
+
+const reverseButton =
+document.getElementById("reverseButton");
+
+const holoButton =
+document.getElementById("holoButton");
+
+const otherButton =
+document.getElementById("otherButton");
+
+const normalCount =
+document.getElementById("normalCount");
+
+const reverseCount =
+document.getElementById("reverseCount");
+
+const holoCount =
+document.getElementById("holoCount");
+
+const otherCount =
+document.getElementById("otherCount");
+
+const savedMessage =
+document.getElementById("savedMessage");
+
+const wrongButton =
+document.getElementById("wrongButton");
+
+const candidateBox =
+document.getElementById("candidateBox");
+
+const candidateList =
+document.getElementById("candidateList");
+
+const manualNumber =
+document.getElementById("manualNumber");
+
+const manualButton =
+document.getElementById("manualButton");
+
+const manualError =
+document.getElementById("manualError");
+
+const sessionCount =
+document.getElementById("sessionCount");
 
 
-/* =========================================
+/* =====================================================
    GOOGLE SHEET
-========================================= */
+===================================================== */
 
 window.receiveCards = function(cards){
 
@@ -495,7 +637,11 @@ window.receiveCards = function(cards){
   inventoryByNumber = {};
 
   inventoryCards.forEach(card => {
-    inventoryByNumber[Number(card.number)] = card;
+
+    inventoryByNumber[
+      Number(card.number)
+    ] = card;
+
   });
 
   sheetStatus.innerText =
@@ -505,7 +651,8 @@ window.receiveCards = function(cards){
 
 function loadInventory(){
 
-  const script = document.createElement("script");
+  const script =
+    document.createElement("script");
 
   script.src =
     SCRIPT_URL +
@@ -515,34 +662,30 @@ function loadInventory(){
     Date.now();
 
   script.onerror = function(){
+
     sheetStatus.innerText =
       "⚠ Google Sheet connection failed.";
+
   };
 
   document.body.appendChild(script);
 }
 
 
-/* =========================================
-   INITIALIZE RECOGNIZER
-========================================= */
+/* =====================================================
+   INITIALIZE
+===================================================== */
 
 async function initialize(){
 
   loadInventory();
 
-  status.firstChild.textContent =
-    "Connecting to recognizer...";
-
-  progress.innerText =
-    "Checking the Destined Rivals card library.";
+  setStatus(
+    "Connecting to recognizer...",
+    "Checking the Destined Rivals library."
+  );
 
   try{
-
-    /*
-      Render free tier may be asleep.
-      Give it enough time to wake.
-    */
 
     const controller =
       new AbortController();
@@ -565,59 +708,54 @@ async function initialize(){
     clearTimeout(timeout);
 
     if(!response.ok){
-      throw new Error("Server unavailable.");
+      throw new Error(
+        "Recognition server unavailable."
+      );
     }
 
-    const data =
+    let data =
       await response.json();
 
     if(!data.library_ready){
 
-      status.firstChild.textContent =
-        "Recognizer warming up...";
+      setStatus(
+        "Recognizer warming up...",
+        "Preparing the card library."
+      );
 
-      progress.innerText =
-        "Preparing 244 Destined Rivals cards.";
-
-      let ready = false;
-
-      for(let i=0;i<40;i++){
+      for(let i=0;i<45;i++){
 
         await sleep(2000);
 
-        try{
+        const check =
+          await fetch(
+            RECOGNIZER_URL + "/",
+            {cache:"no-store"}
+          );
 
-          const check =
-            await fetch(
-              RECOGNIZER_URL + "/",
-              {cache:"no-store"}
-            );
+        data =
+          await check.json();
 
-          const result =
-            await check.json();
-
-          if(result.library_ready){
-            ready = true;
-            break;
-          }
-
-        }catch(error){}
-      }
-
-      if(!ready){
-        throw new Error(
-          "Recognizer is taking too long to prepare."
-        );
+        if(data.library_ready){
+          break;
+        }
       }
     }
 
-    status.firstChild.textContent =
-      "✓ Scanner ready";
+    if(!data.library_ready){
 
-    progress.innerText =
-      "Press START CAMERA.";
+      throw new Error(
+        "Card library did not finish loading."
+      );
+    }
+
+    setStatus(
+      "✓ Scanner ready",
+      "Press START CAMERA."
+    );
 
     startButton.disabled = false;
+
     startButton.innerText =
       "📷 START CAMERA";
 
@@ -625,43 +763,67 @@ async function initialize(){
 
     console.error(error);
 
-    status.firstChild.textContent =
-      "Recognizer unavailable";
-
-    progress.innerText =
-      "Render may be waking up. Refresh in about one minute.";
+    setStatus(
+      "Recognizer unavailable",
+      "Render may be waking up. Refresh in about one minute."
+    );
   }
 }
 
 
 function sleep(ms){
+
   return new Promise(
-    resolve => setTimeout(resolve,ms)
+    resolve =>
+      setTimeout(resolve,ms)
   );
 }
 
 
-/* =========================================
+function setStatus(
+  title,
+  message
+){
+
+  topStatus.childNodes[0].nodeValue =
+    title;
+
+  progress.innerText =
+    message;
+}
+
+
+/* =====================================================
    CAMERA
-========================================= */
+===================================================== */
 
 async function startCamera(){
 
   try{
 
     stream =
-      await navigator.mediaDevices.getUserMedia({
+      await navigator.mediaDevices
+      .getUserMedia({
 
         video:{
-          facingMode:{ideal:"environment"},
-          width:{ideal:1920},
-          height:{ideal:1080}
+          facingMode:{
+            ideal:"environment"
+          },
+
+          width:{
+            ideal:1920
+          },
+
+          height:{
+            ideal:1080
+          }
         },
 
         audio:false
       });
 
-    video.srcObject = stream;
+    video.srcObject =
+      stream;
 
     await video.play();
 
@@ -674,28 +836,26 @@ async function startCamera(){
     scanButton.style.display =
       "block";
 
-    status.firstChild.textContent =
-      "Camera ready";
-
-    progress.innerText =
-      "Place a card inside the white frame.";
+    setStatus(
+      "Camera ready",
+      "Place a card inside the white frame."
+    );
 
   }catch(error){
 
     console.error(error);
 
-    status.firstChild.textContent =
-      "Camera could not start";
-
-    progress.innerText =
-      error.message;
+    setStatus(
+      "Camera could not start",
+      error.message
+    );
   }
 }
 
 
-/* =========================================
-   CAPTURE ENTIRE WHITE GUIDE
-========================================= */
+/* =====================================================
+   CAPTURE WHITE GUIDE
+===================================================== */
 
 function captureGuide(){
 
@@ -713,40 +873,37 @@ function captureGuide(){
     video.videoHeight /
     videoRect.height;
 
-  /*
-    Capture the ENTIRE white guide.
-
-    We intentionally keep the small margin
-    around the physical card.
-
-    SIFT can handle this and it prevents
-    slightly rotated cards being chopped off.
-  */
-
   let sourceX =
-    (guideRect.left - videoRect.left) *
-    scaleX;
+    (
+      guideRect.left -
+      videoRect.left
+    ) * scaleX;
 
   let sourceY =
-    (guideRect.top - videoRect.top) *
-    scaleY;
+    (
+      guideRect.top -
+      videoRect.top
+    ) * scaleY;
 
   let sourceWidth =
-    guideRect.width * scaleX;
+    guideRect.width *
+    scaleX;
 
   let sourceHeight =
-    guideRect.height * scaleY;
-
-  /*
-    Protect against rounding placing the crop
-    outside the video.
-  */
+    guideRect.height *
+    scaleY;
 
   sourceX =
-    Math.max(0,sourceX);
+    Math.max(
+      0,
+      sourceX
+    );
 
   sourceY =
-    Math.max(0,sourceY);
+    Math.max(
+      0,
+      sourceY
+    );
 
   sourceWidth =
     Math.min(
@@ -772,8 +929,11 @@ function captureGuide(){
       {alpha:false}
     );
 
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
+  ctx.imageSmoothingEnabled =
+    true;
+
+  ctx.imageSmoothingQuality =
+    "high";
 
   ctx.drawImage(
     video,
@@ -793,9 +953,9 @@ function captureGuide(){
 }
 
 
-/* =========================================
+/* =====================================================
    JPEG
-========================================= */
+===================================================== */
 
 function canvasToBlob(canvas){
 
@@ -803,14 +963,17 @@ function canvasToBlob(canvas){
     (resolve,reject) => {
 
       canvas.toBlob(
-        function(blob){
+        blob => {
 
           if(blob){
+
             resolve(blob);
+
           }else{
+
             reject(
               new Error(
-                "Could not capture image."
+                "Could not capture card."
               )
             );
           }
@@ -818,11 +981,6 @@ function canvasToBlob(canvas){
         },
 
         "image/jpeg",
-
-        /*
-          0.82 is plenty for SIFT while keeping
-          the upload very small.
-        */
         0.82
       );
     }
@@ -830,9 +988,9 @@ function canvasToBlob(canvas){
 }
 
 
-/* =========================================
-   RECOGNITION REQUEST
-========================================= */
+/* =====================================================
+   SERVER RECOGNITION
+===================================================== */
 
 async function recognizeCard(blob){
 
@@ -845,14 +1003,6 @@ async function recognizeCard(blob){
     "card.jpg"
   );
 
-  /*
-    Allow up to 90 seconds.
-
-    This protects against a sleeping Render
-    instance without allowing the scanner to
-    hang forever.
-  */
-
   const controller =
     new AbortController();
 
@@ -862,13 +1012,12 @@ async function recognizeCard(blob){
       90000
     );
 
-  let response;
-
   try{
 
-    response =
+    const response =
       await fetch(
-        RECOGNIZER_URL + "/recognize",
+        RECOGNIZER_URL +
+        "/recognize",
         {
           method:"POST",
           body:formData,
@@ -876,11 +1025,35 @@ async function recognizeCard(blob){
         }
       );
 
+    if(!response.ok){
+
+      let message =
+        "Recognition server error.";
+
+      try{
+
+        const errorData =
+          await response.json();
+
+        message =
+          errorData.detail ||
+          message;
+
+      }catch(error){}
+
+      throw new Error(
+        message
+      );
+    }
+
+    return await response.json();
+
   }catch(error){
 
     if(error.name === "AbortError"){
+
       throw new Error(
-        "Recognition timed out. Please scan again."
+        "Recognition timed out. Scan again."
       );
     }
 
@@ -890,79 +1063,54 @@ async function recognizeCard(blob){
 
     clearTimeout(timeout);
   }
-
-  if(!response.ok){
-
-    let message =
-      "Recognition server error.";
-
-    try{
-
-      const errorData =
-        await response.json();
-
-      message =
-        errorData.detail || message;
-
-    }catch(error){}
-
-    throw new Error(message);
-  }
-
-  return await response.json();
 }
 
 
-/* =========================================
-   SCAN CARD
-========================================= */
+/* =====================================================
+   SCAN
+===================================================== */
 
 async function scanCard(){
 
-  scanButton.disabled = true;
-  scanButton.innerText =
-    "ANALYZING...";
+  if(scanning){
+    return;
+  }
+
+  scanning = true;
+
+  currentCard = null;
+  currentRecognition = null;
+  rankedMatches = [];
+
+  resultBox.style.display =
+    "none";
 
   candidateBox.style.display =
     "none";
 
-  selectedBox.style.display =
+  savedMessage.style.display =
     "none";
 
-  manualError.style.display =
-    "none";
+  scanButton.disabled =
+    true;
 
-  status.firstChild.textContent =
-    "Recognizing card...";
+  scanButton.innerText =
+    "ANALYZING...";
 
-  progress.innerText =
-    "Comparing against 244 Destined Rivals cards.";
-
-  /*
-    If recognition takes longer than expected,
-    explain why instead of appearing frozen.
-  */
+  setStatus(
+    "Recognizing card...",
+    "Comparing card against Destined Rivals."
+  );
 
   const slowMessage =
     setTimeout(
-      function(){
+      () => {
 
         progress.innerText =
-          "Still working — the recognition server may be waking up.";
+          "Still working — recognizer may be waking up.";
 
       },
       8000
-    );
-
-  const verySlowMessage =
-    setTimeout(
-      function(){
-
-        progress.innerText =
-          "Still recognizing. First scan after inactivity can take longer.";
-
-      },
-      25000
     );
 
   try{
@@ -971,27 +1119,27 @@ async function scanCard(){
       captureGuide();
 
     const blob =
-      await canvasToBlob(canvas);
-
-    console.log(
-      "Upload size:",
-      Math.round(blob.size/1024),
-      "KB"
-    );
+      await canvasToBlob(
+        canvas
+      );
 
     const result =
-      await recognizeCard(blob);
+      await recognizeCard(
+        blob
+      );
 
-    clearTimeout(slowMessage);
-    clearTimeout(verySlowMessage);
+    clearTimeout(
+      slowMessage
+    );
 
     if(
-      result.status !== "matched" ||
+      result.status !==
+      "matched" ||
       !result.best_match
     ){
 
       throw new Error(
-        "No reliable match was found."
+        "No reliable card match found."
       );
     }
 
@@ -1000,28 +1148,35 @@ async function scanCard(){
 
     rankedMatches =
       (result.top_matches || [])
-      .map(match => ({
+      .map(
+        match => ({
 
-        number:
-          Number(match.number),
+          number:
+            Number(
+              match.number
+            ),
 
-        score:
-          Number(match.score || 0),
+          good_matches:
+            Number(
+              match.good_matches || 0
+            ),
 
-        good_matches:
-          Number(match.good_matches || 0),
+          inliers:
+            Number(
+              match.inliers || 0
+            ),
 
-        inliers:
-          Number(match.inliers || 0),
+          inlier_ratio:
+            Number(
+              match.inlier_ratio || 0
+            ),
 
-        inlier_ratio:
-          Number(match.inlier_ratio || 0)
-
-      }));
-
-    /*
-      Ensure best match is first.
-    */
+          score:
+            Number(
+              match.score || 0
+            )
+        })
+      );
 
     const bestNumber =
       Number(
@@ -1029,293 +1184,63 @@ async function scanCard(){
       );
 
     if(
-      !rankedMatches.some(
-        match =>
-          match.number === bestNumber
-      )
-    ){
-
-      rankedMatches.unshift({
-
-        number:bestNumber,
-
-        score:
-          Number(
-            result.best_match.score || 0
-          ),
-
-        good_matches:
-          Number(
-            result.best_match.good_matches || 0
-          ),
-
-        inliers:
-          Number(
-            result.best_match.inliers || 0
-          ),
-
-        inlier_ratio:
-          Number(
-            result.best_match.inlier_ratio || 0
-          )
-      });
-    }
-
-    /*
-      Put actual best match first even if
-      backend order ever changes.
-    */
-
-    rankedMatches.sort(
-      (a,b) => {
-
-        if(a.number === bestNumber){
-          return -1;
-        }
-
-        if(b.number === bestNumber){
-          return 1;
-        }
-
-        return b.score-a.score;
-      }
-    );
-
-    if(
       result.confident === true &&
-      inventoryByNumber[bestNumber]
+      inventoryByNumber[
+        bestNumber
+      ]
     ){
 
-      chooseCard(
+      showCard(
         bestNumber,
         result.best_match
       );
 
-      status.firstChild.textContent =
-        "✓ Card recognized";
-
-      progress.innerText =
-        "Choose the version you are adding.";
+      setStatus(
+        "✓ Card recognized",
+        "Tap the version below."
+      );
 
     }else{
 
       showCandidates();
 
-      status.firstChild.textContent =
-        "Check the match";
-
-      progress.innerText =
-        "The scanner is not fully confident. Tap the correct card.";
+      setStatus(
+        "Check the match",
+        "Tap the correct card."
+      );
     }
 
   }catch(error){
 
-    clearTimeout(slowMessage);
-    clearTimeout(verySlowMessage);
+    clearTimeout(
+      slowMessage
+    );
 
     console.error(error);
 
-    status.firstChild.textContent =
-      "Scan failed";
-
-    progress.innerText =
-      error.message;
+    setStatus(
+      "Scan failed",
+      error.message
+    );
 
   }finally{
 
-    scanButton.disabled = false;
+    scanning = false;
+
+    scanButton.disabled =
+      false;
 
     scanButton.innerText =
-      "🔍 SCAN AGAIN";
+      "🔍 SCAN CARD";
   }
 }
 
 
-/* =========================================
-   CANDIDATES
-========================================= */
+/* =====================================================
+   SHOW RECOGNIZED CARD
+===================================================== */
 
-function showCandidates(){
-
-  candidateList.innerHTML = "";
-
-  rankedMatches
-  .slice(0,5)
-  .forEach(match => {
-
-    const card =
-      inventoryByNumber[
-        match.number
-      ];
-
-    const row =
-      document.createElement(
-        "div"
-      );
-
-    row.className =
-      "candidate";
-
-    const image =
-      document.createElement(
-        "img"
-      );
-
-    image.src =
-      `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
-
-    const info =
-      document.createElement(
-        "div"
-      );
-
-    info.className =
-      "candidateInfo";
-
-    const name =
-      document.createElement(
-        "div"
-      );
-
-    name.className =
-      "candidateName";
-
-    name.innerText =
-      card
-      ? card.name
-      : "Destined Rivals Card";
-
-    const number =
-      document.createElement(
-        "div"
-      );
-
-    number.className =
-      "candidateNumber";
-
-    number.innerText =
-      "#" +
-      String(match.number)
-      .padStart(3,"0") +
-      "/" +
-      DENOMINATOR;
-
-    const score =
-      document.createElement(
-        "div"
-      );
-
-    score.className =
-      "candidateScore";
-
-    const ratio =
-      Math.round(
-        match.inlier_ratio * 100
-      );
-
-    score.innerText =
-      `${match.inliers} geometric matches` +
-      (ratio
-        ? ` • ${ratio}% agreement`
-        : "");
-
-    const choose =
-      document.createElement(
-        "div"
-      );
-
-    choose.className =
-      "choose";
-
-    choose.innerText =
-      "›";
-
-    info.appendChild(name);
-    info.appendChild(number);
-    info.appendChild(score);
-
-    row.appendChild(image);
-    row.appendChild(info);
-    row.appendChild(choose);
-
-    row.addEventListener(
-      "click",
-      function(){
-
-        chooseCard(
-          match.number,
-          match
-        );
-      }
-    );
-
-    candidateList.appendChild(
-      row
-    );
-  });
-
-  candidateBox.style.display =
-    "block";
-
-  candidateBox.scrollIntoView({
-    behavior:"smooth",
-    block:"start"
-  });
-}
-
-
-/* =========================================
-   MANUAL CARD NUMBER
-========================================= */
-
-function findManualCard(){
-
-  manualError.style.display =
-    "none";
-
-  const number =
-    Number(
-      manualNumber.value
-    );
-
-  if(
-    !number ||
-    number < 1 ||
-    number > MAX_CARD
-  ){
-
-    manualError.innerText =
-      "Enter a card number from 1 to 244.";
-
-    manualError.style.display =
-      "block";
-
-    return;
-  }
-
-  if(!inventoryByNumber[number]){
-
-    manualError.innerText =
-      "That card was not found in the Google Sheet.";
-
-    manualError.style.display =
-      "block";
-
-    return;
-  }
-
-  chooseCard(
-    number,
-    null
-  );
-}
-
-
-/* =========================================
-   SELECT CARD
-========================================= */
-
-function chooseCard(
+function showCard(
   number,
   recognitionMatch=null
 ){
@@ -1327,16 +1252,16 @@ function chooseCard(
 
   if(!card){
 
-    manualError.innerText =
-      "Google Sheet data is not available for this card.";
-
-    manualError.style.display =
-      "block";
+    setStatus(
+      "Card unavailable",
+      "Card was not found in Google Sheet."
+    );
 
     return;
   }
 
-  currentCard = card;
+  currentCard =
+    card;
 
   selectedImage.src =
     `https://images.pokemontcg.io/${IMAGE_SET}/${Number(card.number)}.png`;
@@ -1361,24 +1286,28 @@ function chooseCard(
 
     const inliers =
       Number(
-        recognitionMatch.inliers || 0
+        recognitionMatch.inliers ||
+        0
       );
 
     const ratio =
       Math.round(
         Number(
-          recognitionMatch.inlier_ratio || 0
+          recognitionMatch.inlier_ratio ||
+          0
         ) * 100
+      );
+
+    recognitionInfo.innerText =
+      `${inliers} verified matches` +
+      (
+        ratio
+        ? ` • ${ratio}% agreement`
+        : ""
       );
 
     recognitionInfo.style.display =
       "block";
-
-    recognitionInfo.innerText =
-      `Recognition: ${inliers} verified matches` +
-      (ratio
-        ? ` • ${ratio}% geometric agreement`
-        : "");
 
   }else{
 
@@ -1388,11 +1317,6 @@ function chooseCard(
 
   updateCounts();
 
-  /*
-    Reverse Holo only appears when this card
-    supports it in the inventory data.
-  */
-
   if(card.reverse === null){
 
     reverseButton.style.display =
@@ -1401,34 +1325,20 @@ function chooseCard(
   }else{
 
     reverseButton.style.display =
-      "flex";
+      "block";
   }
 
-  saved.style.display =
-    "none";
+  resultBox.style.display =
+    "block";
 
   candidateBox.style.display =
     "none";
-
-  selectedBox.style.display =
-    "block";
-
-  status.firstChild.textContent =
-    "Card selected";
-
-  progress.innerText =
-    "Choose the version you are adding.";
-
-  selectedBox.scrollIntoView({
-    behavior:"smooth",
-    block:"start"
-  });
 }
 
 
-/* =========================================
+/* =====================================================
    COUNTS
-========================================= */
+===================================================== */
 
 function updateCounts(){
 
@@ -1437,32 +1347,44 @@ function updateCounts(){
   }
 
   normalCount.innerText =
-    Number(
-      currentCard.normal
-    ) || 0;
+    "Current: " +
+    (
+      Number(
+        currentCard.normal
+      ) || 0
+    );
 
   reverseCount.innerText =
     currentCard.reverse === null
-    ? "-"
-    : Number(
-        currentCard.reverse
-      ) || 0;
+    ? "Not available"
+    : "Current: " +
+      (
+        Number(
+          currentCard.reverse
+        ) || 0
+      );
 
   holoCount.innerText =
-    Number(
-      currentCard.holo
-    ) || 0;
+    "Current: " +
+    (
+      Number(
+        currentCard.holo
+      ) || 0
+    );
 
   otherCount.innerText =
-    Number(
-      currentCard.other
-    ) || 0;
+    "Current: " +
+    (
+      Number(
+        currentCard.other
+      ) || 0
+    );
 }
 
 
-/* =========================================
-   ADD TO GOOGLE SHEET
-========================================= */
+/* =====================================================
+   ADD CARD
+===================================================== */
 
 function addCard(variant){
 
@@ -1477,6 +1399,10 @@ function addCard(variant){
     return;
   }
 
+  disableVariantButtons(
+    true
+  );
+
   currentCard[variant] =
     (
       Number(
@@ -1485,6 +1411,11 @@ function addCard(variant){
     ) + 1;
 
   updateCounts();
+
+  sessionAdded++;
+
+  sessionCount.innerText =
+    sessionAdded;
 
   const form =
     document.createElement(
@@ -1504,14 +1435,23 @@ function addCard(variant){
     "none";
 
   const fields = {
-    action:"changeQuantity",
-    row:currentCard.row,
-    variant:variant,
-    change:1
+
+    action:
+      "changeQuantity",
+
+    row:
+      currentCard.row,
+
+    variant:
+      variant,
+
+    change:
+      1
   };
 
-  Object.entries(fields)
-  .forEach(
+  Object.entries(
+    fields
+  ).forEach(
     ([name,value]) => {
 
       const input =
@@ -1545,62 +1485,315 @@ function addCard(variant){
     1000
   );
 
-  saved.innerText =
+  savedMessage.innerText =
     "✓ Added to Google Sheet";
 
-  saved.style.display =
+  savedMessage.style.display =
     "block";
 
+  setStatus(
+    "✓ Card added",
+    "Replace the card with the next one."
+  );
+
+  /*
+    Very short confirmation.
+    Then immediately return to scanning.
+  */
+
   setTimeout(
-    resetForNextCard,
-    850
+    prepareNextCard,
+    650
   );
 }
 
 
-/* =========================================
-   RESET
-========================================= */
+/* =====================================================
+   PREPARE NEXT CARD
+===================================================== */
 
-function resetForNextCard(){
+function prepareNextCard(){
 
   currentCard = null;
   currentRecognition = null;
   rankedMatches = [];
 
-  manualNumber.value = "";
-
-  manualError.style.display =
-    "none";
-
-  saved.style.display =
-    "none";
-
-  selectedBox.style.display =
+  resultBox.style.display =
     "none";
 
   candidateBox.style.display =
     "none";
 
-  status.firstChild.textContent =
-    "Ready for next card";
+  savedMessage.style.display =
+    "none";
 
-  progress.innerText =
-    "Place the next card inside the white frame.";
+  manualNumber.value =
+    "";
+
+  manualError.style.display =
+    "none";
+
+  disableVariantButtons(
+    false
+  );
 
   scanButton.innerText =
     "🔍 SCAN CARD";
 
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
+  setStatus(
+    "Ready for next card",
+    "Replace the card, then tap SCAN CARD."
+  );
+
+  /*
+    Keep the page positioned around
+    the camera/scanner rather than
+    jumping down the page.
+  */
+
+  cameraBox.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
   });
 }
 
 
-/* =========================================
+function disableVariantButtons(
+  disabled
+){
+
+  normalButton.disabled =
+    disabled;
+
+  reverseButton.disabled =
+    disabled;
+
+  holoButton.disabled =
+    disabled;
+
+  otherButton.disabled =
+    disabled;
+}
+
+
+/* =====================================================
+   CANDIDATES
+===================================================== */
+
+function showCandidates(){
+
+  candidateList.innerHTML =
+    "";
+
+  rankedMatches
+  .slice(0,5)
+  .forEach(
+    match => {
+
+      const card =
+        inventoryByNumber[
+          match.number
+        ];
+
+      const row =
+        document.createElement(
+          "div"
+        );
+
+      row.className =
+        "candidate";
+
+      const image =
+        document.createElement(
+          "img"
+        );
+
+      image.src =
+        `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
+
+      const info =
+        document.createElement(
+          "div"
+        );
+
+      info.className =
+        "candidateInfo";
+
+      const name =
+        document.createElement(
+          "div"
+        );
+
+      name.className =
+        "candidateName";
+
+      name.innerText =
+        card
+        ? card.name
+        : "Destined Rivals Card";
+
+      const number =
+        document.createElement(
+          "div"
+        );
+
+      number.className =
+        "candidateNumber";
+
+      number.innerText =
+        "#" +
+        String(
+          match.number
+        ).padStart(
+          3,
+          "0"
+        ) +
+        "/" +
+        DENOMINATOR;
+
+      const score =
+        document.createElement(
+          "div"
+        );
+
+      score.className =
+        "candidateScore";
+
+      const ratio =
+        Math.round(
+          match.inlier_ratio *
+          100
+        );
+
+      score.innerText =
+        `${match.inliers} verified matches` +
+        (
+          ratio
+          ? ` • ${ratio}%`
+          : ""
+        );
+
+      const choose =
+        document.createElement(
+          "div"
+        );
+
+      choose.className =
+        "choose";
+
+      choose.innerText =
+        "›";
+
+      info.appendChild(
+        name
+      );
+
+      info.appendChild(
+        number
+      );
+
+      info.appendChild(
+        score
+      );
+
+      row.appendChild(
+        image
+      );
+
+      row.appendChild(
+        info
+      );
+
+      row.appendChild(
+        choose
+      );
+
+      row.addEventListener(
+        "click",
+        () => {
+
+          showCard(
+            match.number,
+            match
+          );
+
+          setStatus(
+            "Card selected",
+            "Tap the version below."
+          );
+        }
+      );
+
+      candidateList.appendChild(
+        row
+      );
+    }
+  );
+
+  candidateBox.style.display =
+    "block";
+}
+
+
+/* =====================================================
+   MANUAL CARD
+===================================================== */
+
+function findManualCard(){
+
+  manualError.style.display =
+    "none";
+
+  const number =
+    Number(
+      manualNumber.value
+    );
+
+  if(
+    !number ||
+    number < 1 ||
+    number > MAX_CARD
+  ){
+
+    manualError.innerText =
+      "Enter a card number from 1 to 244.";
+
+    manualError.style.display =
+      "block";
+
+    return;
+  }
+
+  if(
+    !inventoryByNumber[
+      number
+    ]
+  ){
+
+    manualError.innerText =
+      "Card not found in Google Sheet.";
+
+    manualError.style.display =
+      "block";
+
+    return;
+  }
+
+  showCard(
+    number,
+    null
+  );
+
+  setStatus(
+    "Card selected manually",
+    "Tap the version below."
+  );
+}
+
+
+/* =====================================================
    EVENTS
-========================================= */
+===================================================== */
 
 startButton.addEventListener(
   "click",
@@ -1610,24 +1803,6 @@ startButton.addEventListener(
 scanButton.addEventListener(
   "click",
   scanCard
-);
-
-manualButton.addEventListener(
-  "click",
-  findManualCard
-);
-
-manualNumber.addEventListener(
-  "keydown",
-  function(event){
-
-    if(event.key === "Enter"){
-
-      event.preventDefault();
-
-      findManualCard();
-    }
-  }
 );
 
 normalButton.addEventListener(
@@ -1652,59 +1827,80 @@ otherButton.addEventListener(
 
 wrongButton.addEventListener(
   "click",
-  function(){
+  () => {
 
-    selectedBox.style.display =
+    resultBox.style.display =
       "none";
 
-    if(rankedMatches.length){
+    if(
+      rankedMatches.length
+    ){
 
       showCandidates();
 
-      status.firstChild.textContent =
-        "Choose the correct card";
-
-      progress.innerText =
-        "Select a candidate or enter the card number.";
+      setStatus(
+        "Choose the correct card",
+        "Tap a candidate below."
+      );
 
     }else{
 
       candidateBox.style.display =
         "block";
 
-      status.firstChild.textContent =
-        "Enter card number";
+      setStatus(
+        "Enter card number",
+        "Use the manual card number box."
+      );
+    }
+  }
+);
 
-      progress.innerText =
-        "Use the manual card number box.";
+manualButton.addEventListener(
+  "click",
+  findManualCard
+);
+
+manualNumber.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.key === "Enter"
+    ){
+
+      event.preventDefault();
+
+      findManualCard();
     }
   }
 );
 
 
-/* =========================================
+/* =====================================================
    CLEANUP
-========================================= */
+===================================================== */
 
 window.addEventListener(
   "pagehide",
-  function(){
+  () => {
 
     if(stream){
 
       stream
       .getTracks()
       .forEach(
-        track => track.stop()
+        track =>
+          track.stop()
       );
     }
   }
 );
 
 
-/* =========================================
+/* =====================================================
    START
-========================================= */
+===================================================== */
 
 initialize();
 
