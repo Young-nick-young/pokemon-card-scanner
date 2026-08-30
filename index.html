@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<title>Scanner Compatibility Test</title>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, viewport-fit=cover"
+>
+
+<title>Pokémon Scanner Compatibility Test</title>
 
 <style>
 * {
@@ -13,7 +17,7 @@
 
 body {
   margin: 0;
-  padding: 20px;
+  padding: 18px;
   font-family: Arial, sans-serif;
   background: #f3f3f3;
   color: #222;
@@ -27,21 +31,23 @@ body {
 h1 {
   text-align: center;
   font-size: 22px;
+  margin-bottom: 18px;
 }
 
 .intro {
   background: white;
   padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  line-height: 1.5;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  line-height: 1.45;
 }
 
 .result {
   background: white;
-  padding: 14px;
-  border-radius: 10px;
+  padding: 15px;
+  border-radius: 11px;
   margin-bottom: 8px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -67,35 +73,50 @@ h1 {
 }
 
 #overall {
-  margin-top: 18px;
-  padding: 18px;
-  border-radius: 12px;
-  text-align: center;
   background: white;
+  padding: 18px;
+  margin-top: 15px;
+  border-radius: 14px;
+
+  text-align: center;
   font-weight: bold;
   line-height: 1.5;
 }
 
+#timer {
+  text-align: center;
+  margin-top: 8px;
+  color: #777;
+  font-size: 12px;
+}
+
 button {
   width: 100%;
-  margin-top: 15px;
+  margin-top: 14px;
   padding: 15px;
-  border: 0;
+
+  border: none;
   border-radius: 10px;
+
   background: #222;
   color: white;
+
   font-size: 16px;
   font-weight: bold;
 }
 
 #details {
-  margin-top: 15px;
-  padding: 12px;
+  margin-top: 14px;
+  padding: 13px;
+
   background: #222;
   color: #eee;
+
   border-radius: 10px;
+
   font-family: monospace;
   font-size: 11px;
+
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -109,156 +130,343 @@ button {
 <h1>Pokémon Scanner Test</h1>
 
 <div class="intro">
-This page checks whether your phone's browser can use the OpenCV features needed for proper Pokémon card image matching.
+This checks exactly which OpenCV features are available in your phone's browser.
+The test will stop automatically if OpenCV does not load.
 </div>
+
 
 <div class="result">
   <span class="name">OpenCV.js</span>
-  <span id="opencv" class="wait">TESTING...</span>
+  <span id="opencv" class="wait">WAITING</span>
 </div>
 
 <div class="result">
   <span class="name">OpenCV Mat</span>
-  <span id="mat" class="wait">TESTING...</span>
+  <span id="mat" class="wait">WAITING</span>
 </div>
 
 <div class="result">
   <span class="name">ORB</span>
-  <span id="orb" class="wait">TESTING...</span>
+  <span id="orb" class="wait">WAITING</span>
+</div>
+
+<div class="result">
+  <span class="name">ORB Create</span>
+  <span id="orbCreate" class="wait">WAITING</span>
 </div>
 
 <div class="result">
   <span class="name">BFMatcher</span>
-  <span id="bfmatcher" class="wait">TESTING...</span>
+  <span id="bfmatcher" class="wait">WAITING</span>
 </div>
 
 <div class="result">
   <span class="name">DescriptorMatcher</span>
-  <span id="descriptor" class="wait">TESTING...</span>
+  <span id="descriptor" class="wait">WAITING</span>
 </div>
 
 <div class="result">
   <span class="name">Hamming Constant</span>
-  <span id="hamming" class="wait">TESTING...</span>
+  <span id="hamming" class="wait">WAITING</span>
 </div>
 
 <div class="result">
   <span class="name">AKAZE</span>
-  <span id="akaze" class="wait">TESTING...</span>
+  <span id="akaze" class="wait">WAITING</span>
 </div>
 
 <div class="result">
   <span class="name">Camera API</span>
-  <span id="camera" class="wait">TESTING...</span>
+  <span id="camera" class="wait">WAITING</span>
 </div>
+
 
 <div id="overall">
-Loading OpenCV...
+Starting test...
 </div>
 
-<button onclick="runTests()">
+<div id="timer">
+0 seconds
+</div>
+
+
+<button onclick="location.reload()">
 RUN TEST AGAIN
 </button>
 
+
 <div id="details">
-Waiting...
+Starting...
 </div>
 
 </div>
+
 
 <script>
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+const OPENCV_URL =
+  "https://docs.opencv.org/4.x/opencv.js";
+
+const MAX_WAIT_MS =
+  20000;
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
 let CV = null;
 
-function setResult(id, available) {
+let startTime =
+  Date.now();
 
-  const element =
-    document.getElementById(id);
+let timerInterval =
+  null;
 
-  if (available) {
+let finished =
+  false;
 
-    element.innerText =
-      "✓ AVAILABLE";
+const logLines =
+  [];
 
-    element.className =
-      "pass";
 
-  } else {
+/* =====================================================
+   UI HELPERS
+===================================================== */
 
-    element.innerText =
-      "✕ NOT AVAILABLE";
+function log(message) {
 
-    element.className =
-      "fail";
+  logLines.push(message);
 
-  }
+  document.getElementById(
+    "details"
+  ).innerText =
+    logLines.join("\n");
+
 }
 
 
-function resetResults() {
+function waiting(id) {
+
+  const el =
+    document.getElementById(id);
+
+  el.innerText =
+    "TESTING...";
+
+  el.className =
+    "wait";
+
+}
+
+
+function pass(id) {
+
+  const el =
+    document.getElementById(id);
+
+  el.innerText =
+    "✓ AVAILABLE";
+
+  el.className =
+    "pass";
+
+}
+
+
+function fail(id) {
+
+  const el =
+    document.getElementById(id);
+
+  el.innerText =
+    "✕ NOT AVAILABLE";
+
+  el.className =
+    "fail";
+
+}
+
+
+function markRemainingFailed() {
 
   const ids = [
     "opencv",
     "mat",
     "orb",
+    "orbCreate",
     "bfmatcher",
     "descriptor",
     "hamming",
-    "akaze",
-    "camera"
+    "akaze"
   ];
 
   ids.forEach(function(id) {
 
-    const element =
+    const el =
       document.getElementById(id);
 
-    element.innerText =
-      "TESTING...";
+    if (
+      el.innerText === "WAITING" ||
+      el.innerText === "TESTING..."
+    ) {
 
-    element.className =
-      "wait";
+      fail(id);
+
+    }
 
   });
-
-  document.getElementById(
-    "overall"
-  ).innerText =
-    "Testing...";
 
 }
 
 
-async function loadOpenCV() {
+/* =====================================================
+   TIMER
+===================================================== */
+
+function startTimer() {
+
+  timerInterval =
+    setInterval(function() {
+
+      const seconds =
+        Math.floor(
+          (
+            Date.now() -
+            startTime
+          ) / 1000
+        );
+
+      document.getElementById(
+        "timer"
+      ).innerText =
+        seconds + " seconds";
+
+    }, 250);
+
+}
+
+
+function stopTimer() {
+
+  if (timerInterval) {
+
+    clearInterval(
+      timerInterval
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   CAMERA CHECK
+
+   This does NOT activate the camera.
+   It only checks whether the browser API exists.
+===================================================== */
+
+function testCamera() {
+
+  const available =
+
+    !!(
+      navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getUserMedia ===
+        "function"
+    );
+
+
+  if (available) {
+
+    pass("camera");
+
+  } else {
+
+    fail("camera");
+
+  }
+
+
+  log(
+    "Camera getUserMedia: " +
+    available
+  );
+
+}
+
+
+/* =====================================================
+   LOAD OPENCV SCRIPT
+===================================================== */
+
+function loadOpenCVScript() {
 
   return new Promise(function(resolve, reject) {
 
+    waiting("opencv");
+
+
+    log(
+      "Downloading:"
+    );
+
+    log(
+      OPENCV_URL
+    );
+
+
     /*
-      If OpenCV already loaded,
-      don't load it twice.
+      Remove an old script if this page has
+      somehow loaded one already.
     */
 
-    if (
-      typeof window.cv !== "undefined"
-    ) {
+    const oldScript =
+      document.getElementById(
+        "opencv-script"
+      );
 
-      resolve();
-      return;
+
+    if (oldScript) {
+
+      oldScript.remove();
 
     }
 
 
     const script =
-      document.createElement("script");
+      document.createElement(
+        "script"
+      );
+
+
+    script.id =
+      "opencv-script";
+
 
     script.src =
-      "https://docs.opencv.org/4.x/opencv.js";
+      OPENCV_URL;
 
-    script.async =
-      true;
 
+    /*
+      Important:
+      do NOT use async here.
+
+      We want the browser to finish loading
+      this script predictably.
+    */
 
     script.onload =
       function() {
+
+        log(
+          "OpenCV script download event fired."
+        );
 
         resolve();
 
@@ -266,11 +474,15 @@ async function loadOpenCV() {
 
 
     script.onerror =
-      function() {
+      function(event) {
+
+        log(
+          "OpenCV script DOWNLOAD FAILED."
+        );
 
         reject(
           new Error(
-            "Could not download OpenCV.js"
+            "The OpenCV.js file could not be downloaded."
           )
         );
 
@@ -286,47 +498,113 @@ async function loadOpenCV() {
 }
 
 
-async function getCV() {
+/* =====================================================
+   WAIT FOR OPENCV INITIALISATION
+===================================================== */
 
-  /*
-    OpenCV.js can expose cv either
-    directly or as a Promise depending
-    on the build.
+async function waitForOpenCV() {
 
-    This handles both.
-  */
+  log(
+    "Waiting for cv object..."
+  );
 
-  for (
-    let attempt = 0;
-    attempt < 150;
-    attempt++
+
+  while (
+    Date.now() -
+    startTime <
+    MAX_WAIT_MS
   ) {
 
     if (
-      typeof window.cv !== "undefined"
+      typeof window.cv !==
+      "undefined"
     ) {
+
+      log(
+        "window.cv exists."
+      );
+
 
       let candidate =
         window.cv;
 
 
+      /*
+        Newer OpenCV.js builds can expose
+        cv as a Promise.
+      */
+
       if (
         candidate &&
-        typeof candidate.then === "function"
+        typeof candidate.then ===
+        "function"
       ) {
 
-        candidate =
-          await candidate;
+        log(
+          "cv is Promise-based."
+        );
+
+
+        try {
+
+          candidate =
+            await Promise.race([
+
+              candidate,
+
+              new Promise(
+                function(resolve, reject) {
+
+                  setTimeout(
+                    function() {
+
+                      reject(
+                        new Error(
+                          "OpenCV Promise timed out."
+                        )
+                      );
+
+                    },
+                    10000
+                  );
+
+                }
+              )
+
+            ]);
+
+        }
+
+        catch (error) {
+
+          log(
+            "cv Promise error: " +
+            error.message
+          );
+
+          throw error;
+
+        }
 
       }
 
 
       if (
         candidate &&
-        candidate.Mat
+        typeof candidate.Mat ===
+        "function"
       ) {
 
-        return candidate;
+        CV =
+          candidate;
+
+
+        log(
+          "cv.Mat is ready."
+        );
+
+
+        return true;
 
       }
 
@@ -334,438 +612,472 @@ async function getCV() {
 
 
     await new Promise(
-      resolve =>
-        setTimeout(resolve, 100)
-    );
-
-  }
-
-
-  throw new Error(
-    "OpenCV loaded but did not initialise."
-  );
-
-}
-
-
-function checkConstructor(name) {
-
-  try {
-
-    return (
-      CV &&
-      typeof CV[name] !== "undefined"
-    );
-
-  } catch (error) {
-
-    return false;
-
-  }
-
-}
-
-
-async function runTests() {
-
-  resetResults();
-
-
-  const details =
-    [];
-
-
-  try {
-
-    document.getElementById(
-      "overall"
-    ).innerText =
-      "Loading OpenCV.js...";
-
-
-    await loadOpenCV();
-
-
-    CV =
-      await getCV();
-
-
-    /*
-      OpenCV
-    */
-
-    const openCVAvailable =
-      !!CV;
-
-
-    setResult(
-      "opencv",
-      openCVAvailable
-    );
-
-
-    details.push(
-      "OpenCV object: " +
-      openCVAvailable
-    );
-
-
-    /*
-      MAT
-    */
-
-    let matAvailable =
-      false;
-
-
-    try {
-
-      const testMat =
-        new CV.Mat(
-          10,
-          10,
-          CV.CV_8UC1
-        );
-
-
-      matAvailable =
-        true;
-
-
-      testMat.delete();
-
-    } catch (error) {
-
-      details.push(
-        "Mat error: " +
-        error.message
-      );
-
-    }
-
-
-    setResult(
-      "mat",
-      matAvailable
-    );
-
-
-    /*
-      ORB
-    */
-
-    let orbAvailable =
-      checkConstructor("ORB");
-
-
-    /*
-      Some builds expose ORB_create
-      instead of the constructor.
-    */
-
-    if (
-      !orbAvailable &&
-      typeof CV.ORB_create === "function"
-    ) {
-
-      orbAvailable =
-        true;
-
-    }
-
-
-    setResult(
-      "orb",
-      orbAvailable
-    );
-
-
-    details.push(
-      "cv.ORB: " +
-      typeof CV.ORB
-    );
-
-
-    details.push(
-      "cv.ORB_create: " +
-      typeof CV.ORB_create
-    );
-
-
-    /*
-      BFMatcher
-    */
-
-    const bfAvailable =
-      checkConstructor(
-        "BFMatcher"
-      );
-
-
-    setResult(
-      "bfmatcher",
-      bfAvailable
-    );
-
-
-    details.push(
-      "cv.BFMatcher: " +
-      typeof CV.BFMatcher
-    );
-
-
-    /*
-      DescriptorMatcher
-    */
-
-    const descriptorAvailable =
-      checkConstructor(
-        "DescriptorMatcher"
-      );
-
-
-    setResult(
-      "descriptor",
-      descriptorAvailable
-    );
-
-
-    details.push(
-      "cv.DescriptorMatcher: " +
-      typeof CV.DescriptorMatcher
-    );
-
-
-    /*
-      HAMMING
-    */
-
-    const hammingAvailable =
-
-      typeof CV.NORM_HAMMING !==
-      "undefined";
-
-
-    setResult(
-      "hamming",
-      hammingAvailable
-    );
-
-
-    details.push(
-      "cv.NORM_HAMMING: " +
-      CV.NORM_HAMMING
-    );
-
-
-    /*
-      AKAZE
-
-      Useful fallback if ORB is
-      unavailable.
-    */
-
-    const akazeAvailable =
-      checkConstructor(
-        "AKAZE"
-      );
-
-
-    setResult(
-      "akaze",
-      akazeAvailable
-    );
-
-
-    details.push(
-      "cv.AKAZE: " +
-      typeof CV.AKAZE
-    );
-
-
-    /*
-      CAMERA API
-    */
-
-    const cameraAvailable =
-
-      !!(
-        navigator.mediaDevices &&
-        navigator.mediaDevices.getUserMedia
-      );
-
-
-    setResult(
-      "camera",
-      cameraAvailable
-    );
-
-
-    details.push(
-      "getUserMedia: " +
-      cameraAvailable
-    );
-
-
-    /*
-      VERSION
-    */
-
-    if (
-      typeof CV.getBuildInformation ===
-      "function"
-    ) {
-
-      try {
-
-        const build =
-          CV.getBuildInformation();
-
-
-        details.push(
-          "\nOpenCV build information available: YES"
-        );
-
-
-        /*
-          Only show first part because
-          the complete build string is huge.
-        */
-
-        details.push(
-          "\n" +
-          build.substring(
-            0,
-            800
-          )
-        );
-
-      } catch (error) {
-
-        details.push(
-          "Build information error: " +
-          error.message
+      function(resolve) {
+
+        setTimeout(
+          resolve,
+          100
         );
 
       }
+    );
 
-    }
-
-
-    /*
-      OVERALL RESULT
-    */
-
-    const featureMatcherPossible =
-
-      orbAvailable &&
-
-      (
-        bfAvailable ||
-        descriptorAvailable
-      ) &&
-
-      hammingAvailable;
+  }
 
 
-    if (
-      featureMatcherPossible
-    ) {
+  return false;
 
-      document.getElementById(
-        "overall"
-      ).innerHTML =
+}
 
-        "✅ EXCELLENT<br><br>" +
 
-        "This browser exposes the features " +
+/* =====================================================
+   FEATURE TESTS
+===================================================== */
 
-        "needed for ORB card matching.";
+function testFeatures() {
 
-    }
+  pass("opencv");
 
-    else if (
-      akazeAvailable &&
-      (
-        bfAvailable ||
-        descriptorAvailable
-      )
-    ) {
 
-      document.getElementById(
-        "overall"
-      ).innerHTML =
+  /*
+    MAT
+  */
 
-        "🟡 POSSIBLE<br><br>" +
+  let matWorks =
+    false;
 
-        "ORB is unavailable, but another " +
 
-        "feature detector may be usable.";
+  try {
 
-    }
+    const testMat =
+      new CV.Mat(
+        5,
+        5,
+        CV.CV_8UC1
+      );
 
-    else {
 
-      document.getElementById(
-        "overall"
-      ).innerHTML =
+    matWorks =
+      true;
 
-        "🔴 FEATURE MATCHING NOT AVAILABLE<br><br>" +
 
-        "The standard OpenCV.js build does not " +
-
-        "expose enough of the required feature APIs.";
-
-    }
-
+    testMat.delete();
 
   }
 
   catch (error) {
 
-    console.error(
-      error
-    );
-
-
-    setResult(
-      "opencv",
-      false
-    );
-
-
-    document.getElementById(
-      "overall"
-    ).innerHTML =
-
-      "❌ TEST FAILED<br><br>" +
-
-      error.message;
-
-
-    details.push(
-      "ERROR: " +
+    log(
+      "Mat error: " +
       error.message
     );
 
   }
 
 
-  document.getElementById(
-    "details"
-  ).innerText =
-    details.join("\n");
+  if (matWorks) {
+
+    pass("mat");
+
+  } else {
+
+    fail("mat");
+
+  }
+
+
+  /*
+    ORB
+  */
+
+  const orbExists =
+
+    typeof CV.ORB ===
+    "function";
+
+
+  if (orbExists) {
+
+    pass("orb");
+
+  } else {
+
+    fail("orb");
+
+  }
+
+
+  log(
+    "typeof cv.ORB = " +
+    typeof CV.ORB
+  );
+
+
+  /*
+    ORB CREATE
+  */
+
+  const orbCreateExists =
+
+    typeof CV.ORB_create ===
+    "function";
+
+
+  if (orbCreateExists) {
+
+    pass("orbCreate");
+
+  } else {
+
+    fail("orbCreate");
+
+  }
+
+
+  log(
+    "typeof cv.ORB_create = " +
+    typeof CV.ORB_create
+  );
+
+
+  /*
+    BF MATCHER
+  */
+
+  const bfExists =
+
+    typeof CV.BFMatcher ===
+    "function";
+
+
+  if (bfExists) {
+
+    pass("bfmatcher");
+
+  } else {
+
+    fail("bfmatcher");
+
+  }
+
+
+  log(
+    "typeof cv.BFMatcher = " +
+    typeof CV.BFMatcher
+  );
+
+
+  /*
+    DESCRIPTOR MATCHER
+  */
+
+  const descriptorExists =
+
+    typeof CV.DescriptorMatcher ===
+    "function";
+
+
+  if (descriptorExists) {
+
+    pass("descriptor");
+
+  } else {
+
+    fail("descriptor");
+
+  }
+
+
+  log(
+    "typeof cv.DescriptorMatcher = " +
+    typeof CV.DescriptorMatcher
+  );
+
+
+  /*
+    HAMMING CONSTANT
+  */
+
+  const hammingExists =
+
+    typeof CV.NORM_HAMMING !==
+    "undefined";
+
+
+  if (hammingExists) {
+
+    pass("hamming");
+
+  } else {
+
+    fail("hamming");
+
+  }
+
+
+  log(
+    "cv.NORM_HAMMING = " +
+    String(
+      CV.NORM_HAMMING
+    )
+  );
+
+
+  /*
+    AKAZE
+  */
+
+  const akazeExists =
+
+    typeof CV.AKAZE ===
+    "function";
+
+
+  if (akazeExists) {
+
+    pass("akaze");
+
+  } else {
+
+    fail("akaze");
+
+  }
+
+
+  log(
+    "typeof cv.AKAZE = " +
+    typeof CV.AKAZE
+  );
+
+
+  /*
+    RESULT
+  */
+
+  const matcherExists =
+
+    bfExists ||
+    descriptorExists;
+
+
+  if (
+    orbExists &&
+    matcherExists &&
+    hammingExists
+  ) {
+
+    document.getElementById(
+      "overall"
+    ).innerHTML =
+
+      "✅ ORB MATCHING IS POSSIBLE<br><br>" +
+
+      "This OpenCV.js build exposes the main " +
+      "features we need.";
+
+  }
+
+  else if (
+    orbCreateExists &&
+    matcherExists &&
+    hammingExists
+  ) {
+
+    document.getElementById(
+      "overall"
+    ).innerHTML =
+
+      "✅ ORB MATCHING SHOULD BE POSSIBLE<br><br>" +
+
+      "This build exposes ORB through ORB_create.";
+
+  }
+
+  else if (
+    akazeExists &&
+    matcherExists
+  ) {
+
+    document.getElementById(
+      "overall"
+    ).innerHTML =
+
+      "🟡 ALTERNATIVE FEATURE MATCHING POSSIBLE<br><br>" +
+
+      "ORB is unavailable, but AKAZE may be usable.";
+
+  }
+
+  else {
+
+    document.getElementById(
+      "overall"
+    ).innerHTML =
+
+      "🔴 STANDARD ORB MATCHING NOT AVAILABLE<br><br>" +
+
+      "We will need to use a different recognition method.";
+
+  }
+
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+async function run() {
+
+  startTime =
+    Date.now();
+
+
+  startTimer();
+
+
+  testCamera();
+
+
+  const timeout =
+    setTimeout(function() {
+
+      if (finished) {
+
+        return;
+
+      }
+
+
+      finished =
+        true;
+
+
+      stopTimer();
+
+
+      markRemainingFailed();
+
+
+      document.getElementById(
+        "overall"
+      ).innerHTML =
+
+        "❌ OPENCV LOAD TIMEOUT<br><br>" +
+
+        "OpenCV did not become ready within 20 seconds.";
+
+
+      log(
+        "HARD TIMEOUT reached."
+      );
+
+  }, MAX_WAIT_MS);
+
+
+  try {
+
+    await loadOpenCVScript();
+
+
+    if (finished) {
+
+      return;
+
+    }
+
+
+    const ready =
+      await waitForOpenCV();
+
+
+    if (finished) {
+
+      return;
+
+    }
+
+
+    if (!ready) {
+
+      throw new Error(
+        "OpenCV script loaded, but cv.Mat never became ready."
+      );
+
+    }
+
+
+    testFeatures();
+
+
+    finished =
+      true;
+
+
+    clearTimeout(
+      timeout
+    );
+
+
+    stopTimer();
+
+
+    log(
+      "TEST COMPLETE."
+    );
+
+  }
+
+  catch (error) {
+
+    if (finished) {
+
+      return;
+
+    }
+
+
+    finished =
+      true;
+
+
+    clearTimeout(
+      timeout
+    );
+
+
+    stopTimer();
+
+
+    markRemainingFailed();
+
+
+    document.getElementById(
+      "overall"
+    ).innerHTML =
+
+      "❌ OPENCV FAILED TO LOAD<br><br>" +
+
+      error.message;
+
+
+    log(
+      "ERROR: " +
+      error.message
+    );
+
+  }
 
 }
 
 
 /*
-  Run automatically.
+  Start automatically.
 */
 
 window.addEventListener(
   "load",
-  runTests
+  run
 );
 
 </script>
