@@ -81,9 +81,9 @@
     }
 
     /*
-      LOCKED GUIDE
-      Pokémon card = 63 x 88 mm
-      Guide = 73 x 98 mm
+      LOCKED CARD GUIDE
+      Standard card: 63 mm x 88 mm
+      Guide: 73 mm x 98 mm
     */
     #cardGuide{
       position:absolute;
@@ -380,19 +380,31 @@
 
       <div class="variantGrid">
 
-        <button class="variantButton" data-variant="Normal">
+        <button
+          class="variantButton"
+          data-variant="Normal"
+        >
           Normal
         </button>
 
-        <button class="variantButton" data-variant="Reverse Holo">
+        <button
+          class="variantButton"
+          data-variant="Reverse Holo"
+        >
           Reverse Holo
         </button>
 
-        <button class="variantButton" data-variant="Holo">
+        <button
+          class="variantButton"
+          data-variant="Holo"
+        >
           Holo
         </button>
 
-        <button class="variantButton" data-variant="Other">
+        <button
+          class="variantButton"
+          data-variant="Other"
+        >
           Other
         </button>
 
@@ -1418,12 +1430,16 @@ function resetForNextCard(){
 
 
 /*
-  GOOGLE SHEET WRITE
+=========================================================
+CONFIRMED GOOGLE SHEET WRITE
 
-  Important change:
-  We now wait for the POST iframe to finish loading
-  instead of deleting it after only 500 ms.
+Uses the JSONP route in Code.gs.
+
+The Promise only resolves after Apps Script replies
+with success:true.
+=========================================================
 */
+
 function addQuantity(
   row,
   variant,
@@ -1433,156 +1449,164 @@ function addQuantity(
   return new Promise(
     (resolve,reject)=>{
 
-      const iframe =
-        document.createElement(
-          "iframe"
+      const callbackName =
+        "sheetWrite_" +
+        Date.now() +
+        "_" +
+        Math.floor(
+          Math.random() * 100000
         );
 
-      iframe.name =
-        "sheetFrame_" +
-        Date.now();
 
-      iframe.style.display =
-        "none";
+      const script =
+        document.createElement(
+          "script"
+        );
 
 
-      let submitted = false;
-      let finished = false;
+      let completed = false;
 
 
       function cleanup(){
 
-        if(finished){
-          return;
+        if(
+          window[callbackName]
+        ){
+          delete window[
+            callbackName
+          ];
         }
 
-        finished = true;
-
-        clearTimeout(
-          safetyTimer
-        );
-
-        setTimeout(()=>{
-
-          form.remove();
-          iframe.remove();
-
-        },250);
-
-        resolve();
+        if(
+          script.parentNode
+        ){
+          script.remove();
+        }
 
       }
 
 
-      iframe.addEventListener(
-        "load",
-        ()=>{
-
-          if(submitted){
-            cleanup();
-          }
-
-        }
-      );
-
-
-      document.body.appendChild(
-        iframe
-      );
-
-
-      const form =
-        document.createElement(
-          "form"
-        );
-
-      form.method =
-        "POST";
-
-      form.action =
-        SCRIPT_URL;
-
-      form.target =
-        iframe.name;
-
-      form.style.display =
-        "none";
-
-
-      const fields = {
-
-        action:
-          "changeQuantity",
-
-        row:
-          row,
-
-        variant:
-          variant,
-
-        change:
-          change
-
-      };
-
-
-      Object.entries(
-        fields
-      ).forEach(
-        ([name,value])=>{
-
-          const input =
-            document.createElement(
-              "input"
-            );
-
-          input.type =
-            "hidden";
-
-          input.name =
-            name;
-
-          input.value =
-            value;
-
-          form.appendChild(
-            input
-          );
-
-        }
-      );
-
-
-      document.body.appendChild(
-        form
-      );
-
-
-      const safetyTimer =
+      const timeout =
         setTimeout(
           ()=>{
 
-            if(!finished){
-
-              form.remove();
-              iframe.remove();
-
-              reject(
-                new Error(
-                  "Google Sheet update timed out"
-                )
-              );
-
+            if(completed){
+              return;
             }
+
+            completed = true;
+
+            cleanup();
+
+            reject(
+              new Error(
+                "Google Sheet did not respond."
+              )
+            );
 
           },
           15000
         );
 
 
-      submitted = true;
+      window[callbackName] =
+        function(data){
 
-      form.submit();
+          if(completed){
+            return;
+          }
+
+          completed = true;
+
+          clearTimeout(
+            timeout
+          );
+
+          cleanup();
+
+
+          if(
+            data &&
+            data.success === true
+          ){
+
+            resolve(
+              data.result
+            );
+
+          }else{
+
+            reject(
+              new Error(
+                data &&
+                data.error
+                  ? data.error
+                  : "Google Sheet update failed."
+              )
+            );
+
+          }
+
+        };
+
+
+      script.onerror =
+        function(){
+
+          if(completed){
+            return;
+          }
+
+          completed = true;
+
+          clearTimeout(
+            timeout
+          );
+
+          cleanup();
+
+          reject(
+            new Error(
+              "Could not contact Google Sheet."
+            )
+          );
+
+        };
+
+
+      const parameters =
+        new URLSearchParams({
+
+          api:
+            "changeQuantity",
+
+          row:
+            String(row),
+
+          variant:
+            String(variant),
+
+          change:
+            String(change),
+
+          callback:
+            callbackName,
+
+          _:
+            String(Date.now())
+
+        });
+
+
+      script.src =
+        SCRIPT_URL +
+        "?" +
+        parameters.toString();
+
+
+      document.body.appendChild(
+        script
+      );
 
     }
   );
@@ -1631,12 +1655,18 @@ async function chooseVariant(
 
   try{
 
-    await addQuantity(
-      row,
-      variant,
-      1
-    );
+    const result =
+      await addQuantity(
+        row,
+        variant,
+        1
+      );
 
+
+    /*
+      We only reach here if Apps Script
+      explicitly returned success:true.
+    */
 
     lastAdd = {
       row:row,
@@ -1665,6 +1695,12 @@ async function chooseVariant(
 
     status.textContent =
       "✓ Added to inventory";
+
+
+    console.log(
+      "Confirmed Sheet update:",
+      result
+    );
 
 
     setTimeout(()=>{
@@ -1737,6 +1773,11 @@ async function undoLastAdd(){
       -1
     );
 
+
+    /*
+      Undo is also only accepted after
+      Apps Script confirms the Sheet change.
+    */
 
     lastAdd = null;
 
