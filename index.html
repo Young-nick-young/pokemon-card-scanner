@@ -47,8 +47,7 @@
       border-radius:18px;
       padding:14px;
       margin-bottom:12px;
-      box-shadow:
-        0 2px 8px rgba(0,0,0,0.05);
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
     }
 
     #status{
@@ -367,11 +366,9 @@
             Card
           </div>
 
-          <div id="cardNumber">
-          </div>
+          <div id="cardNumber"></div>
 
-          <div id="cardDetails">
-          </div>
+          <div id="cardDetails"></div>
 
         </div>
 
@@ -383,31 +380,19 @@
 
       <div class="variantGrid">
 
-        <button
-          class="variantButton"
-          data-variant="Normal"
-        >
+        <button class="variantButton" data-variant="Normal">
           Normal
         </button>
 
-        <button
-          class="variantButton"
-          data-variant="Reverse Holo"
-        >
+        <button class="variantButton" data-variant="Reverse Holo">
           Reverse Holo
         </button>
 
-        <button
-          class="variantButton"
-          data-variant="Holo"
-        >
+        <button class="variantButton" data-variant="Holo">
           Holo
         </button>
 
-        <button
-          class="variantButton"
-          data-variant="Other"
-        >
+        <button class="variantButton" data-variant="Other">
           Other
         </button>
 
@@ -499,7 +484,6 @@ let currentCard = null;
 let currentMatches = [];
 
 let sessionCount = 0;
-
 let lastAdd = null;
 
 let cameraReady = false;
@@ -701,9 +685,7 @@ function receiveCards(data){
 
   try{
 
-    if(
-      !Array.isArray(data)
-    ){
+    if(!Array.isArray(data)){
 
       throw new Error(
         "Invalid card data"
@@ -712,7 +694,6 @@ function receiveCards(data){
     }
 
     cards = data;
-
     cardMap = {};
 
     cards.forEach(card=>{
@@ -763,9 +744,7 @@ function loadSheetData(){
     );
 
   if(oldScript){
-
     oldScript.remove();
-
   }
 
   const script =
@@ -961,9 +940,7 @@ async function scanCard(){
     !cameraReady ||
     !recognizerReady
   ){
-
     return;
-
   }
 
   scanning = true;
@@ -1411,7 +1388,6 @@ function hideResult(){
 function resetForNextCard(){
 
   currentCard = null;
-
   currentMatches = [];
 
   resultPanel.style.display =
@@ -1441,6 +1417,13 @@ function resetForNextCard(){
 }
 
 
+/*
+  GOOGLE SHEET WRITE
+
+  Important change:
+  We now wait for the POST iframe to finish loading
+  instead of deleting it after only 500 ms.
+*/
 function addQuantity(
   row,
   variant,
@@ -1448,7 +1431,7 @@ function addQuantity(
 ){
 
   return new Promise(
-    resolve=>{
+    (resolve,reject)=>{
 
       const iframe =
         document.createElement(
@@ -1461,6 +1444,47 @@ function addQuantity(
 
       iframe.style.display =
         "none";
+
+
+      let submitted = false;
+      let finished = false;
+
+
+      function cleanup(){
+
+        if(finished){
+          return;
+        }
+
+        finished = true;
+
+        clearTimeout(
+          safetyTimer
+        );
+
+        setTimeout(()=>{
+
+          form.remove();
+          iframe.remove();
+
+        },250);
+
+        resolve();
+
+      }
+
+
+      iframe.addEventListener(
+        "load",
+        ()=>{
+
+          if(submitted){
+            cleanup();
+          }
+
+        }
+      );
+
 
       document.body.appendChild(
         iframe
@@ -1533,18 +1557,32 @@ function addQuantity(
         form
       );
 
+
+      const safetyTimer =
+        setTimeout(
+          ()=>{
+
+            if(!finished){
+
+              form.remove();
+              iframe.remove();
+
+              reject(
+                new Error(
+                  "Google Sheet update timed out"
+                )
+              );
+
+            }
+
+          },
+          15000
+        );
+
+
+      submitted = true;
+
       form.submit();
-
-
-      setTimeout(()=>{
-
-        form.remove();
-
-        iframe.remove();
-
-        resolve();
-
-      },500);
 
     }
   );
@@ -1591,37 +1629,73 @@ async function chooseVariant(
     "Adding to inventory...";
 
 
-  addMessage.textContent =
-    "✓ " +
-    variant +
-    " added";
+  try{
 
-  addMessage.style.display =
-    "block";
-
-
-  lastAdd = {
-    row:row,
-    variant:variant
-  };
-
-  undoButton.disabled = false;
+    await addQuantity(
+      row,
+      variant,
+      1
+    );
 
 
-  sessionCount++;
-
-  sessionCountElement.textContent =
-    sessionCount;
-
-
-  await addQuantity(
-    row,
-    variant,
-    1
-  );
+    lastAdd = {
+      row:row,
+      variant:variant
+    };
 
 
-  setTimeout(()=>{
+    undoButton.disabled =
+      false;
+
+
+    sessionCount++;
+
+    sessionCountElement.textContent =
+      sessionCount;
+
+
+    addMessage.textContent =
+      "✓ " +
+      variant +
+      " added";
+
+    addMessage.style.display =
+      "block";
+
+
+    status.textContent =
+      "✓ Added to inventory";
+
+
+    setTimeout(()=>{
+
+      document
+        .querySelectorAll(
+          ".variantButton"
+        )
+        .forEach(button=>{
+
+          button.disabled = false;
+
+        });
+
+      resetForNextCard();
+
+    },350);
+
+  }catch(error){
+
+    console.error(error);
+
+    status.textContent =
+      "Google Sheet update failed";
+
+    addMessage.textContent =
+      "✕ Not added";
+
+    addMessage.style.display =
+      "block";
+
 
     document
       .querySelectorAll(
@@ -1633,9 +1707,7 @@ async function chooseVariant(
 
       });
 
-    resetForNextCard();
-
-  },350);
+  }
 
 }
 
@@ -1650,9 +1722,8 @@ async function undoLastAdd(){
   const itemToUndo =
     lastAdd;
 
-  lastAdd = null;
-
-  undoButton.disabled = true;
+  undoButton.disabled =
+    true;
 
   status.textContent =
     "Undoing last add...";
@@ -1667,11 +1738,15 @@ async function undoLastAdd(){
     );
 
 
+    lastAdd = null;
+
+
     sessionCount =
       Math.max(
         0,
         sessionCount - 1
       );
+
 
     sessionCountElement.textContent =
       sessionCount;
@@ -1691,9 +1766,6 @@ async function undoLastAdd(){
   }catch(error){
 
     console.error(error);
-
-    lastAdd =
-      itemToUndo;
 
     undoButton.disabled =
       false;
@@ -1718,9 +1790,7 @@ function manualFind(){
     number < 1 ||
     number > MAX_CARD
   ){
-
     return;
-
   }
 
 
