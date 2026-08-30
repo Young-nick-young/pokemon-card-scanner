@@ -66,9 +66,7 @@ button{
   cursor:pointer;
 }
 
-button:disabled{
-  opacity:.5;
-}
+button:disabled{opacity:.5}
 
 #startButton{
   background:#222;
@@ -97,8 +95,8 @@ button:disabled{
   height:auto;
 }
 
-/* LOCKED 73 × 98 GUIDE — DO NOT CHANGE */
-#cardGuide{
+/* LOCKED WHITE GUIDE — 73 mm × 98 mm */
+#cardGuide {
   position:absolute;
   width:73%;
   aspect-ratio:73 / 98;
@@ -123,13 +121,9 @@ button:disabled{
   white-space:nowrap;
 }
 
-#cropCanvas{
-  display:none;
-}
-
-#candidateBox{
-  display:none;
-}
+#cropCanvas{display:none}
+#candidateBox{display:none}
+#selectedBox{display:none}
 
 .sectionTitle{
   font-size:15px;
@@ -165,9 +159,7 @@ button:disabled{
   border-radius:6px;
 }
 
-.candidateInfo{
-  flex:1;
-}
+.candidateInfo{flex:1}
 
 .candidateName{
   font-size:16px;
@@ -185,9 +177,7 @@ button:disabled{
   color:#888;
 }
 
-.choose{
-  font-size:22px;
-}
+.choose{font-size:22px}
 
 #manualArea{
   margin-top:15px;
@@ -224,10 +214,6 @@ button:disabled{
   margin-top:7px;
 }
 
-#selectedBox{
-  display:none;
-}
-
 .cardHeader{
   display:flex;
   gap:14px;
@@ -239,9 +225,7 @@ button:disabled{
   border-radius:8px;
 }
 
-.cardDetails{
-  flex:1;
-}
+.cardDetails{flex:1}
 
 #selectedName{
   font-size:20px;
@@ -259,6 +243,15 @@ button:disabled{
   margin-top:4px;
   font-size:13px;
   color:#666;
+}
+
+#recognitionInfo{
+  margin-top:8px;
+  padding:7px;
+  background:#f2f7ff;
+  border-radius:7px;
+  font-size:11px;
+  color:#555;
 }
 
 .variantTitle{
@@ -310,100 +303,61 @@ button:disabled{
 <h1>Pokémon Inventory Scanner</h1>
 
 <div class="box">
-
   <div id="status">
     Preparing scanner...
     <div id="progress">Connecting to recognizer.</div>
   </div>
 
-  <button id="startButton" disabled>
-    PLEASE WAIT...
-  </button>
-
-  <button id="scanButton">
-    🔍 SCAN CARD
-  </button>
+  <button id="startButton" disabled>PLEASE WAIT...</button>
+  <button id="scanButton">🔍 SCAN CARD</button>
 
   <div id="sheetStatus">
     Connecting to Google Sheet...
   </div>
-
 </div>
 
 <div id="cameraBox">
-
-  <video
-    id="video"
-    autoplay
-    muted
-    playsinline>
-  </video>
-
+  <video id="video" autoplay muted playsinline></video>
   <div id="cardGuide"></div>
-
-  <div id="guideText">
-    Place card inside white frame
-  </div>
-
+  <div id="guideText">Place card inside white frame</div>
 </div>
 
 <canvas id="cropCanvas"></canvas>
 
 <div id="candidateBox" class="box">
-
-  <div class="sectionTitle">
-    Which card is this?
-  </div>
-
-  <div class="helpText">
-    Tap the correct card.
-  </div>
+  <div class="sectionTitle">Which card is this?</div>
+  <div class="helpText">Tap the correct card.</div>
 
   <div id="candidateList"></div>
 
   <div id="manualArea">
-
-    <div class="helpText">
-      Not listed? Enter the card number.
-    </div>
+    <div class="helpText">Not listed? Enter the card number.</div>
 
     <div class="manualRow">
+      <input id="manualNumber"
+             inputmode="numeric"
+             pattern="[0-9]*"
+             placeholder="e.g. 153">
 
-      <input
-        id="manualNumber"
-        inputmode="numeric"
-        pattern="[0-9]*"
-        placeholder="e.g. 153">
-
-      <button id="manualButton">
-        FIND
-      </button>
-
+      <button id="manualButton">FIND</button>
     </div>
 
-    <div id="manualError">
-      Card number not found.
-    </div>
-
+    <div id="manualError">Card number not found.</div>
   </div>
-
 </div>
 
 <div id="selectedBox" class="box">
 
   <div class="cardHeader">
-
     <img id="selectedImage">
 
     <div class="cardDetails">
-
       <div id="selectedName"></div>
       <div id="selectedNumber"></div>
       <div id="selectedRarity"></div>
       <div id="selectedType"></div>
-
+      <div id="recognitionInfo"></div>
     </div>
-
   </div>
 
   <div class="variantTitle">
@@ -430,13 +384,9 @@ button:disabled{
     <span id="otherCount" class="count">0</span>
   </button>
 
-  <div id="saved">
-    ✓ Added to Google Sheet
-  </div>
+  <div id="saved">✓ Added to Google Sheet</div>
 
-  <button id="wrongButton">
-    ← WRONG CARD
-  </button>
+  <button id="wrongButton">← WRONG CARD / OTHER MATCHES</button>
 
 </div>
 
@@ -450,9 +400,9 @@ button:disabled{
 
 <script>
 
-/* ===============================
+/* =========================================
    SETTINGS
-================================ */
+========================================= */
 
 const SCRIPT_URL =
 "https://script.google.com/a/macros/ikns.edu.bh/s/AKfycbwDF5oxhER534DF16jG94SHwJ9jS2ySAWJXIKgUsOpXjsdy26JKiu1FOIAsQnOqk_6f/exec";
@@ -464,21 +414,35 @@ const MAX_CARD = 244;
 const IMAGE_SET = "sv10";
 const DENOMINATOR = 182;
 
+/*
+  Small upload size.
 
-/* ===============================
+  This is deliberate.
+
+  SIFT does NOT need a 1920px image from the
+  phone to identify the card.
+
+  Smaller image = much faster server processing.
+*/
+const UPLOAD_WIDTH = 360;
+const UPLOAD_HEIGHT = 483;
+
+
+/* =========================================
    STATE
-================================ */
+========================================= */
 
 let inventoryCards = [];
 let inventoryByNumber = {};
 let stream = null;
 let rankedMatches = [];
 let currentCard = null;
+let currentRecognition = null;
 
 
-/* ===============================
+/* =========================================
    ELEMENTS
-================================ */
+========================================= */
 
 const status = document.getElementById("status");
 const progress = document.getElementById("progress");
@@ -505,6 +469,7 @@ const selectedName = document.getElementById("selectedName");
 const selectedNumber = document.getElementById("selectedNumber");
 const selectedRarity = document.getElementById("selectedRarity");
 const selectedType = document.getElementById("selectedType");
+const recognitionInfo = document.getElementById("recognitionInfo");
 
 const normalButton = document.getElementById("normalButton");
 const reverseButton = document.getElementById("reverseButton");
@@ -520,9 +485,9 @@ const saved = document.getElementById("saved");
 const wrongButton = document.getElementById("wrongButton");
 
 
-/* ===============================
+/* =========================================
    GOOGLE SHEET
-================================ */
+========================================= */
 
 window.receiveCards = function(cards){
 
@@ -549,7 +514,7 @@ function loadInventory(){
     "&t=" +
     Date.now();
 
-  script.onerror = () => {
+  script.onerror = function(){
     sheetStatus.innerText =
       "⚠ Google Sheet connection failed.";
   };
@@ -558,40 +523,9 @@ function loadInventory(){
 }
 
 
-/* ===============================
-   CHECK RENDER BACKEND
-================================ */
-
-async function checkRecognizer(){
-
-  const response = await fetch(
-    RECOGNIZER_URL + "/health",
-    {cache:"no-store"}
-  );
-
-  if(!response.ok){
-    throw new Error(
-      "Recognition server unavailable."
-    );
-  }
-
-  const data = await response.json();
-
-  if(
-    data.library_ready === false
-  ){
-    throw new Error(
-      "Card library is still loading."
-    );
-  }
-
-  return data;
-}
-
-
-/* ===============================
-   INITIALIZE
-================================ */
+/* =========================================
+   INITIALIZE RECOGNIZER
+========================================= */
 
 async function initialize(){
 
@@ -605,16 +539,37 @@ async function initialize(){
 
   try{
 
-    const response = await fetch(
-      RECOGNIZER_URL + "/",
-      {cache:"no-store"}
-    );
+    /*
+      Render free tier may be asleep.
+      Give it enough time to wake.
+    */
+
+    const controller =
+      new AbortController();
+
+    const timeout =
+      setTimeout(
+        () => controller.abort(),
+        70000
+      );
+
+    const response =
+      await fetch(
+        RECOGNIZER_URL + "/",
+        {
+          cache:"no-store",
+          signal:controller.signal
+        }
+      );
+
+    clearTimeout(timeout);
 
     if(!response.ok){
       throw new Error("Server unavailable.");
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
     if(!data.library_ready){
 
@@ -622,24 +577,24 @@ async function initialize(){
         "Recognizer warming up...";
 
       progress.innerText =
-        "Please wait while the card library loads.";
+        "Preparing 244 Destined Rivals cards.";
 
       let ready = false;
 
-      for(let i=0; i<30; i++){
+      for(let i=0;i<40;i++){
 
-        await new Promise(
-          resolve => setTimeout(resolve,2000)
-        );
+        await sleep(2000);
 
         try{
 
-          const check = await fetch(
-            RECOGNIZER_URL + "/",
-            {cache:"no-store"}
-          );
+          const check =
+            await fetch(
+              RECOGNIZER_URL + "/",
+              {cache:"no-store"}
+            );
 
-          const result = await check.json();
+          const result =
+            await check.json();
 
           if(result.library_ready){
             ready = true;
@@ -647,12 +602,11 @@ async function initialize(){
           }
 
         }catch(error){}
-
       }
 
       if(!ready){
         throw new Error(
-          "Recognizer is taking too long to start."
+          "Recognizer is taking too long to prepare."
         );
       }
     }
@@ -675,38 +629,36 @@ async function initialize(){
       "Recognizer unavailable";
 
     progress.innerText =
-      "Render may be waking up. Refresh this page in about one minute.";
-
+      "Render may be waking up. Refresh in about one minute.";
   }
 }
 
 
-/* ===============================
+function sleep(ms){
+  return new Promise(
+    resolve => setTimeout(resolve,ms)
+  );
+}
+
+
+/* =========================================
    CAMERA
-================================ */
+========================================= */
 
 async function startCamera(){
 
   try{
 
     stream =
-      await navigator.mediaDevices
-      .getUserMedia({
+      await navigator.mediaDevices.getUserMedia({
 
         video:{
-          facingMode:{
-            ideal:"environment"
-          },
-          width:{
-            ideal:1920
-          },
-          height:{
-            ideal:1080
-          }
+          facingMode:{ideal:"environment"},
+          width:{ideal:1920},
+          height:{ideal:1080}
         },
 
         audio:false
-
       });
 
     video.srcObject = stream;
@@ -733,7 +685,7 @@ async function startCamera(){
     console.error(error);
 
     status.firstChild.textContent =
-      "Camera could not start.";
+      "Camera could not start";
 
     progress.innerText =
       error.message;
@@ -741,11 +693,11 @@ async function startCamera(){
 }
 
 
-/* ===============================
-   CAPTURE CARD
-================================ */
+/* =========================================
+   CAPTURE ENTIRE WHITE GUIDE
+========================================= */
 
-function captureCard(){
+function captureGuide(){
 
   const videoRect =
     video.getBoundingClientRect();
@@ -761,69 +713,89 @@ function captureCard(){
     video.videoHeight /
     videoRect.height;
 
-  const guideX =
+  /*
+    Capture the ENTIRE white guide.
+
+    We intentionally keep the small margin
+    around the physical card.
+
+    SIFT can handle this and it prevents
+    slightly rotated cards being chopped off.
+  */
+
+  let sourceX =
     (guideRect.left - videoRect.left) *
     scaleX;
 
-  const guideY =
+  let sourceY =
     (guideRect.top - videoRect.top) *
     scaleY;
 
-  const guideWidth =
+  let sourceWidth =
     guideRect.width * scaleX;
 
-  const guideHeight =
+  let sourceHeight =
     guideRect.height * scaleY;
 
   /*
-    Actual Pokémon card = 63 × 88 mm.
-    White guide = 73 × 98 mm.
-
-    Therefore we crop the centered card-sized
-    region inside the guide.
+    Protect against rounding placing the crop
+    outside the video.
   */
 
-  const cardWidth =
-    guideWidth * (63/73);
+  sourceX =
+    Math.max(0,sourceX);
 
-  const cardHeight =
-    guideHeight * (88/98);
+  sourceY =
+    Math.max(0,sourceY);
 
-  const sourceX =
-    guideX +
-    (guideWidth-cardWidth)/2;
+  sourceWidth =
+    Math.min(
+      sourceWidth,
+      video.videoWidth-sourceX
+    );
 
-  const sourceY =
-    guideY +
-    (guideHeight-cardHeight)/2;
+  sourceHeight =
+    Math.min(
+      sourceHeight,
+      video.videoHeight-sourceY
+    );
 
-  cropCanvas.width = 630;
-  cropCanvas.height = 880;
+  cropCanvas.width =
+    UPLOAD_WIDTH;
+
+  cropCanvas.height =
+    UPLOAD_HEIGHT;
 
   const ctx =
-    cropCanvas.getContext("2d");
+    cropCanvas.getContext(
+      "2d",
+      {alpha:false}
+    );
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
 
   ctx.drawImage(
     video,
 
     sourceX,
     sourceY,
-    cardWidth,
-    cardHeight,
+    sourceWidth,
+    sourceHeight,
 
     0,
     0,
-    630,
-    880
+    UPLOAD_WIDTH,
+    UPLOAD_HEIGHT
   );
 
   return cropCanvas;
 }
 
 
-/* ===============================
-   CANVAS → JPEG
-================================ */
+/* =========================================
+   JPEG
+========================================= */
 
 function canvasToBlob(canvas){
 
@@ -831,31 +803,36 @@ function canvasToBlob(canvas){
     (resolve,reject) => {
 
       canvas.toBlob(
-        blob => {
+        function(blob){
 
           if(blob){
             resolve(blob);
           }else{
             reject(
               new Error(
-                "Could not capture card image."
+                "Could not capture image."
               )
             );
           }
 
         },
-        "image/jpeg",
-        0.94
-      );
 
+        "image/jpeg",
+
+        /*
+          0.82 is plenty for SIFT while keeping
+          the upload very small.
+        */
+        0.82
+      );
     }
   );
 }
 
 
-/* ===============================
-   SEND TO SIFT SERVER
-================================ */
+/* =========================================
+   RECOGNITION REQUEST
+========================================= */
 
 async function recognizeCard(blob){
 
@@ -868,14 +845,51 @@ async function recognizeCard(blob){
     "card.jpg"
   );
 
-  const response =
-    await fetch(
-      RECOGNIZER_URL + "/recognize",
-      {
-        method:"POST",
-        body:formData
-      }
+  /*
+    Allow up to 90 seconds.
+
+    This protects against a sleeping Render
+    instance without allowing the scanner to
+    hang forever.
+  */
+
+  const controller =
+    new AbortController();
+
+  const timeout =
+    setTimeout(
+      () => controller.abort(),
+      90000
     );
+
+  let response;
+
+  try{
+
+    response =
+      await fetch(
+        RECOGNIZER_URL + "/recognize",
+        {
+          method:"POST",
+          body:formData,
+          signal:controller.signal
+        }
+      );
+
+  }catch(error){
+
+    if(error.name === "AbortError"){
+      throw new Error(
+        "Recognition timed out. Please scan again."
+      );
+    }
+
+    throw error;
+
+  }finally{
+
+    clearTimeout(timeout);
+  }
 
   if(!response.ok){
 
@@ -883,11 +897,12 @@ async function recognizeCard(blob){
       "Recognition server error.";
 
     try{
-      const error =
+
+      const errorData =
         await response.json();
 
       message =
-        error.detail || message;
+        errorData.detail || message;
 
     }catch(error){}
 
@@ -898,9 +913,9 @@ async function recognizeCard(blob){
 }
 
 
-/* ===============================
-   SCAN
-================================ */
+/* =========================================
+   SCAN CARD
+========================================= */
 
 async function scanCard(){
 
@@ -918,61 +933,127 @@ async function scanCard(){
     "none";
 
   status.firstChild.textContent =
-    "Analyzing card...";
+    "Recognizing card...";
 
   progress.innerText =
-    "Sending image to the SIFT recognizer.";
+    "Comparing against 244 Destined Rivals cards.";
+
+  /*
+    If recognition takes longer than expected,
+    explain why instead of appearing frozen.
+  */
+
+  const slowMessage =
+    setTimeout(
+      function(){
+
+        progress.innerText =
+          "Still working — the recognition server may be waking up.";
+
+      },
+      8000
+    );
+
+  const verySlowMessage =
+    setTimeout(
+      function(){
+
+        progress.innerText =
+          "Still recognizing. First scan after inactivity can take longer.";
+
+      },
+      25000
+    );
 
   try{
 
     const canvas =
-      captureCard();
+      captureGuide();
 
     const blob =
       await canvasToBlob(canvas);
 
+    console.log(
+      "Upload size:",
+      Math.round(blob.size/1024),
+      "KB"
+    );
+
     const result =
       await recognizeCard(blob);
+
+    clearTimeout(slowMessage);
+    clearTimeout(verySlowMessage);
 
     if(
       result.status !== "matched" ||
       !result.best_match
     ){
+
       throw new Error(
-        "No reliable card match found."
+        "No reliable match was found."
       );
     }
+
+    currentRecognition =
+      result;
 
     rankedMatches =
       (result.top_matches || [])
       .map(match => ({
-        number:Number(match.number),
-        score:Number(match.score || 0),
-        inliers:Number(match.inliers || 0),
+
+        number:
+          Number(match.number),
+
+        score:
+          Number(match.score || 0),
+
+        good_matches:
+          Number(match.good_matches || 0),
+
+        inliers:
+          Number(match.inliers || 0),
+
         inlier_ratio:
           Number(match.inlier_ratio || 0)
+
       }));
 
     /*
-      If backend did not include the best match
-      in top_matches, add it.
+      Ensure best match is first.
     */
+
+    const bestNumber =
+      Number(
+        result.best_match.number
+      );
 
     if(
       !rankedMatches.some(
         match =>
-          match.number ===
-          Number(result.best_match.number)
+          match.number === bestNumber
       )
     ){
 
       rankedMatches.unshift({
-        number:
-          Number(result.best_match.number),
+
+        number:bestNumber,
+
         score:
-          Number(result.best_match.score || 0),
+          Number(
+            result.best_match.score || 0
+          ),
+
+        good_matches:
+          Number(
+            result.best_match.good_matches || 0
+          ),
+
         inliers:
-          Number(result.best_match.inliers || 0),
+          Number(
+            result.best_match.inliers || 0
+          ),
+
         inlier_ratio:
           Number(
             result.best_match.inlier_ratio || 0
@@ -981,28 +1062,40 @@ async function scanCard(){
     }
 
     /*
-      Confident result:
-      go directly to inventory card.
-
-      Otherwise show candidate choices.
+      Put actual best match first even if
+      backend order ever changes.
     */
+
+    rankedMatches.sort(
+      (a,b) => {
+
+        if(a.number === bestNumber){
+          return -1;
+        }
+
+        if(b.number === bestNumber){
+          return 1;
+        }
+
+        return b.score-a.score;
+      }
+    );
 
     if(
       result.confident === true &&
-      inventoryByNumber[
-        Number(result.best_match.number)
-      ]
+      inventoryByNumber[bestNumber]
     ){
 
       chooseCard(
-        Number(result.best_match.number)
+        bestNumber,
+        result.best_match
       );
 
       status.firstChild.textContent =
         "✓ Card recognized";
 
       progress.innerText =
-        "Strong visual match. Choose the version you are adding.";
+        "Choose the version you are adding.";
 
     }else{
 
@@ -1012,10 +1105,13 @@ async function scanCard(){
         "Check the match";
 
       progress.innerText =
-        "The scanner was not fully confident. Tap the correct card.";
+        "The scanner is not fully confident. Tap the correct card.";
     }
 
   }catch(error){
+
+    clearTimeout(slowMessage);
+    clearTimeout(verySlowMessage);
 
     console.error(error);
 
@@ -1025,18 +1121,19 @@ async function scanCard(){
     progress.innerText =
       error.message;
 
+  }finally{
+
+    scanButton.disabled = false;
+
+    scanButton.innerText =
+      "🔍 SCAN AGAIN";
   }
-
-  scanButton.disabled = false;
-
-  scanButton.innerText =
-    "🔍 SCAN AGAIN";
 }
 
 
-/* ===============================
-   SHOW CANDIDATES
-================================ */
+/* =========================================
+   CANDIDATES
+========================================= */
 
 function showCandidates(){
 
@@ -1048,29 +1145,37 @@ function showCandidates(){
 
     const card =
       inventoryByNumber[
-        Number(match.number)
+        match.number
       ];
 
     const row =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     row.className =
       "candidate";
 
     const image =
-      document.createElement("img");
+      document.createElement(
+        "img"
+      );
 
     image.src =
       `https://images.pokemontcg.io/${IMAGE_SET}/${match.number}.png`;
 
     const info =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     info.className =
       "candidateInfo";
 
     const name =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     name.className =
       "candidateName";
@@ -1081,7 +1186,9 @@ function showCandidates(){
       : "Destined Rivals Card";
 
     const number =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     number.className =
       "candidateNumber";
@@ -1094,23 +1201,34 @@ function showCandidates(){
       DENOMINATOR;
 
     const score =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     score.className =
       "candidateScore";
 
+    const ratio =
+      Math.round(
+        match.inlier_ratio * 100
+      );
+
     score.innerText =
-      match.inliers
-      ? `${match.inliers} verified feature matches`
-      : "Possible match";
+      `${match.inliers} geometric matches` +
+      (ratio
+        ? ` • ${ratio}% agreement`
+        : "");
 
     const choose =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     choose.className =
       "choose";
 
-    choose.innerText = "›";
+    choose.innerText =
+      "›";
 
     info.appendChild(name);
     info.appendChild(number);
@@ -1122,10 +1240,18 @@ function showCandidates(){
 
     row.addEventListener(
       "click",
-      () => chooseCard(match.number)
+      function(){
+
+        chooseCard(
+          match.number,
+          match
+        );
+      }
     );
 
-    candidateList.appendChild(row);
+    candidateList.appendChild(
+      row
+    );
   });
 
   candidateBox.style.display =
@@ -1138,9 +1264,9 @@ function showCandidates(){
 }
 
 
-/* ===============================
-   MANUAL NUMBER
-================================ */
+/* =========================================
+   MANUAL CARD NUMBER
+========================================= */
 
 function findManualCard(){
 
@@ -1148,7 +1274,9 @@ function findManualCard(){
     "none";
 
   const number =
-    Number(manualNumber.value);
+    Number(
+      manualNumber.value
+    );
 
   if(
     !number ||
@@ -1165,10 +1293,7 @@ function findManualCard(){
     return;
   }
 
-  const card =
-    inventoryByNumber[number];
-
-  if(!card){
+  if(!inventoryByNumber[number]){
 
     manualError.innerText =
       "That card was not found in the Google Sheet.";
@@ -1179,15 +1304,21 @@ function findManualCard(){
     return;
   }
 
-  chooseCard(number);
+  chooseCard(
+    number,
+    null
+  );
 }
 
 
-/* ===============================
+/* =========================================
    SELECT CARD
-================================ */
+========================================= */
 
-function chooseCard(number){
+function chooseCard(
+  number,
+  recognitionMatch=null
+){
 
   const card =
     inventoryByNumber[
@@ -1226,7 +1357,41 @@ function chooseCard(number){
   selectedType.innerText =
     card.type || "";
 
+  if(recognitionMatch){
+
+    const inliers =
+      Number(
+        recognitionMatch.inliers || 0
+      );
+
+    const ratio =
+      Math.round(
+        Number(
+          recognitionMatch.inlier_ratio || 0
+        ) * 100
+      );
+
+    recognitionInfo.style.display =
+      "block";
+
+    recognitionInfo.innerText =
+      `Recognition: ${inliers} verified matches` +
+      (ratio
+        ? ` • ${ratio}% geometric agreement`
+        : "");
+
+  }else{
+
+    recognitionInfo.style.display =
+      "none";
+  }
+
   updateCounts();
+
+  /*
+    Reverse Holo only appears when this card
+    supports it in the inventory data.
+  */
 
   if(card.reverse === null){
 
@@ -1261,9 +1426,9 @@ function chooseCard(number){
 }
 
 
-/* ===============================
+/* =========================================
    COUNTS
-================================ */
+========================================= */
 
 function updateCounts(){
 
@@ -1272,24 +1437,32 @@ function updateCounts(){
   }
 
   normalCount.innerText =
-    Number(currentCard.normal) || 0;
+    Number(
+      currentCard.normal
+    ) || 0;
 
   reverseCount.innerText =
     currentCard.reverse === null
     ? "-"
-    : Number(currentCard.reverse) || 0;
+    : Number(
+        currentCard.reverse
+      ) || 0;
 
   holoCount.innerText =
-    Number(currentCard.holo) || 0;
+    Number(
+      currentCard.holo
+    ) || 0;
 
   otherCount.innerText =
-    Number(currentCard.other) || 0;
+    Number(
+      currentCard.other
+    ) || 0;
 }
 
 
-/* ===============================
+/* =========================================
    ADD TO GOOGLE SHEET
-================================ */
+========================================= */
 
 function addCard(variant){
 
@@ -1305,17 +1478,30 @@ function addCard(variant){
   }
 
   currentCard[variant] =
-    (Number(currentCard[variant]) || 0) + 1;
+    (
+      Number(
+        currentCard[variant]
+      ) || 0
+    ) + 1;
 
   updateCounts();
 
   const form =
-    document.createElement("form");
+    document.createElement(
+      "form"
+    );
 
-  form.method = "POST";
-  form.action = SCRIPT_URL;
-  form.target = "sheetUpdateFrame";
-  form.style.display = "none";
+  form.method =
+    "POST";
+
+  form.action =
+    SCRIPT_URL;
+
+  form.target =
+    "sheetUpdateFrame";
+
+  form.style.display =
+    "none";
 
   const fields = {
     action:"changeQuantity",
@@ -1325,19 +1511,32 @@ function addCard(variant){
   };
 
   Object.entries(fields)
-  .forEach(([name,value]) => {
+  .forEach(
+    ([name,value]) => {
 
-    const input =
-      document.createElement("input");
+      const input =
+        document.createElement(
+          "input"
+        );
 
-    input.type = "hidden";
-    input.name = name;
-    input.value = value;
+      input.type =
+        "hidden";
 
-    form.appendChild(input);
-  });
+      input.name =
+        name;
 
-  document.body.appendChild(form);
+      input.value =
+        value;
+
+      form.appendChild(
+        input
+      );
+    }
+  );
+
+  document.body.appendChild(
+    form
+  );
 
   form.submit();
 
@@ -1359,13 +1558,14 @@ function addCard(variant){
 }
 
 
-/* ===============================
-   NEXT CARD
-================================ */
+/* =========================================
+   RESET
+========================================= */
 
 function resetForNextCard(){
 
   currentCard = null;
+  currentRecognition = null;
   rankedMatches = [];
 
   manualNumber.value = "";
@@ -1398,9 +1598,9 @@ function resetForNextCard(){
 }
 
 
-/* ===============================
-   BUTTON EVENTS
-================================ */
+/* =========================================
+   EVENTS
+========================================= */
 
 startButton.addEventListener(
   "click",
@@ -1419,7 +1619,7 @@ manualButton.addEventListener(
 
 manualNumber.addEventListener(
   "keydown",
-  event => {
+  function(event){
 
     if(event.key === "Enter"){
 
@@ -1452,7 +1652,7 @@ otherButton.addEventListener(
 
 wrongButton.addEventListener(
   "click",
-  () => {
+  function(){
 
     selectedBox.style.display =
       "none";
@@ -1482,13 +1682,13 @@ wrongButton.addEventListener(
 );
 
 
-/* ===============================
+/* =========================================
    CLEANUP
-================================ */
+========================================= */
 
 window.addEventListener(
   "pagehide",
-  () => {
+  function(){
 
     if(stream){
 
@@ -1502,9 +1702,9 @@ window.addEventListener(
 );
 
 
-/* ===============================
+/* =========================================
    START
-================================ */
+========================================= */
 
 initialize();
 
