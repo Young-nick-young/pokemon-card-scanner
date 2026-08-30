@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1, viewport-fit=cover"
->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <title>Pokémon Card Scanner</title>
 
+<script async src="https://docs.opencv.org/4.x/opencv.js"></script>
 
 <style>
-
 * {
   box-sizing: border-box;
 }
@@ -21,9 +16,7 @@
 body {
   margin: 0;
   padding: 12px;
-
   font-family: Arial, sans-serif;
-
   background: #f4f4f4;
   color: #222;
 }
@@ -36,84 +29,60 @@ body {
 
 h1 {
   text-align: center;
-
-  margin: 6px 0 14px;
-
   font-size: 21px;
+  margin: 6px 0 14px;
 }
 
 .section {
-  padding: 13px;
-  margin-bottom: 10px;
-
   background: white;
-
+  padding: 13px;
   border-radius: 14px;
+  margin-bottom: 10px;
 }
 
 label {
   display: block;
-
-  margin-bottom: 6px;
-
   font-size: 14px;
   font-weight: bold;
+  margin-bottom: 6px;
 }
 
 select {
   width: 100%;
-
   padding: 12px;
-
+  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 9px;
-
   background: white;
-
-  font-size: 16px;
 }
 
 button {
   width: 100%;
-
   padding: 14px;
-
   border: 0;
   border-radius: 10px;
-
   font-size: 16px;
   font-weight: bold;
 }
 
 #startButton {
   margin-top: 10px;
-
   background: #222;
   color: white;
 }
 
 #stopButton {
   display: none;
-
   margin-top: 8px;
-
   background: #777;
   color: white;
 }
 
-
-/* =========================================
-   STATUS
-========================================= */
-
 #status {
   display: none;
-
   padding: 11px;
   margin-bottom: 10px;
-
   border-radius: 9px;
-
   text-align: center;
   font-size: 14px;
 }
@@ -133,565 +102,420 @@ button {
   background: #f8d7da;
 }
 
-
-/* =========================================
-   LIBRARY LOADING
-========================================= */
-
 #libraryBox {
   display: none;
-
   padding: 12px;
   margin-bottom: 10px;
-
   background: white;
-
   border-radius: 14px;
 }
 
 #libraryText {
-  margin-bottom: 7px;
-
   text-align: center;
-
   font-size: 13px;
+  margin-bottom: 7px;
 }
 
 #progressOuter {
   width: 100%;
   height: 13px;
-
   overflow: hidden;
-
   background: #ddd;
-
   border-radius: 10px;
 }
 
 #progressInner {
-  width: 0%;
+  width: 0;
   height: 100%;
-
   background: #333;
-
   transition: width .15s;
 }
 
-
-/* =========================================
-   CAMERA
-========================================= */
-
 #cameraBox {
   display: none;
-
   position: relative;
-
   width: 100%;
-
   overflow: hidden;
-
   background: #111;
-
   border-radius: 14px;
-
   margin-bottom: 10px;
 }
 
 #video {
   display: block;
-
   width: 100%;
   height: auto;
 }
 
-
-/*
-   LOCKED WHITE FRAME
-
-   73 × 98 proportions
-*/
-
+/* Locked 73 × 98 guide */
 #cardGuide {
   position: absolute;
-
   width: 73%;
-
   aspect-ratio: 73 / 98;
-
   left: 50%;
   top: 50%;
-
   transform: translate(-50%, -50%);
-
   border: 3px solid white;
-
   border-radius: 14px;
-
   pointer-events: none;
 }
 
-
-/*
-   Inner green corners show approximately
-   where the ACTUAL 63 × 88 card should sit.
-
-   This is only a subtle guide.
-*/
-
-#actualCardGuide {
+#edgeOverlay {
   position: absolute;
-
-  left: 6.85%;
-  right: 6.85%;
-
-  top: 5.1%;
-  bottom: 5.1%;
-
-  border: 1px dashed rgba(80,255,120,.65);
-
-  border-radius: 9px;
-
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
 #cameraMessage {
   position: absolute;
-
   top: 8px;
   left: 50%;
-
   transform: translateX(-50%);
-
   padding: 6px 10px;
-
   background: rgba(0,0,0,.72);
   color: white;
-
   border-radius: 20px;
-
   font-size: 11px;
-
   white-space: nowrap;
-
   pointer-events: none;
 }
 
+#cardPreviewSection,
+#scanInfo,
+#detectedCard {
+  display: none;
+  background: white;
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
 
-/* =========================================
-   LIVE MATCH INFORMATION
-========================================= */
+#cardPreviewSection {
+  padding: 10px;
+}
 
 #scanInfo {
-  display: none;
-
   padding: 12px;
-  margin-bottom: 10px;
+}
 
-  background: white;
+#detectedCard {
+  padding: 15px;
+  text-align: center;
+}
 
-  border-radius: 14px;
+#cardPreviewTitle {
+  text-align: center;
+  margin-bottom: 7px;
+  color: #666;
+  font-size: 12px;
+}
+
+#warpedCanvas {
+  display: block;
+  width: 150px;
+  max-width: 45%;
+  margin: auto;
+  background: #ddd;
+  border: 2px solid #333;
+  border-radius: 7px;
+}
+
+#edgeStatus {
+  text-align: center;
+  margin-top: 7px;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 #scanInfoTitle {
   text-align: center;
-
+  font-size: 13px;
   font-weight: bold;
-  font-size: 14px;
 }
 
 #liveBest {
-  margin-top: 7px;
-
   text-align: center;
-
-  font-size: 18px;
+  margin-top: 7px;
+  font-size: 19px;
   font-weight: bold;
 }
 
 #liveScore {
-  margin-top: 3px;
-
   text-align: center;
-
+  margin-top: 3px;
   color: #666;
-
   font-size: 12px;
 }
 
 #topMatches {
   margin-top: 10px;
-
   padding: 8px;
-
   background: #eee;
-
   border-radius: 8px;
-
   font-size: 12px;
-  line-height: 1.6;
-}
-
-
-/* =========================================
-   DETECTED CARD
-========================================= */
-
-#detectedCard {
-  display: none;
-
-  padding: 15px;
-  margin-bottom: 10px;
-
-  background: white;
-
-  border-radius: 14px;
-
-  text-align: center;
-}
-
-#detectedLabel {
-  margin-bottom: 8px;
-
-  color: #777;
-
-  font-size: 13px;
+  white-space: pre-line;
+  line-height: 1.5;
 }
 
 #detectedImage {
   width: 190px;
   max-width: 70%;
-
   border-radius: 7px;
 }
 
 #detectedNumber {
   margin-top: 8px;
-
   font-size: 25px;
   font-weight: bold;
 }
 
 #detectedSet {
   margin-top: 3px;
-
   color: #666;
-
   font-size: 14px;
 }
 
 #detectedConfidence {
   margin-top: 5px;
-
   color: #666;
-
   font-size: 12px;
 }
 
 #correctButton {
   margin-top: 13px;
-
   background: #4caf50;
   color: white;
 }
 
 #wrongButton {
   margin-top: 7px;
-
   background: #ddd;
   color: #222;
 }
 
 .smallText {
-  margin-top: 7px;
-
   text-align: center;
-
+  margin-top: 7px;
   color: #777;
-
   font-size: 12px;
   line-height: 1.4;
 }
 
-
-/*
-   Hidden canvases used by scanner
-*/
-
-.hiddenCanvas {
+.hidden {
   display: none;
 }
-
 </style>
-
 </head>
-
 
 <body>
 
 <div class="container">
 
-
 <h1>Pokémon Card Scanner</h1>
-
 
 <div class="section">
 
-<label for="setSelector">
-Set being scanned
-</label>
-
+<label for="setSelector">Set being scanned</label>
 
 <select id="setSelector">
-
-<option value="destined-rivals">
-Destined Rivals
-</option>
-
+  <option value="destined-rivals">Destined Rivals</option>
 </select>
 
-
-<button
-  id="startButton"
-  onclick="startScanner()"
->
-📷 START VISUAL SCANNER
+<button id="startButton" onclick="startScanner()">
+📷 START SCANNER
 </button>
 
-
-<button
-  id="stopButton"
-  onclick="stopScanner()"
->
+<button id="stopButton" onclick="stopScanner()">
 STOP CAMERA
 </button>
 
-
 <div class="smallText">
-
-The scanner now compares the whole card with the selected set.
-
+Put the card roughly inside the white frame.
+<br>
+You do not need to align it perfectly.
 </div>
 
 </div>
-
-
 
 <div id="status"></div>
-
-
 
 <div id="libraryBox">
 
 <div id="libraryText">
-
-Preparing card library...
-
+Preparing reference cards...
 </div>
-
 
 <div id="progressOuter">
-
-<div id="progressInner"></div>
-
+  <div id="progressInner"></div>
 </div>
 
 </div>
-
-
 
 <div id="cameraBox">
-
 
 <video
   id="video"
   autoplay
   playsinline
-  muted
-></video>
+  muted>
+</video>
 
+<canvas id="edgeOverlay"></canvas>
 
-<div id="cardGuide">
-
-<div id="actualCardGuide"></div>
-
-</div>
-
+<div id="cardGuide"></div>
 
 <div id="cameraMessage">
-
-Hold card flat and steady
+Hold one card roughly inside frame
+</div>
 
 </div>
 
+<div id="cardPreviewSection">
 
+<div id="cardPreviewTitle">
+Card found by scanner:
 </div>
 
+<canvas id="warpedCanvas"></canvas>
 
+<div id="edgeStatus">
+Looking for card edges...
+</div>
+
+</div>
 
 <div id="scanInfo">
 
-
 <div id="scanInfoTitle">
-
-LIVE VISUAL MATCH
-
+LIVE WHOLE-CARD MATCH
 </div>
-
 
 <div id="liveBest">
-
-Waiting for card...
-
+Waiting...
 </div>
-
 
 <div id="liveScore"></div>
 
-
 <div id="topMatches"></div>
 
-
 </div>
-
-
 
 <div id="detectedCard">
 
-
-<div id="detectedLabel">
-
-VISUAL MATCH
-
+<div style="font-size:13px;color:#777;margin-bottom:8px">
+CARD MATCH
 </div>
-
 
 <img id="detectedImage">
 
-
 <div id="detectedNumber"></div>
-
 
 <div id="detectedSet"></div>
 
-
 <div id="detectedConfidence"></div>
 
-
-<button
-  id="correctButton"
-  onclick="confirmCard()"
->
+<button id="correctButton" onclick="confirmCard()">
 ✓ CORRECT
 </button>
 
-
-<button
-  id="wrongButton"
-  onclick="rejectCard()"
->
+<button id="wrongButton" onclick="rejectCard()">
 ✕ WRONG — TRY AGAIN
 </button>
 
-
 </div>
 
-
-
-<canvas
-  id="captureCanvas"
-  class="hiddenCanvas"
-></canvas>
-
-
-<canvas
-  id="fingerprintCanvas"
-  class="hiddenCanvas"
-></canvas>
-
+<canvas id="frameCanvas" class="hidden"></canvas>
+<canvas id="descriptorCanvas" class="hidden"></canvas>
 
 </div>
-
-
 
 <script>
 
-
-/* =================================================
-   SET INFORMATION
-================================================= */
-
 const SETS = {
-
   "destined-rivals": {
-
     name: "Destined Rivals",
-
-    code: "DRI",
-
     denominator: 182,
-
     maxNumber: 244,
-
     imageSet: "sv10"
-
   }
-
 };
 
-
-
-/* =================================================
-   VISUAL FINGERPRINT SIZE
-
-   We deliberately keep this fairly small.
-
-   The scanner does NOT compare millions of pixels.
-   It compares the overall visual structure of cards.
-================================================= */
-
-const FP_WIDTH = 24;
-
-const FP_HEIGHT = 34;
-
-
-
-/* =================================================
-   VARIABLES
-================================================= */
+const DESCRIPTOR_WIDTH = 42;
+const DESCRIPTOR_HEIGHT = 59;
 
 let cameraStream = null;
-
 let scannerRunning = false;
-
 let scannerPaused = false;
-
 let scanBusy = false;
-
 let scanTimer = null;
 
-
 let referenceLibrary = [];
-
 let libraryReady = false;
 
-
-let lastBestNumber = null;
-
-let consecutiveMatches = 0;
-
+let lastWinner = null;
+let consecutiveWins = 0;
 
 let detectedNumber = null;
 
 
+/* ---------------------------------------------
+   HELPERS
+--------------------------------------------- */
 
-/* =================================================
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+async function waitForOpenCv() {
+
+  for (let i = 0; i < 150; i++) {
+
+    if (
+      typeof cv !== "undefined" &&
+      cv &&
+      cv.Mat
+    ) {
+      return true;
+    }
+
+    await sleep(100);
+  }
+
+  return false;
+}
+
+
+/* ---------------------------------------------
    START
-================================================= */
+--------------------------------------------- */
 
 async function startScanner() {
 
   try {
+
+    setStatus(
+      "Loading card detection...",
+      "working"
+    );
+
+
+    const cvReady =
+      await waitForOpenCv();
+
+
+    if (!cvReady) {
+
+      setStatus(
+        "OpenCV did not load. Refresh the page and try again.",
+        "error"
+      );
+
+      return;
+    }
+
 
     setStatus(
       "Starting camera...",
@@ -741,6 +565,12 @@ async function startScanner() {
 
 
     document.getElementById(
+      "cardPreviewSection"
+    ).style.display =
+      "block";
+
+
+    document.getElementById(
       "scanInfo"
     ).style.display =
       "block";
@@ -759,13 +589,11 @@ async function startScanner() {
 
 
     scannerRunning = true;
-
     scannerPaused = false;
 
 
-    /*
-       Build reference library once.
-    */
+    setupOverlay();
+
 
     if (!libraryReady) {
 
@@ -777,7 +605,7 @@ async function startScanner() {
     if (!libraryReady) {
 
       setStatus(
-        "Could not build the card reference library.",
+        "Reference library could not be prepared.",
         "error"
       );
 
@@ -786,12 +614,12 @@ async function startScanner() {
 
 
     setStatus(
-      "Ready — hold a card in the frame.",
+      "Ready — hold a card roughly inside the frame.",
       "working"
     );
 
 
-    scheduleScan(700);
+    scheduleScan(500);
 
   }
 
@@ -801,7 +629,8 @@ async function startScanner() {
 
 
     setStatus(
-      "Camera error: " + error.message,
+      "Scanner error: " +
+      error.message,
       "error"
     );
 
@@ -810,21 +639,43 @@ async function startScanner() {
 }
 
 
+/* ---------------------------------------------
+   OVERLAY
+--------------------------------------------- */
 
-/* =================================================
-   BUILD REFERENCE LIBRARY
-================================================= */
+function setupOverlay() {
+
+  const video =
+    document.getElementById("video");
+
+
+  const overlay =
+    document.getElementById(
+      "edgeOverlay"
+    );
+
+
+  overlay.width =
+    video.videoWidth;
+
+
+  overlay.height =
+    video.videoHeight;
+}
+
+
+/* ---------------------------------------------
+   REFERENCE LIBRARY
+--------------------------------------------- */
 
 async function buildReferenceLibrary() {
 
-  const setKey =
-    document.getElementById(
-      "setSelector"
-    ).value;
-
-
   const set =
-    SETS[setKey];
+    SETS[
+      document.getElementById(
+        "setSelector"
+      ).value
+    ];
 
 
   referenceLibrary = [];
@@ -836,14 +687,8 @@ async function buildReferenceLibrary() {
     "block";
 
 
-  /*
-     Process in small batches.
-
-     This is kinder to the browser than requesting
-     all 244 images simultaneously.
-  */
-
-  const batchSize = 8;
+  const batchSize =
+    8;
 
 
   for (
@@ -852,31 +697,21 @@ async function buildReferenceLibrary() {
     start += batchSize
   ) {
 
-    const promises = [];
+    const requests = [];
 
 
     for (
       let number = start;
-      number < start + batchSize;
+      number < start + batchSize &&
+      number <= set.maxNumber;
       number++
     ) {
 
-      if (
-        number > set.maxNumber
-      ) {
-
-        break;
-
-      }
-
-
-      promises.push(
-
+      requests.push(
         loadReferenceCard(
           set,
           number
         )
-
       );
 
     }
@@ -884,35 +719,37 @@ async function buildReferenceLibrary() {
 
     const results =
       await Promise.all(
-        promises
+        requests
       );
 
 
-    for (
-      const result of results
-    ) {
+    results.forEach(
+      result => {
 
-      if (result) {
+        if (result) {
 
-        referenceLibrary.push(
-          result
-        );
+          referenceLibrary.push(
+            result
+          );
+
+        }
 
       }
+    );
 
-    }
 
-
-    const finished =
+    const done =
       Math.min(
-        start + batchSize - 1,
+        start +
+        batchSize -
+        1,
         set.maxNumber
       );
 
 
     const percent =
       Math.round(
-        finished /
+        done /
         set.maxNumber *
         100
       );
@@ -927,72 +764,49 @@ async function buildReferenceLibrary() {
     document.getElementById(
       "libraryText"
     ).innerText =
-
       "Preparing Destined Rivals: " +
-
-      finished +
-
+      done +
       " / " +
-
       set.maxNumber;
 
   }
 
 
+  libraryReady =
+    referenceLibrary.length >
+    200;
 
-  if (
-    referenceLibrary.length <
-    200
-  ) {
 
-    console.error(
-      "Too many reference images failed."
+  if (libraryReady) {
+
+    document.getElementById(
+      "libraryText"
+    ).innerText =
+      "✓ " +
+      referenceLibrary.length +
+      " cards ready";
+
+
+    setTimeout(
+      () => {
+
+        document.getElementById(
+          "libraryBox"
+        ).style.display =
+          "none";
+
+      },
+      1000
     );
 
-
-    libraryReady = false;
-
-    return;
-
   }
-
-
-  libraryReady = true;
-
-
-  document.getElementById(
-    "libraryText"
-  ).innerText =
-
-    "✓ " +
-
-    referenceLibrary.length +
-
-    " reference cards ready";
-
-
-  setTimeout(
-
-    function() {
-
-      document.getElementById(
-        "libraryBox"
-      ).style.display =
-        "none";
-
-    },
-
-    1200
-
-  );
 
 }
 
 
-
-/* =================================================
-   LOAD ONE REFERENCE CARD
-================================================= */
+/* ---------------------------------------------
+   LOAD REFERENCE
+--------------------------------------------- */
 
 function loadReferenceCard(
   set,
@@ -1000,8 +814,7 @@ function loadReferenceCard(
 ) {
 
   return new Promise(
-
-    function(resolve) {
+    resolve => {
 
       const image =
         new Image();
@@ -1012,15 +825,9 @@ function loadReferenceCard(
 
 
       image.onload =
-        function() {
+        () => {
 
           try {
-
-            const descriptor =
-              makeDescriptorFromImage(
-                image
-              );
-
 
             resolve({
 
@@ -1028,7 +835,9 @@ function loadReferenceCard(
                 number,
 
               descriptor:
-                descriptor
+                createImageDescriptor(
+                  image
+                )
 
             });
 
@@ -1037,7 +846,7 @@ function loadReferenceCard(
           catch (error) {
 
             console.error(
-              "Reference processing failed:",
+              "Reference error:",
               number,
               error
             );
@@ -1051,13 +860,7 @@ function loadReferenceCard(
 
 
       image.onerror =
-        function() {
-
-          console.error(
-            "Reference image failed:",
-            number
-          );
-
+        () => {
 
           resolve(null);
 
@@ -1065,118 +868,138 @@ function loadReferenceCard(
 
 
       image.src =
-
         "https://images.pokemontcg.io/" +
-
         set.imageSet +
-
         "/" +
-
         number +
-
         ".png";
 
     }
-
   );
 
 }
 
 
+/* ---------------------------------------------
+   REFERENCE DESCRIPTOR
+--------------------------------------------- */
 
-/* =================================================
-   CREATE REFERENCE DESCRIPTOR
-================================================= */
-
-function makeDescriptorFromImage(image) {
+function createImageDescriptor(
+  image
+) {
 
   const canvas =
     document.getElementById(
-      "fingerprintCanvas"
+      "descriptorCanvas"
     );
 
 
   canvas.width =
-    FP_WIDTH;
+    DESCRIPTOR_WIDTH;
 
 
   canvas.height =
-    FP_HEIGHT;
+    DESCRIPTOR_HEIGHT;
 
 
   const ctx =
     canvas.getContext(
-
       "2d",
-
       {
-        willReadFrequently:
-          true
+        willReadFrequently: true
       }
-
     );
 
 
-  ctx.drawImage(
-
-    image,
-
+  ctx.clearRect(
     0,
     0,
-
-    FP_WIDTH,
-    FP_HEIGHT
-
+    canvas.width,
+    canvas.height
   );
 
 
-  return createDescriptor(
-    ctx,
-    FP_WIDTH,
-    FP_HEIGHT
+  ctx.drawImage(
+    image,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  return descriptorFromCanvas(
+    canvas
   );
 
 }
 
 
-
-/* =================================================
+/* ---------------------------------------------
    DESCRIPTOR
+--------------------------------------------- */
 
-   Each tiny block stores:
-
-   brightness
-   red
-   green
-   blue
-
-   Brightness is weighted more heavily later.
-================================================= */
-
-function createDescriptor(
-  ctx,
-  width,
-  height
+function descriptorFromCanvas(
+  canvas
 ) {
 
-  const imageData =
-    ctx.getImageData(
-      0,
-      0,
-      width,
-      height
+  const ctx =
+    canvas.getContext(
+      "2d",
+      {
+        willReadFrequently: true
+      }
     );
 
 
-  const data =
-    imageData.data;
+  const pixels =
+    ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    ).data;
+
+
+  let brightnessSum =
+    0;
+
+
+  let count =
+    0;
+
+
+  for (
+    let i = 0;
+    i < pixels.length;
+    i += 4
+  ) {
+
+    brightnessSum +=
+
+      (
+        pixels[i] * 0.299 +
+
+        pixels[i + 1] * 0.587 +
+
+        pixels[i + 2] * 0.114
+
+      ) / 255;
+
+
+    count++;
+
+  }
+
+
+  const meanBrightness =
+    brightnessSum /
+    count;
 
 
   const descriptor =
     new Float32Array(
-      width *
-      height *
-      4
+      count * 4
     );
 
 
@@ -1186,23 +1009,23 @@ function createDescriptor(
 
   for (
     let i = 0;
-    i < data.length;
+    i < pixels.length;
     i += 4
   ) {
 
     const r =
-      data[i] / 255;
+      pixels[i] / 255;
 
 
     const g =
-      data[i + 1] / 255;
+      pixels[i + 1] / 255;
 
 
     const b =
-      data[i + 2] / 255;
+      pixels[i + 2] / 255;
 
 
-    const brightness =
+    const luminance =
 
       r * 0.299 +
 
@@ -1212,7 +1035,8 @@ function createDescriptor(
 
 
     descriptor[output++] =
-      brightness;
+      luminance -
+      meanBrightness;
 
 
     descriptor[output++] =
@@ -1234,20 +1058,19 @@ function createDescriptor(
 }
 
 
+/* ---------------------------------------------
+   SCAN LOOP
+--------------------------------------------- */
 
-/* =================================================
-   SCHEDULE SCAN
-================================================= */
-
-function scheduleScan(delay) {
+function scheduleScan(
+  delay
+) {
 
   if (
     !scannerRunning ||
     scannerPaused
   ) {
-
     return;
-
   }
 
 
@@ -1269,74 +1092,27 @@ function scheduleScan(delay) {
 }
 
 
+/* ---------------------------------------------
+   WHITE GUIDE POSITION
+--------------------------------------------- */
 
-/* =================================================
-   FIND ACTUAL CARD INSIDE WHITE FRAME
+function getGuideCrop() {
 
-   White guide represents 73 × 98.
+  const video =
+    document.getElementById(
+      "video"
+    );
 
-   Actual card represents 63 × 88.
-
-   Therefore we remove approximately 5 mm from
-   every side of the guide.
-================================================= */
-
-function getActualCardCrop(video) {
 
   const videoRect =
     video.getBoundingClientRect();
 
 
-  const frameRect =
-    document
-      .getElementById("cardGuide")
-      .getBoundingClientRect();
+  const guideRect =
+    document.getElementById(
+      "cardGuide"
+    ).getBoundingClientRect();
 
-
-  /*
-     Actual card position inside the
-     73 × 98 guide.
-  */
-
-  const horizontalMargin =
-    frameRect.width *
-    (5 / 73);
-
-
-  const verticalMargin =
-    frameRect.height *
-    (5 / 98);
-
-
-  const cardLeft =
-
-    frameRect.left +
-    horizontalMargin;
-
-
-  const cardTop =
-
-    frameRect.top +
-    verticalMargin;
-
-
-  const cardWidth =
-
-    frameRect.width -
-    horizontalMargin * 2;
-
-
-  const cardHeight =
-
-    frameRect.height -
-    verticalMargin * 2;
-
-
-
-  /*
-     Convert screen coordinates into
-     camera pixels.
-  */
 
   const scaleX =
     video.videoWidth /
@@ -1348,109 +1124,179 @@ function getActualCardCrop(video) {
     videoRect.height;
 
 
+  let x =
+
+    (
+      guideRect.left -
+      videoRect.left
+    ) *
+    scaleX;
+
+
+  let y =
+
+    (
+      guideRect.top -
+      videoRect.top
+    ) *
+    scaleY;
+
+
+  let width =
+    guideRect.width *
+    scaleX;
+
+
+  let height =
+    guideRect.height *
+    scaleY;
+
+
+  const extraX =
+    width * 0.05;
+
+
+  const extraY =
+    height * 0.04;
+
+
+  x -= extraX;
+  y -= extraY;
+
+  width +=
+    extraX * 2;
+
+  height +=
+    extraY * 2;
+
+
+  x =
+    Math.max(
+      0,
+      x
+    );
+
+
+  y =
+    Math.max(
+      0,
+      y
+    );
+
+
+  width =
+    Math.min(
+      video.videoWidth -
+      x,
+      width
+    );
+
+
+  height =
+    Math.min(
+      video.videoHeight -
+      y,
+      height
+    );
+
+
   return {
 
     x:
-      Math.round(
-        (
-          cardLeft -
-          videoRect.left
-        ) *
-        scaleX
-      ),
+      Math.round(x),
 
     y:
-      Math.round(
-        (
-          cardTop -
-          videoRect.top
-        ) *
-        scaleY
-      ),
+      Math.round(y),
 
     width:
-      Math.round(
-        cardWidth *
-        scaleX
-      ),
+      Math.round(width),
 
     height:
-      Math.round(
-        cardHeight *
-        scaleY
-      )
+      Math.round(height)
 
   };
 
 }
 
 
-
-/* =================================================
-   SCAN LIVE CARD
-================================================= */
+/* ---------------------------------------------
+   SCAN FRAME
+--------------------------------------------- */
 
 async function scanFrame() {
 
   if (
-    !scannerRunning ||
-    scannerPaused ||
     scanBusy ||
+    scannerPaused ||
+    !scannerRunning ||
     !libraryReady
   ) {
-
     return;
-
   }
 
 
-  const video =
-    document.getElementById(
-      "video"
-    );
-
-
-  if (
-    !video.videoWidth ||
-    !video.videoHeight
-  ) {
-
-    scheduleScan(400);
-
-    return;
-
-  }
-
-
-  scanBusy = true;
+  scanBusy =
+    true;
 
 
   try {
 
-    const descriptor =
-      createLiveDescriptor(
-        video
-      );
+    const result =
+      detectAndWarpCard();
 
 
-    const matches =
-      compareAgainstLibrary(
-        descriptor
-      );
+    if (!result) {
+
+      clearEdgeOverlay();
 
 
-    if (
-      matches.length === 0
-    ) {
+      document.getElementById(
+        "edgeStatus"
+      ).innerText =
+        "Looking for four card edges...";
 
-      scheduleScan(500);
+
+      document.getElementById(
+        "liveBest"
+      ).innerText =
+        "Waiting for card...";
+
+
+      lastWinner =
+        null;
+
+
+      consecutiveWins =
+        0;
+
 
       return;
 
     }
 
 
-    displayLiveMatches(
+    drawDetectedEdges(
+      result.displayPoints
+    );
+
+
+    document.getElementById(
+      "edgeStatus"
+    ).innerText =
+      "✓ Card edges found";
+
+
+    const liveDescriptor =
+      createLiveDescriptor();
+
+
+    const matches =
+      compareAgainstLibrary(
+        liveDescriptor
+      );
+
+
+    displayMatches(
       matches
     );
 
@@ -1459,47 +1305,34 @@ async function scanFrame() {
       matches[0];
 
 
-    /*
-       We don't immediately accept one frame.
-
-       The same card must win repeatedly.
-    */
-
     if (
       best.number ===
-      lastBestNumber
+      lastWinner
     ) {
 
-      consecutiveMatches++;
+      consecutiveWins++;
 
     }
 
     else {
 
-      lastBestNumber =
+      lastWinner =
         best.number;
 
 
-      consecutiveMatches =
+      consecutiveWins =
         1;
 
     }
 
 
-
-    /*
-       Require three consecutive wins.
-    */
-
     if (
-      consecutiveMatches >= 3
+      consecutiveWins >= 4
     ) {
 
       showDetectedCard(
-        best,
-        matches
+        best
       );
-
 
       return;
 
@@ -1510,7 +1343,7 @@ async function scanFrame() {
   catch (error) {
 
     console.error(
-      "Visual scan error:",
+      "Scan frame failed:",
       error
     );
 
@@ -1518,57 +1351,63 @@ async function scanFrame() {
 
   finally {
 
-    scanBusy = false;
+    scanBusy =
+      false;
+
+
+    if (
+      scannerRunning &&
+      !scannerPaused
+    ) {
+
+      scheduleScan(
+        400
+      );
+
+    }
 
   }
-
-
-  scheduleScan(500);
 
 }
 
 
+/* ---------------------------------------------
+   CARD EDGE DETECTION + PERSPECTIVE WARP
+--------------------------------------------- */
 
-/* =================================================
-   CREATE LIVE CARD DESCRIPTOR
-================================================= */
+function detectAndWarpCard() {
 
-function createLiveDescriptor(video) {
+  const video =
+    document.getElementById(
+      "video"
+    );
+
 
   const crop =
-    getActualCardCrop(
-      video
-    );
+    getGuideCrop();
 
 
-  const canvas =
+  const frameCanvas =
     document.getElementById(
-      "captureCanvas"
+      "frameCanvas"
     );
 
 
-  canvas.width =
-    FP_WIDTH;
+  frameCanvas.width =
+    crop.width;
 
 
-  canvas.height =
-    FP_HEIGHT;
+  frameCanvas.height =
+    crop.height;
 
 
-  const ctx =
-    canvas.getContext(
-
-      "2d",
-
-      {
-        willReadFrequently:
-          true
-      }
-
+  const frameContext =
+    frameCanvas.getContext(
+      "2d"
     );
 
 
-  ctx.drawImage(
+  frameContext.drawImage(
 
     video,
 
@@ -1581,92 +1420,773 @@ function createLiveDescriptor(video) {
     0,
     0,
 
-    FP_WIDTH,
-    FP_HEIGHT
+    crop.width,
+    crop.height
 
   );
 
 
-  return createDescriptor(
-    ctx,
-    FP_WIDTH,
-    FP_HEIGHT
-  );
-
-}
+  let src =
+    cv.imread(
+      frameCanvas
+    );
 
 
-
-/* =================================================
-   COMPARE AGAINST ALL CARDS
-================================================= */
-
-function compareAgainstLibrary(
-  liveDescriptor
-) {
-
-  const matches = [];
+  let gray =
+    new cv.Mat();
 
 
-  for (
-    const reference of
-    referenceLibrary
-  ) {
+  let blurred =
+    new cv.Mat();
 
-    const score =
-      descriptorDistance(
 
-        liveDescriptor,
+  let edges =
+    new cv.Mat();
 
-        reference.descriptor
+
+  let contours =
+    new cv.MatVector();
+
+
+  let hierarchy =
+    new cv.Mat();
+
+
+  let kernel =
+    null;
+
+
+  try {
+
+    cv.cvtColor(
+      src,
+      gray,
+      cv.COLOR_RGBA2GRAY
+    );
+
+
+    cv.GaussianBlur(
+      gray,
+      blurred,
+      new cv.Size(5, 5),
+      0
+    );
+
+
+    cv.Canny(
+      blurred,
+      edges,
+      45,
+      130
+    );
+
+
+    kernel =
+      cv.Mat.ones(
+        3,
+        3,
+        cv.CV_8U
+      );
+
+
+    cv.dilate(
+      edges,
+      edges,
+      kernel
+    );
+
+
+    cv.findContours(
+      edges,
+      contours,
+      hierarchy,
+      cv.RETR_LIST,
+      cv.CHAIN_APPROX_SIMPLE
+    );
+
+
+    const frameArea =
+      crop.width *
+      crop.height;
+
+
+    let bestPoints =
+      null;
+
+
+    let bestArea =
+      0;
+
+
+    for (
+      let i = 0;
+      i < contours.size();
+      i++
+    ) {
+
+      const contour =
+        contours.get(i);
+
+
+      const area =
+        Math.abs(
+          cv.contourArea(
+            contour
+          )
+        );
+
+
+      if (
+        area <
+        frameArea * 0.30 ||
+
+        area >
+        frameArea * 0.93
+      ) {
+
+        contour.delete();
+
+        continue;
+
+      }
+
+
+      const perimeter =
+        cv.arcLength(
+          contour,
+          true
+        );
+
+
+      const approx =
+        new cv.Mat();
+
+
+      cv.approxPolyDP(
+        contour,
+        approx,
+        0.025 *
+        perimeter,
+        true
+      );
+
+
+      if (
+        approx.rows === 4 &&
+        cv.isContourConvex(
+          approx
+        )
+      ) {
+
+        const points =
+          matToPoints(
+            approx
+          );
+
+
+        const ordered =
+          orderCorners(
+            points
+          );
+
+
+        const width =
+
+          (
+            distance(
+              ordered[0],
+              ordered[1]
+            ) +
+
+            distance(
+              ordered[3],
+              ordered[2]
+            )
+
+          ) / 2;
+
+
+        const height =
+
+          (
+            distance(
+              ordered[0],
+              ordered[3]
+            ) +
+
+            distance(
+              ordered[1],
+              ordered[2]
+            )
+
+          ) / 2;
+
+
+        const ratio =
+
+          Math.min(
+            width,
+            height
+          ) /
+
+          Math.max(
+            width,
+            height
+          );
+
+
+        if (
+          ratio > 0.58 &&
+          ratio < 0.83 &&
+          area > bestArea
+        ) {
+
+          bestArea =
+            area;
+
+
+          bestPoints =
+            ordered;
+
+        }
+
+      }
+
+
+      approx.delete();
+      contour.delete();
+
+    }
+
+
+    if (!bestPoints) {
+
+      return null;
+
+    }
+
+
+    let ordered =
+      bestPoints;
+
+
+    const detectedWidth =
+
+      (
+        distance(
+          ordered[0],
+          ordered[1]
+        ) +
+
+        distance(
+          ordered[3],
+          ordered[2]
+        )
+
+      ) / 2;
+
+
+    const detectedHeight =
+
+      (
+        distance(
+          ordered[0],
+          ordered[3]
+        ) +
+
+        distance(
+          ordered[1],
+          ordered[2]
+        )
+
+      ) / 2;
+
+
+    if (
+      detectedWidth >
+      detectedHeight
+    ) {
+
+      ordered = [
+
+        ordered[1],
+        ordered[2],
+        ordered[3],
+        ordered[0]
+
+      ];
+
+    }
+
+
+    const OUTPUT_WIDTH =
+      315;
+
+
+    const OUTPUT_HEIGHT =
+      440;
+
+
+    const sourcePoints =
+      cv.matFromArray(
+
+        4,
+        1,
+        cv.CV_32FC2,
+
+        [
+
+          ordered[0].x,
+          ordered[0].y,
+
+          ordered[1].x,
+          ordered[1].y,
+
+          ordered[2].x,
+          ordered[2].y,
+
+          ordered[3].x,
+          ordered[3].y
+
+        ]
 
       );
 
 
-    matches.push({
+    const destinationPoints =
+      cv.matFromArray(
 
-      number:
-        reference.number,
+        4,
+        1,
+        cv.CV_32FC2,
 
-      score:
-        score
+        [
+
+          0,
+          0,
+
+          OUTPUT_WIDTH - 1,
+          0,
+
+          OUTPUT_WIDTH - 1,
+          OUTPUT_HEIGHT - 1,
+
+          0,
+          OUTPUT_HEIGHT - 1
+
+        ]
+
+      );
+
+
+    const transform =
+      cv.getPerspectiveTransform(
+        sourcePoints,
+        destinationPoints
+      );
+
+
+    const warped =
+      new cv.Mat();
+
+
+    cv.warpPerspective(
+
+      src,
+      warped,
+      transform,
+
+      new cv.Size(
+        OUTPUT_WIDTH,
+        OUTPUT_HEIGHT
+      ),
+
+      cv.INTER_LINEAR,
+      cv.BORDER_CONSTANT,
+      new cv.Scalar()
+
+    );
+
+
+    cv.imshow(
+      "warpedCanvas",
+      warped
+    );
+
+
+    const displayPoints =
+      ordered.map(
+        point => ({
+
+          x:
+            point.x +
+            crop.x,
+
+          y:
+            point.y +
+            crop.y
+
+        })
+      );
+
+
+    sourcePoints.delete();
+    destinationPoints.delete();
+    transform.delete();
+    warped.delete();
+
+
+    return {
+
+      displayPoints:
+        displayPoints
+
+    };
+
+  }
+
+  finally {
+
+    if (kernel) {
+      kernel.delete();
+    }
+
+    contours.delete();
+    hierarchy.delete();
+    edges.delete();
+    blurred.delete();
+    gray.delete();
+    src.delete();
+
+  }
+
+}
+
+
+/* ---------------------------------------------
+   POINT HELPERS
+--------------------------------------------- */
+
+function matToPoints(
+  mat
+) {
+
+  const points =
+    [];
+
+
+  for (
+    let i = 0;
+    i < 4;
+    i++
+  ) {
+
+    points.push({
+
+      x:
+        mat.data32S[
+          i * 2
+        ],
+
+      y:
+        mat.data32S[
+          i * 2 + 1
+        ]
 
     });
 
   }
 
 
-  matches.sort(
+  return points;
 
-    function(a, b) {
-
-      return (
-        a.score -
-        b.score
-      );
-
-    }
-
-  );
+}
 
 
-  return matches.slice(
-    0,
-    3
+function orderCorners(
+  points
+) {
+
+  const sums =
+    points.map(
+      point =>
+        point.x +
+        point.y
+    );
+
+
+  const differences =
+    points.map(
+      point =>
+        point.y -
+        point.x
+    );
+
+
+  const topLeft =
+    points[
+      sums.indexOf(
+        Math.min(
+          ...sums
+        )
+      )
+    ];
+
+
+  const bottomRight =
+    points[
+      sums.indexOf(
+        Math.max(
+          ...sums
+        )
+      )
+    ];
+
+
+  const topRight =
+    points[
+      differences.indexOf(
+        Math.min(
+          ...differences
+        )
+      )
+    ];
+
+
+  const bottomLeft =
+    points[
+      differences.indexOf(
+        Math.max(
+          ...differences
+        )
+      )
+    ];
+
+
+  return [
+
+    topLeft,
+    topRight,
+    bottomRight,
+    bottomLeft
+
+  ];
+
+}
+
+
+function distance(
+  a,
+  b
+) {
+
+  return Math.hypot(
+
+    a.x -
+    b.x,
+
+    a.y -
+    b.y
+
   );
 
 }
 
 
+/* ---------------------------------------------
+   GREEN EDGE OVERLAY
+--------------------------------------------- */
 
-/* =================================================
-   VISUAL DISTANCE
+function drawDetectedEdges(
+  points
+) {
 
-   Lower = more similar.
+  const overlay =
+    document.getElementById(
+      "edgeOverlay"
+    );
 
-   Brightness/structure receives slightly more
-   weight than colour.
-================================================= */
+
+  const ctx =
+    overlay.getContext(
+      "2d"
+    );
+
+
+  ctx.clearRect(
+    0,
+    0,
+    overlay.width,
+    overlay.height
+  );
+
+
+  ctx.strokeStyle =
+    "#00ff66";
+
+
+  ctx.lineWidth =
+    8;
+
+
+  ctx.beginPath();
+
+
+  ctx.moveTo(
+    points[0].x,
+    points[0].y
+  );
+
+
+  for (
+    let i = 1;
+    i < points.length;
+    i++
+  ) {
+
+    ctx.lineTo(
+      points[i].x,
+      points[i].y
+    );
+
+  }
+
+
+  ctx.closePath();
+  ctx.stroke();
+
+}
+
+
+function clearEdgeOverlay() {
+
+  const overlay =
+    document.getElementById(
+      "edgeOverlay"
+    );
+
+
+  const ctx =
+    overlay.getContext(
+      "2d"
+    );
+
+
+  ctx.clearRect(
+    0,
+    0,
+    overlay.width,
+    overlay.height
+  );
+
+}
+
+
+/* ---------------------------------------------
+   LIVE DESCRIPTOR
+--------------------------------------------- */
+
+function createLiveDescriptor() {
+
+  const warped =
+    document.getElementById(
+      "warpedCanvas"
+    );
+
+
+  const canvas =
+    document.getElementById(
+      "descriptorCanvas"
+    );
+
+
+  canvas.width =
+    DESCRIPTOR_WIDTH;
+
+
+  canvas.height =
+    DESCRIPTOR_HEIGHT;
+
+
+  const ctx =
+    canvas.getContext(
+      "2d",
+      {
+        willReadFrequently: true
+      }
+    );
+
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  ctx.drawImage(
+
+    warped,
+
+    0,
+    0,
+
+    canvas.width,
+    canvas.height
+
+  );
+
+
+  return descriptorFromCanvas(
+    canvas
+  );
+
+}
+
+
+/* ---------------------------------------------
+   MATCHING
+--------------------------------------------- */
+
+function compareAgainstLibrary(
+  liveDescriptor
+) {
+
+  const matches =
+    referenceLibrary.map(
+      reference => ({
+
+        number:
+          reference.number,
+
+        score:
+          descriptorDistance(
+
+            liveDescriptor,
+
+            reference.descriptor
+
+          )
+
+      })
+    );
+
+
+  matches.sort(
+    (a, b) =>
+      a.score -
+      b.score
+  );
+
+
+  return matches.slice(
+    0,
+    5
+  );
+
+}
+
 
 function descriptorDistance(
   a,
@@ -1687,51 +2207,31 @@ function descriptorDistance(
     i += 4
   ) {
 
-    const brightnessDifference =
+    total +=
 
       Math.abs(
         a[i] -
         b[i]
-      );
-
-
-    const redDifference =
+      ) *
+      1.8 +
 
       Math.abs(
         a[i + 1] -
         b[i + 1]
-      );
-
-
-    const greenDifference =
+      ) *
+      0.45 +
 
       Math.abs(
         a[i + 2] -
         b[i + 2]
-      );
-
-
-    const blueDifference =
+      ) *
+      0.45 +
 
       Math.abs(
         a[i + 3] -
         b[i + 3]
-      );
-
-
-    total +=
-
-      brightnessDifference *
-      1.6 +
-
-      redDifference *
-      0.55 +
-
-      greenDifference *
-      0.55 +
-
-      blueDifference *
-      0.55;
+      ) *
+      0.45;
 
 
     count++;
@@ -1739,20 +2239,17 @@ function descriptorDistance(
   }
 
 
-  return (
-    total /
-    count
-  );
+  return total /
+    count;
 
 }
 
 
+/* ---------------------------------------------
+   DISPLAY MATCHES
+--------------------------------------------- */
 
-/* =================================================
-   LIVE MATCH DISPLAY
-================================================= */
-
-function displayLiveMatches(
+function displayMatches(
   matches
 ) {
 
@@ -1788,69 +2285,69 @@ function displayLiveMatches(
 
     "Visual distance: " +
 
-    best.score.toFixed(4);
-
-
-
-  let text =
-    "Closest matches:\n";
-
-
-  for (
-    let i = 0;
-    i < matches.length;
-    i++
-  ) {
-
-    text +=
-
-      (i + 1) +
-
-      ". #" +
-
-      String(
-        matches[i].number
-      ).padStart(
-        3,
-        "0"
-      ) +
-
-      "/" +
-
-      set.denominator +
-
-      " — " +
-
-      matches[i].score.toFixed(4) +
-
-      "\n";
-
-  }
+    best.score.toFixed(
+      4
+    );
 
 
   document.getElementById(
     "topMatches"
   ).innerText =
-    text;
+
+    "Closest matches:\n" +
+
+    matches.map(
+
+      (
+        match,
+        index
+      ) =>
+
+        (
+          index +
+          1
+        ) +
+
+        ". #" +
+
+        String(
+          match.number
+        ).padStart(
+          3,
+          "0"
+        ) +
+
+        "/" +
+
+        set.denominator +
+
+        " — " +
+
+        match.score.toFixed(
+          4
+        )
+
+    ).join(
+      "\n"
+    );
 
 }
 
 
-
-/* =================================================
-   SHOW DETECTED CARD
-================================================= */
+/* ---------------------------------------------
+   FINAL MATCH
+--------------------------------------------- */
 
 function showDetectedCard(
-  best,
-  matches
+  match
 ) {
 
-  scannerPaused = true;
+  scannerPaused =
+    true;
 
 
   detectedNumber =
-    best.number;
+    match.number;
 
 
   const set =
@@ -1863,7 +2360,7 @@ function showDetectedCard(
 
   const padded =
     String(
-      best.number
+      match.number
     ).padStart(
       3,
       "0"
@@ -1892,7 +2389,9 @@ function showDetectedCard(
 
     "Visual distance: " +
 
-    best.score.toFixed(4);
+    match.score.toFixed(
+      4
+    );
 
 
   document.getElementById(
@@ -1905,7 +2404,7 @@ function showDetectedCard(
 
     "/" +
 
-    best.number +
+    match.number +
 
     ".png";
 
@@ -1917,42 +2416,22 @@ function showDetectedCard(
 
 
   setStatus(
-
     "Possible card match found.",
-
     "success"
-
   );
-
-
-  document.getElementById(
-    "detectedCard"
-  ).scrollIntoView({
-
-    behavior:
-      "smooth",
-
-    block:
-      "center"
-
-  });
 
 }
 
 
-
-/* =================================================
-   CORRECT
-================================================= */
+/* ---------------------------------------------
+   NEXT CARD
+--------------------------------------------- */
 
 function confirmCard() {
 
   setStatus(
-
-    "✓ Match confirmed — hold up the next card.",
-
+    "✓ Correct — hold up the next card.",
     "success"
-
   );
 
 
@@ -1960,20 +2439,12 @@ function confirmCard() {
 
 }
 
-
-
-/* =================================================
-   WRONG
-================================================= */
 
 function rejectCard() {
 
   setStatus(
-
-    "Match rejected — scanning again...",
-
+    "Trying again...",
     "working"
-
   );
 
 
@@ -1981,11 +2452,6 @@ function rejectCard() {
 
 }
 
-
-
-/* =================================================
-   NEXT CARD
-================================================= */
 
 function prepareNextCard() {
 
@@ -1993,11 +2459,11 @@ function prepareNextCard() {
     null;
 
 
-  lastBestNumber =
+  lastWinner =
     null;
 
 
-  consecutiveMatches =
+  consecutiveWins =
     0;
 
 
@@ -2011,13 +2477,6 @@ function prepareNextCard() {
     false;
 
 
-  document.getElementById(
-    "liveBest"
-  ).innerText =
-
-    "Waiting for card...";
-
-
   scheduleScan(
     500
   );
@@ -2025,18 +2484,22 @@ function prepareNextCard() {
 }
 
 
-
-/* =================================================
+/* ---------------------------------------------
    STOP
-================================================= */
+--------------------------------------------- */
 
 function stopScanner() {
 
-  scannerRunning = false;
+  scannerRunning =
+    false;
 
-  scannerPaused = false;
 
-  scanBusy = false;
+  scannerPaused =
+    false;
+
+
+  scanBusy =
+    false;
 
 
   if (scanTimer) {
@@ -2057,10 +2520,8 @@ function stopScanner() {
     cameraStream
       .getTracks()
       .forEach(
-
         track =>
           track.stop()
-
       );
 
   }
@@ -2076,8 +2537,17 @@ function stopScanner() {
     null;
 
 
+  clearEdgeOverlay();
+
+
   document.getElementById(
     "cameraBox"
+  ).style.display =
+    "none";
+
+
+  document.getElementById(
+    "cardPreviewSection"
   ).style.display =
     "none";
 
@@ -2107,20 +2577,16 @@ function stopScanner() {
 
 
   setStatus(
-
     "Camera stopped.",
-
     "working"
-
   );
 
 }
 
 
-
-/* =================================================
+/* ---------------------------------------------
    STATUS
-================================================= */
+--------------------------------------------- */
 
 function setStatus(
   message,
@@ -2143,32 +2609,22 @@ function setStatus(
 }
 
 
-
-/* =================================================
-   CLEANUP
-================================================= */
-
 window.addEventListener(
-
   "pagehide",
-
-  function() {
+  () => {
 
     if (cameraStream) {
 
       cameraStream
         .getTracks()
         .forEach(
-
           track =>
             track.stop()
-
         );
 
     }
 
   }
-
 );
 
 </script>
