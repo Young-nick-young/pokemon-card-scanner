@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, viewport-fit=cover"
+>
 
 <title>Pokémon Card Scanner</title>
-
-<script async src="https://docs.opencv.org/4.x/opencv.js"></script>
 
 <style>
 * {
@@ -42,18 +44,18 @@ h1 {
 
 label {
   display: block;
+  margin-bottom: 6px;
   font-size: 14px;
   font-weight: bold;
-  margin-bottom: 6px;
 }
 
 select {
   width: 100%;
   padding: 12px;
-  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 9px;
   background: white;
+  font-size: 16px;
 }
 
 button {
@@ -102,6 +104,9 @@ button {
   background: #f8d7da;
 }
 
+
+/* REFERENCE LIBRARY */
+
 #libraryBox {
   display: none;
   padding: 12px;
@@ -111,9 +116,9 @@ button {
 }
 
 #libraryText {
+  margin-bottom: 7px;
   text-align: center;
   font-size: 13px;
-  margin-bottom: 7px;
 }
 
 #progressOuter {
@@ -125,11 +130,14 @@ button {
 }
 
 #progressInner {
-  width: 0;
+  width: 0%;
   height: 100%;
   background: #333;
   transition: width .15s;
 }
+
+
+/* CAMERA */
 
 #cameraBox {
   display: none;
@@ -147,159 +155,225 @@ button {
   height: auto;
 }
 
-/* Locked 73 × 98 guide */
+/*
+  KEEPING THE WHITE FRAME EXACTLY
+  AS BEFORE.
+*/
 #cardGuide {
   position: absolute;
   width: 73%;
   aspect-ratio: 73 / 98;
+
   left: 50%;
   top: 50%;
+
   transform: translate(-50%, -50%);
+
   border: 3px solid white;
   border-radius: 14px;
-  pointer-events: none;
-}
 
-#edgeOverlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
   pointer-events: none;
 }
 
 #cameraMessage {
   position: absolute;
+
   top: 8px;
   left: 50%;
+
   transform: translateX(-50%);
+
   padding: 6px 10px;
+
   background: rgba(0,0,0,.72);
   color: white;
+
   border-radius: 20px;
+
   font-size: 11px;
+
   white-space: nowrap;
+
   pointer-events: none;
 }
 
-#cardPreviewSection,
-#scanInfo,
-#detectedCard {
+
+/* LIVE CROP PREVIEW */
+
+#previewSection {
   display: none;
+
+  padding: 10px;
+  margin-bottom: 10px;
+
   background: white;
   border-radius: 14px;
-  margin-bottom: 10px;
 }
 
-#cardPreviewSection {
-  padding: 10px;
-}
-
-#scanInfo {
-  padding: 12px;
-}
-
-#detectedCard {
-  padding: 15px;
-  text-align: center;
-}
-
-#cardPreviewTitle {
+#previewTitle {
   text-align: center;
   margin-bottom: 7px;
+
   color: #666;
   font-size: 12px;
 }
 
-#warpedCanvas {
+#liveCardCanvas {
   display: block;
-  width: 150px;
-  max-width: 45%;
+
+  width: 160px;
+  max-width: 50%;
+
   margin: auto;
-  background: #ddd;
+
   border: 2px solid #333;
   border-radius: 7px;
+
+  background: #ddd;
 }
 
-#edgeStatus {
+#previewMessage {
   text-align: center;
   margin-top: 7px;
+
   font-size: 12px;
-  font-weight: bold;
+  color: #666;
+}
+
+
+/* MATCH INFO */
+
+#scanInfo {
+  display: none;
+
+  padding: 12px;
+  margin-bottom: 10px;
+
+  background: white;
+  border-radius: 14px;
 }
 
 #scanInfoTitle {
   text-align: center;
+
   font-size: 13px;
   font-weight: bold;
 }
 
 #liveBest {
   text-align: center;
+
   margin-top: 7px;
-  font-size: 19px;
+
+  font-size: 20px;
   font-weight: bold;
 }
 
 #liveScore {
   text-align: center;
+
   margin-top: 3px;
+
   color: #666;
+
+  font-size: 12px;
+}
+
+#stability {
+  text-align: center;
+
+  margin-top: 4px;
+
+  color: #666;
+
   font-size: 12px;
 }
 
 #topMatches {
   margin-top: 10px;
+
   padding: 8px;
+
   background: #eee;
+
   border-radius: 8px;
+
   font-size: 12px;
+
   white-space: pre-line;
-  line-height: 1.5;
+
+  line-height: 1.55;
+}
+
+
+/* FINAL MATCH */
+
+#detectedCard {
+  display: none;
+
+  padding: 15px;
+  margin-bottom: 10px;
+
+  background: white;
+
+  border-radius: 14px;
+
+  text-align: center;
 }
 
 #detectedImage {
   width: 190px;
   max-width: 70%;
+
   border-radius: 7px;
 }
 
 #detectedNumber {
   margin-top: 8px;
+
   font-size: 25px;
   font-weight: bold;
 }
 
 #detectedSet {
   margin-top: 3px;
+
   color: #666;
+
   font-size: 14px;
 }
 
 #detectedConfidence {
   margin-top: 5px;
+
   color: #666;
+
   font-size: 12px;
 }
 
 #correctButton {
   margin-top: 13px;
+
   background: #4caf50;
   color: white;
 }
 
 #wrongButton {
   margin-top: 7px;
+
   background: #ddd;
   color: #222;
 }
 
 .smallText {
-  text-align: center;
   margin-top: 7px;
+
+  text-align: center;
+
   color: #777;
+
   font-size: 12px;
+
   line-height: 1.4;
 }
 
@@ -309,42 +383,56 @@ button {
 </style>
 </head>
 
+
 <body>
 
 <div class="container">
 
 <h1>Pokémon Card Scanner</h1>
 
+
 <div class="section">
 
-<label for="setSelector">Set being scanned</label>
+<label for="setSelector">
+Set being scanned
+</label>
 
 <select id="setSelector">
-  <option value="destined-rivals">Destined Rivals</option>
+  <option value="destined-rivals">
+    Destined Rivals
+  </option>
 </select>
 
-<button id="startButton" onclick="startScanner()">
+<button
+  id="startButton"
+  onclick="startScanner()"
+>
 📷 START SCANNER
 </button>
 
-<button id="stopButton" onclick="stopScanner()">
+<button
+  id="stopButton"
+  onclick="stopScanner()"
+>
 STOP CAMERA
 </button>
 
 <div class="smallText">
-Put the card roughly inside the white frame.
+Keep the card roughly inside the white frame.
 <br>
-You do not need to align it perfectly.
+Small movements are allowed.
 </div>
 
 </div>
+
 
 <div id="status"></div>
+
 
 <div id="libraryBox">
 
 <div id="libraryText">
-Preparing reference cards...
+Preparing card library...
 </div>
 
 <div id="progressOuter">
@@ -353,38 +441,39 @@ Preparing reference cards...
 
 </div>
 
+
 <div id="cameraBox">
 
 <video
   id="video"
   autoplay
+  muted
   playsinline
-  muted>
-</video>
-
-<canvas id="edgeOverlay"></canvas>
+></video>
 
 <div id="cardGuide"></div>
 
 <div id="cameraMessage">
-Hold one card roughly inside frame
+Hold one card inside frame
 </div>
 
 </div>
 
-<div id="cardPreviewSection">
 
-<div id="cardPreviewTitle">
-Card found by scanner:
+<div id="previewSection">
+
+<div id="previewTitle">
+What the matcher is seeing:
 </div>
 
-<canvas id="warpedCanvas"></canvas>
+<canvas id="liveCardCanvas"></canvas>
 
-<div id="edgeStatus">
-Looking for card edges...
+<div id="previewMessage">
+Whole-card visual crop
 </div>
 
 </div>
+
 
 <div id="scanInfo">
 
@@ -393,18 +482,25 @@ LIVE WHOLE-CARD MATCH
 </div>
 
 <div id="liveBest">
-Waiting...
+Waiting for card...
 </div>
 
 <div id="liveScore"></div>
+
+<div id="stability"></div>
 
 <div id="topMatches"></div>
 
 </div>
 
+
 <div id="detectedCard">
 
-<div style="font-size:13px;color:#777;margin-bottom:8px">
+<div style="
+  font-size:13px;
+  color:#777;
+  margin-bottom:8px;
+">
 CARD MATCH
 </div>
 
@@ -416,106 +512,197 @@ CARD MATCH
 
 <div id="detectedConfidence"></div>
 
-<button id="correctButton" onclick="confirmCard()">
+<button
+  id="correctButton"
+  onclick="confirmCard()"
+>
 ✓ CORRECT
 </button>
 
-<button id="wrongButton" onclick="rejectCard()">
+<button
+  id="wrongButton"
+  onclick="rejectCard()"
+>
 ✕ WRONG — TRY AGAIN
 </button>
 
 </div>
 
-<canvas id="frameCanvas" class="hidden"></canvas>
-<canvas id="descriptorCanvas" class="hidden"></canvas>
+
+<canvas
+  id="referenceCanvas"
+  class="hidden"
+></canvas>
+
+<canvas
+  id="workCanvas"
+  class="hidden"
+></canvas>
+
+<canvas
+  id="descriptorCanvas"
+  class="hidden"
+></canvas>
 
 </div>
 
+
 <script>
 
+/* =====================================================
+   SET DATA
+===================================================== */
+
 const SETS = {
+
   "destined-rivals": {
-    name: "Destined Rivals",
-    denominator: 182,
-    maxNumber: 244,
-    imageSet: "sv10"
+
+    name:
+      "Destined Rivals",
+
+    denominator:
+      182,
+
+    maxNumber:
+      244,
+
+    imageSet:
+      "sv10"
+
   }
+
 };
 
-const DESCRIPTOR_WIDTH = 42;
-const DESCRIPTOR_HEIGHT = 59;
 
-let cameraStream = null;
-let scannerRunning = false;
-let scannerPaused = false;
-let scanBusy = false;
-let scanTimer = null;
+/* =====================================================
+   VISUAL MATCH SETTINGS
+===================================================== */
 
-let referenceLibrary = [];
-let libraryReady = false;
+/*
+  Higher than the original 24×34 matcher.
 
-let lastWinner = null;
-let consecutiveWins = 0;
+  Still small enough to compare against
+  244 cards quickly on a phone.
+*/
 
-let detectedNumber = null;
+const DESC_WIDTH =
+  48;
 
-
-/* ---------------------------------------------
-   HELPERS
---------------------------------------------- */
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+const DESC_HEIGHT =
+  67;
 
 
-async function waitForOpenCv() {
+/*
+  The reference image itself contains the
+  complete card.
 
-  for (let i = 0; i < 150; i++) {
+  For the LIVE camera image, the white
+  guide is 73 × 98 while the real card is
+  63 × 88.
 
-    if (
-      typeof cv !== "undefined" &&
-      cv &&
-      cv.Mat
-    ) {
-      return true;
-    }
+  This converts the guide into the expected
+  real-card region.
+*/
 
-    await sleep(100);
-  }
+const CARD_WIDTH_RATIO =
+  63 / 73;
 
-  return false;
-}
+const CARD_HEIGHT_RATIO =
+  88 / 98;
 
 
-/* ---------------------------------------------
+/*
+  Small translation tests.
+
+  These are fractions of the detected
+  card crop.
+
+  This means the matcher does not require
+  pixel-perfect centering.
+*/
+
+const SHIFTS = [
+
+  [ 0.00,  0.00],
+
+  [-0.025,  0.00],
+  [ 0.025,  0.00],
+
+  [ 0.00, -0.025],
+  [ 0.00,  0.025],
+
+  [-0.020, -0.020],
+  [ 0.020, -0.020],
+
+  [-0.020,  0.020],
+  [ 0.020,  0.020]
+
+];
+
+
+/*
+  Slight zoom differences.
+
+  1.00 = normal.
+
+  Smaller scale means a slightly larger
+  camera crop is considered.
+*/
+
+const SCALES = [
+
+  0.965,
+  1.000,
+  1.035
+
+];
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let cameraStream =
+  null;
+
+let scannerRunning =
+  false;
+
+let scannerPaused =
+  false;
+
+let scanBusy =
+  false;
+
+let scanTimer =
+  null;
+
+
+let referenceLibrary =
+  [];
+
+let libraryReady =
+  false;
+
+
+let winnerHistory =
+  [];
+
+let scoreHistory =
+  [];
+
+
+let detectedNumber =
+  null;
+
+
+/* =====================================================
    START
---------------------------------------------- */
+===================================================== */
 
 async function startScanner() {
 
   try {
-
-    setStatus(
-      "Loading card detection...",
-      "working"
-    );
-
-
-    const cvReady =
-      await waitForOpenCv();
-
-
-    if (!cvReady) {
-
-      setStatus(
-        "OpenCV did not load. Refresh the page and try again.",
-        "error"
-      );
-
-      return;
-    }
-
 
     setStatus(
       "Starting camera...",
@@ -548,7 +735,9 @@ async function startScanner() {
 
 
     const video =
-      document.getElementById("video");
+      document.getElementById(
+        "video"
+      );
 
 
     video.srcObject =
@@ -565,7 +754,7 @@ async function startScanner() {
 
 
     document.getElementById(
-      "cardPreviewSection"
+      "previewSection"
     ).style.display =
       "block";
 
@@ -588,11 +777,12 @@ async function startScanner() {
       "block";
 
 
-    scannerRunning = true;
-    scannerPaused = false;
+    scannerRunning =
+      true;
 
 
-    setupOverlay();
+    scannerPaused =
+      false;
 
 
     if (!libraryReady) {
@@ -610,26 +800,31 @@ async function startScanner() {
       );
 
       return;
+
     }
 
 
     setStatus(
-      "Ready — hold a card roughly inside the frame.",
+      "Ready — hold a card inside the frame.",
       "working"
     );
 
 
-    scheduleScan(500);
+    scheduleScan(
+      600
+    );
 
   }
 
   catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
     setStatus(
-      "Scanner error: " +
+      "Camera error: " +
       error.message,
       "error"
     );
@@ -639,52 +834,30 @@ async function startScanner() {
 }
 
 
-/* ---------------------------------------------
-   OVERLAY
---------------------------------------------- */
-
-function setupOverlay() {
-
-  const video =
-    document.getElementById("video");
-
-
-  const overlay =
-    document.getElementById(
-      "edgeOverlay"
-    );
-
-
-  overlay.width =
-    video.videoWidth;
-
-
-  overlay.height =
-    video.videoHeight;
-}
-
-
-/* ---------------------------------------------
-   REFERENCE LIBRARY
---------------------------------------------- */
+/* =====================================================
+   BUILD REFERENCE LIBRARY
+===================================================== */
 
 async function buildReferenceLibrary() {
 
   const set =
-    SETS[
-      document.getElementById(
-        "setSelector"
-      ).value
-    ];
+    getSelectedSet();
 
 
-  referenceLibrary = [];
+  referenceLibrary =
+    [];
 
 
   document.getElementById(
     "libraryBox"
   ).style.display =
     "block";
+
+
+  document.getElementById(
+    "progressInner"
+  ).style.width =
+    "0%";
 
 
   const batchSize =
@@ -697,21 +870,33 @@ async function buildReferenceLibrary() {
     start += batchSize
   ) {
 
-    const requests = [];
+    const promises =
+      [];
 
 
     for (
       let number = start;
-      number < start + batchSize &&
-      number <= set.maxNumber;
+      number < start + batchSize;
       number++
     ) {
 
-      requests.push(
+      if (
+        number >
+        set.maxNumber
+      ) {
+
+        break;
+
+      }
+
+
+      promises.push(
+
         loadReferenceCard(
           set,
           number
         )
+
       );
 
     }
@@ -719,26 +904,26 @@ async function buildReferenceLibrary() {
 
     const results =
       await Promise.all(
-        requests
+        promises
       );
 
 
-    results.forEach(
-      result => {
+    for (
+      const result of results
+    ) {
 
-        if (result) {
+      if (result) {
 
-          referenceLibrary.push(
-            result
-          );
-
-        }
+        referenceLibrary.push(
+          result
+        );
 
       }
-    );
+
+    }
 
 
-    const done =
+    const completed =
       Math.min(
         start +
         batchSize -
@@ -747,9 +932,9 @@ async function buildReferenceLibrary() {
       );
 
 
-    const percent =
+    const percentage =
       Math.round(
-        done /
+        completed /
         set.maxNumber *
         100
       );
@@ -758,15 +943,19 @@ async function buildReferenceLibrary() {
     document.getElementById(
       "progressInner"
     ).style.width =
-      percent + "%";
+      percentage + "%";
 
 
     document.getElementById(
       "libraryText"
     ).innerText =
+
       "Preparing Destined Rivals: " +
-      done +
+
+      completed +
+
       " / " +
+
       set.maxNumber;
 
   }
@@ -782,13 +971,17 @@ async function buildReferenceLibrary() {
     document.getElementById(
       "libraryText"
     ).innerText =
+
       "✓ " +
+
       referenceLibrary.length +
+
       " cards ready";
 
 
     setTimeout(
-      () => {
+
+      function() {
 
         document.getElementById(
           "libraryBox"
@@ -796,7 +989,9 @@ async function buildReferenceLibrary() {
           "none";
 
       },
+
       1000
+
     );
 
   }
@@ -804,9 +999,9 @@ async function buildReferenceLibrary() {
 }
 
 
-/* ---------------------------------------------
-   LOAD REFERENCE
---------------------------------------------- */
+/* =====================================================
+   LOAD ONE REFERENCE
+===================================================== */
 
 function loadReferenceCard(
   set,
@@ -814,7 +1009,8 @@ function loadReferenceCard(
 ) {
 
   return new Promise(
-    resolve => {
+
+    function(resolve) {
 
       const image =
         new Image();
@@ -825,9 +1021,15 @@ function loadReferenceCard(
 
 
       image.onload =
-        () => {
+        function() {
 
           try {
+
+            const descriptor =
+              createReferenceDescriptor(
+                image
+              );
+
 
             resolve({
 
@@ -835,9 +1037,7 @@ function loadReferenceCard(
                 number,
 
               descriptor:
-                createImageDescriptor(
-                  image
-                )
+                descriptor
 
             });
 
@@ -846,13 +1046,15 @@ function loadReferenceCard(
           catch (error) {
 
             console.error(
-              "Reference error:",
+              "Reference descriptor failed:",
               number,
               error
             );
 
 
-            resolve(null);
+            resolve(
+              null
+            );
 
           }
 
@@ -860,46 +1062,60 @@ function loadReferenceCard(
 
 
       image.onerror =
-        () => {
+        function() {
 
-          resolve(null);
+          console.error(
+            "Reference image failed:",
+            number
+          );
+
+
+          resolve(
+            null
+          );
 
         };
 
 
       image.src =
+
         "https://images.pokemontcg.io/" +
+
         set.imageSet +
+
         "/" +
+
         number +
+
         ".png";
 
     }
+
   );
 
 }
 
 
-/* ---------------------------------------------
+/* =====================================================
    REFERENCE DESCRIPTOR
---------------------------------------------- */
+===================================================== */
 
-function createImageDescriptor(
+function createReferenceDescriptor(
   image
 ) {
 
   const canvas =
     document.getElementById(
-      "descriptorCanvas"
+      "referenceCanvas"
     );
 
 
   canvas.width =
-    DESCRIPTOR_WIDTH;
+    DESC_WIDTH;
 
 
   canvas.height =
-    DESCRIPTOR_HEIGHT;
+    DESC_HEIGHT;
 
 
   const ctx =
@@ -920,26 +1136,43 @@ function createImageDescriptor(
 
 
   ctx.drawImage(
+
     image,
+
     0,
     0,
-    canvas.width,
-    canvas.height
+
+    DESC_WIDTH,
+    DESC_HEIGHT
+
   );
 
 
-  return descriptorFromCanvas(
+  return createDescriptor(
     canvas
   );
 
 }
 
 
-/* ---------------------------------------------
+/* =====================================================
    DESCRIPTOR
---------------------------------------------- */
 
-function descriptorFromCanvas(
+   Each descriptor stores:
+
+   • normalized luminance
+   • red
+   • green
+   • blue
+   • horizontal edge
+   • vertical edge
+
+   The last two are important because they
+   represent artwork and text structure,
+   not just overall colour.
+===================================================== */
+
+function createDescriptor(
   canvas
 ) {
 
@@ -952,80 +1185,64 @@ function descriptorFromCanvas(
     );
 
 
+  const width =
+    canvas.width;
+
+
+  const height =
+    canvas.height;
+
+
   const pixels =
     ctx.getImageData(
       0,
       0,
-      canvas.width,
-      canvas.height
+      width,
+      height
     ).data;
 
 
-  let brightnessSum =
-    0;
+  const count =
+    width *
+    height;
 
 
-  let count =
-    0;
-
-
-  for (
-    let i = 0;
-    i < pixels.length;
-    i += 4
-  ) {
-
-    brightnessSum +=
-
-      (
-        pixels[i] * 0.299 +
-
-        pixels[i + 1] * 0.587 +
-
-        pixels[i + 2] * 0.114
-
-      ) / 255;
-
-
-    count++;
-
-  }
-
-
-  const meanBrightness =
-    brightnessSum /
-    count;
-
-
-  const descriptor =
+  const luminance =
     new Float32Array(
-      count * 4
+      count
     );
 
 
-  let output =
+  let totalLuminance =
     0;
 
 
   for (
     let i = 0;
-    i < pixels.length;
-    i += 4
+    i < count;
+    i++
   ) {
 
+    const p =
+      i * 4;
+
+
     const r =
-      pixels[i] / 255;
+      pixels[p] /
+      255;
 
 
     const g =
-      pixels[i + 1] / 255;
+      pixels[p + 1] /
+      255;
 
 
     const b =
-      pixels[i + 2] / 255;
+      pixels[p + 2] /
+      255;
 
 
-    const luminance =
+    const lum =
 
       r * 0.299 +
 
@@ -1034,21 +1251,155 @@ function descriptorFromCanvas(
       b * 0.114;
 
 
-    descriptor[output++] =
-      luminance -
-      meanBrightness;
+    luminance[i] =
+      lum;
 
 
-    descriptor[output++] =
-      r;
+    totalLuminance +=
+      lum;
+
+  }
 
 
-    descriptor[output++] =
-      g;
+  const mean =
+    totalLuminance /
+    count;
 
 
-    descriptor[output++] =
-      b;
+  const descriptor =
+    new Float32Array(
+      count * 6
+    );
+
+
+  let output =
+    0;
+
+
+  for (
+    let y = 0;
+    y < height;
+    y++
+  ) {
+
+    for (
+      let x = 0;
+      x < width;
+      x++
+    ) {
+
+      const index =
+        y *
+        width +
+        x;
+
+
+      const pixelIndex =
+        index * 4;
+
+
+      const r =
+        pixels[pixelIndex] /
+        255;
+
+
+      const g =
+        pixels[pixelIndex + 1] /
+        255;
+
+
+      const b =
+        pixels[pixelIndex + 2] /
+        255;
+
+
+      const lum =
+        luminance[index];
+
+
+      const left =
+
+        x > 0
+        ?
+        luminance[
+          index - 1
+        ]
+        :
+        lum;
+
+
+      const right =
+
+        x <
+        width - 1
+        ?
+        luminance[
+          index + 1
+        ]
+        :
+        lum;
+
+
+      const up =
+
+        y > 0
+        ?
+        luminance[
+          index -
+          width
+        ]
+        :
+        lum;
+
+
+      const down =
+
+        y <
+        height - 1
+        ?
+        luminance[
+          index +
+          width
+        ]
+        :
+        lum;
+
+
+      const horizontalEdge =
+        right -
+        left;
+
+
+      const verticalEdge =
+        down -
+        up;
+
+
+      descriptor[output++] =
+        lum -
+        mean;
+
+
+      descriptor[output++] =
+        r;
+
+
+      descriptor[output++] =
+        g;
+
+
+      descriptor[output++] =
+        b;
+
+
+      descriptor[output++] =
+        horizontalEdge;
+
+
+      descriptor[output++] =
+        verticalEdge;
+
+    }
 
   }
 
@@ -1058,45 +1409,11 @@ function descriptorFromCanvas(
 }
 
 
-/* ---------------------------------------------
-   SCAN LOOP
---------------------------------------------- */
+/* =====================================================
+   GUIDE POSITION
+===================================================== */
 
-function scheduleScan(
-  delay
-) {
-
-  if (
-    !scannerRunning ||
-    scannerPaused
-  ) {
-    return;
-  }
-
-
-  if (scanTimer) {
-
-    clearTimeout(
-      scanTimer
-    );
-
-  }
-
-
-  scanTimer =
-    setTimeout(
-      scanFrame,
-      delay
-    );
-
-}
-
-
-/* ---------------------------------------------
-   WHITE GUIDE POSITION
---------------------------------------------- */
-
-function getGuideCrop() {
+function getCardBaseCrop() {
 
   const video =
     document.getElementById(
@@ -1124,7 +1441,7 @@ function getGuideCrop() {
     videoRect.height;
 
 
-  let x =
+  const guideX =
 
     (
       guideRect.left -
@@ -1133,7 +1450,7 @@ function getGuideCrop() {
     scaleX;
 
 
-  let y =
+  const guideY =
 
     (
       guideRect.top -
@@ -1142,240 +1459,75 @@ function getGuideCrop() {
     scaleY;
 
 
-  let width =
+  const guideWidth =
+
     guideRect.width *
     scaleX;
 
 
-  let height =
+  const guideHeight =
+
     guideRect.height *
     scaleY;
 
 
-  const extraX =
-    width * 0.05;
+  /*
+    Actual Pokémon card expected inside the
+    larger 73 × 98 guide.
+  */
+
+  const cardWidth =
+
+    guideWidth *
+    CARD_WIDTH_RATIO;
 
 
-  const extraY =
-    height * 0.04;
+  const cardHeight =
+
+    guideHeight *
+    CARD_HEIGHT_RATIO;
 
 
-  x -= extraX;
-  y -= extraY;
+  const centerX =
 
-  width +=
-    extraX * 2;
-
-  height +=
-    extraY * 2;
+    guideX +
+    guideWidth / 2;
 
 
-  x =
-    Math.max(
-      0,
-      x
-    );
+  const centerY =
 
-
-  y =
-    Math.max(
-      0,
-      y
-    );
-
-
-  width =
-    Math.min(
-      video.videoWidth -
-      x,
-      width
-    );
-
-
-  height =
-    Math.min(
-      video.videoHeight -
-      y,
-      height
-    );
+    guideY +
+    guideHeight / 2;
 
 
   return {
 
-    x:
-      Math.round(x),
+    centerX:
+      centerX,
 
-    y:
-      Math.round(y),
+    centerY:
+      centerY,
 
     width:
-      Math.round(width),
+      cardWidth,
 
     height:
-      Math.round(height)
+      cardHeight
 
   };
 
 }
 
 
-/* ---------------------------------------------
-   SCAN FRAME
---------------------------------------------- */
+/* =====================================================
+   CREATE ONE LIVE VARIANT
+===================================================== */
 
-async function scanFrame() {
-
-  if (
-    scanBusy ||
-    scannerPaused ||
-    !scannerRunning ||
-    !libraryReady
-  ) {
-    return;
-  }
-
-
-  scanBusy =
-    true;
-
-
-  try {
-
-    const result =
-      detectAndWarpCard();
-
-
-    if (!result) {
-
-      clearEdgeOverlay();
-
-
-      document.getElementById(
-        "edgeStatus"
-      ).innerText =
-        "Looking for four card edges...";
-
-
-      document.getElementById(
-        "liveBest"
-      ).innerText =
-        "Waiting for card...";
-
-
-      lastWinner =
-        null;
-
-
-      consecutiveWins =
-        0;
-
-
-      return;
-
-    }
-
-
-    drawDetectedEdges(
-      result.displayPoints
-    );
-
-
-    document.getElementById(
-      "edgeStatus"
-    ).innerText =
-      "✓ Card edges found";
-
-
-    const liveDescriptor =
-      createLiveDescriptor();
-
-
-    const matches =
-      compareAgainstLibrary(
-        liveDescriptor
-      );
-
-
-    displayMatches(
-      matches
-    );
-
-
-    const best =
-      matches[0];
-
-
-    if (
-      best.number ===
-      lastWinner
-    ) {
-
-      consecutiveWins++;
-
-    }
-
-    else {
-
-      lastWinner =
-        best.number;
-
-
-      consecutiveWins =
-        1;
-
-    }
-
-
-    if (
-      consecutiveWins >= 4
-    ) {
-
-      showDetectedCard(
-        best
-      );
-
-      return;
-
-    }
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "Scan frame failed:",
-      error
-    );
-
-  }
-
-  finally {
-
-    scanBusy =
-      false;
-
-
-    if (
-      scannerRunning &&
-      !scannerPaused
-    ) {
-
-      scheduleScan(
-        400
-      );
-
-    }
-
-  }
-
-}
-
-
-/* ---------------------------------------------
-   CARD EDGE DETECTION + PERSPECTIVE WARP
---------------------------------------------- */
-
-function detectAndWarpCard() {
+function createLiveVariant(
+  shiftX,
+  shiftY,
+  scale
+) {
 
   const video =
     document.getElementById(
@@ -1383,729 +1535,84 @@ function detectAndWarpCard() {
     );
 
 
-  const crop =
-    getGuideCrop();
+  const base =
+    getCardBaseCrop();
 
 
-  const frameCanvas =
-    document.getElementById(
-      "frameCanvas"
-    );
+  const cropWidth =
 
+    base.width /
+    scale;
 
-  frameCanvas.width =
-    crop.width;
 
+  const cropHeight =
 
-  frameCanvas.height =
-    crop.height;
+    base.height /
+    scale;
 
 
-  const frameContext =
-    frameCanvas.getContext(
-      "2d"
-    );
+  const centerX =
 
+    base.centerX +
 
-  frameContext.drawImage(
+    base.width *
+    shiftX;
 
-    video,
 
-    crop.x,
-    crop.y,
+  const centerY =
 
-    crop.width,
-    crop.height,
+    base.centerY +
 
-    0,
-    0,
+    base.height *
+    shiftY;
 
-    crop.width,
-    crop.height
 
-  );
+  let sourceX =
 
+    centerX -
+    cropWidth / 2;
 
-  let src =
-    cv.imread(
-      frameCanvas
-    );
 
+  let sourceY =
 
-  let gray =
-    new cv.Mat();
+    centerY -
+    cropHeight / 2;
 
 
-  let blurred =
-    new cv.Mat();
-
-
-  let edges =
-    new cv.Mat();
-
-
-  let contours =
-    new cv.MatVector();
-
-
-  let hierarchy =
-    new cv.Mat();
-
-
-  let kernel =
-    null;
-
-
-  try {
-
-    cv.cvtColor(
-      src,
-      gray,
-      cv.COLOR_RGBA2GRAY
-    );
-
-
-    cv.GaussianBlur(
-      gray,
-      blurred,
-      new cv.Size(5, 5),
-      0
-    );
-
-
-    cv.Canny(
-      blurred,
-      edges,
-      45,
-      130
-    );
-
-
-    kernel =
-      cv.Mat.ones(
-        3,
-        3,
-        cv.CV_8U
-      );
-
-
-    cv.dilate(
-      edges,
-      edges,
-      kernel
-    );
-
-
-    cv.findContours(
-      edges,
-      contours,
-      hierarchy,
-      cv.RETR_LIST,
-      cv.CHAIN_APPROX_SIMPLE
-    );
-
-
-    const frameArea =
-      crop.width *
-      crop.height;
-
-
-    let bestPoints =
-      null;
-
-
-    let bestArea =
-      0;
-
-
-    for (
-      let i = 0;
-      i < contours.size();
-      i++
-    ) {
-
-      const contour =
-        contours.get(i);
-
-
-      const area =
-        Math.abs(
-          cv.contourArea(
-            contour
-          )
-        );
-
-
-      if (
-        area <
-        frameArea * 0.30 ||
-
-        area >
-        frameArea * 0.93
-      ) {
-
-        contour.delete();
-
-        continue;
-
-      }
-
-
-      const perimeter =
-        cv.arcLength(
-          contour,
-          true
-        );
-
-
-      const approx =
-        new cv.Mat();
-
-
-      cv.approxPolyDP(
-        contour,
-        approx,
-        0.025 *
-        perimeter,
-        true
-      );
-
-
-      if (
-        approx.rows === 4 &&
-        cv.isContourConvex(
-          approx
-        )
-      ) {
-
-        const points =
-          matToPoints(
-            approx
-          );
-
-
-        const ordered =
-          orderCorners(
-            points
-          );
-
-
-        const width =
-
-          (
-            distance(
-              ordered[0],
-              ordered[1]
-            ) +
-
-            distance(
-              ordered[3],
-              ordered[2]
-            )
-
-          ) / 2;
-
-
-        const height =
-
-          (
-            distance(
-              ordered[0],
-              ordered[3]
-            ) +
-
-            distance(
-              ordered[1],
-              ordered[2]
-            )
-
-          ) / 2;
-
-
-        const ratio =
-
-          Math.min(
-            width,
-            height
-          ) /
-
-          Math.max(
-            width,
-            height
-          );
-
-
-        if (
-          ratio > 0.58 &&
-          ratio < 0.83 &&
-          area > bestArea
-        ) {
-
-          bestArea =
-            area;
-
-
-          bestPoints =
-            ordered;
-
-        }
-
-      }
-
-
-      approx.delete();
-      contour.delete();
-
-    }
-
-
-    if (!bestPoints) {
-
-      return null;
-
-    }
-
-
-    let ordered =
-      bestPoints;
-
-
-    const detectedWidth =
-
-      (
-        distance(
-          ordered[0],
-          ordered[1]
-        ) +
-
-        distance(
-          ordered[3],
-          ordered[2]
-        )
-
-      ) / 2;
-
-
-    const detectedHeight =
-
-      (
-        distance(
-          ordered[0],
-          ordered[3]
-        ) +
-
-        distance(
-          ordered[1],
-          ordered[2]
-        )
-
-      ) / 2;
-
-
-    if (
-      detectedWidth >
-      detectedHeight
-    ) {
-
-      ordered = [
-
-        ordered[1],
-        ordered[2],
-        ordered[3],
-        ordered[0]
-
-      ];
-
-    }
-
-
-    const OUTPUT_WIDTH =
-      315;
-
-
-    const OUTPUT_HEIGHT =
-      440;
-
-
-    const sourcePoints =
-      cv.matFromArray(
-
-        4,
-        1,
-        cv.CV_32FC2,
-
-        [
-
-          ordered[0].x,
-          ordered[0].y,
-
-          ordered[1].x,
-          ordered[1].y,
-
-          ordered[2].x,
-          ordered[2].y,
-
-          ordered[3].x,
-          ordered[3].y
-
-        ]
-
-      );
-
-
-    const destinationPoints =
-      cv.matFromArray(
-
-        4,
-        1,
-        cv.CV_32FC2,
-
-        [
-
-          0,
-          0,
-
-          OUTPUT_WIDTH - 1,
-          0,
-
-          OUTPUT_WIDTH - 1,
-          OUTPUT_HEIGHT - 1,
-
-          0,
-          OUTPUT_HEIGHT - 1
-
-        ]
-
-      );
-
-
-    const transform =
-      cv.getPerspectiveTransform(
-        sourcePoints,
-        destinationPoints
-      );
-
-
-    const warped =
-      new cv.Mat();
-
-
-    cv.warpPerspective(
-
-      src,
-      warped,
-      transform,
-
-      new cv.Size(
-        OUTPUT_WIDTH,
-        OUTPUT_HEIGHT
-      ),
-
-      cv.INTER_LINEAR,
-      cv.BORDER_CONSTANT,
-      new cv.Scalar()
-
-    );
-
-
-    cv.imshow(
-      "warpedCanvas",
-      warped
-    );
-
-
-    const displayPoints =
-      ordered.map(
-        point => ({
-
-          x:
-            point.x +
-            crop.x,
-
-          y:
-            point.y +
-            crop.y
-
-        })
-      );
-
-
-    sourcePoints.delete();
-    destinationPoints.delete();
-    transform.delete();
-    warped.delete();
-
-
-    return {
-
-      displayPoints:
-        displayPoints
-
-    };
-
-  }
-
-  finally {
-
-    if (kernel) {
-      kernel.delete();
-    }
-
-    contours.delete();
-    hierarchy.delete();
-    edges.delete();
-    blurred.delete();
-    gray.delete();
-    src.delete();
-
-  }
-
-}
-
-
-/* ---------------------------------------------
-   POINT HELPERS
---------------------------------------------- */
-
-function matToPoints(
-  mat
-) {
-
-  const points =
-    [];
-
-
-  for (
-    let i = 0;
-    i < 4;
-    i++
-  ) {
-
-    points.push({
-
-      x:
-        mat.data32S[
-          i * 2
-        ],
-
-      y:
-        mat.data32S[
-          i * 2 + 1
-        ]
-
-    });
-
-  }
-
-
-  return points;
-
-}
-
-
-function orderCorners(
-  points
-) {
-
-  const sums =
-    points.map(
-      point =>
-        point.x +
-        point.y
-    );
-
-
-  const differences =
-    points.map(
-      point =>
-        point.y -
-        point.x
-    );
-
-
-  const topLeft =
-    points[
-      sums.indexOf(
-        Math.min(
-          ...sums
-        )
+  sourceX =
+    Math.max(
+      0,
+      Math.min(
+        video.videoWidth -
+        cropWidth,
+        sourceX
       )
-    ];
+    );
 
 
-  const bottomRight =
-    points[
-      sums.indexOf(
-        Math.max(
-          ...sums
-        )
+  sourceY =
+    Math.max(
+      0,
+      Math.min(
+        video.videoHeight -
+        cropHeight,
+        sourceY
       )
-    ];
-
-
-  const topRight =
-    points[
-      differences.indexOf(
-        Math.min(
-          ...differences
-        )
-      )
-    ];
-
-
-  const bottomLeft =
-    points[
-      differences.indexOf(
-        Math.max(
-          ...differences
-        )
-      )
-    ];
-
-
-  return [
-
-    topLeft,
-    topRight,
-    bottomRight,
-    bottomLeft
-
-  ];
-
-}
-
-
-function distance(
-  a,
-  b
-) {
-
-  return Math.hypot(
-
-    a.x -
-    b.x,
-
-    a.y -
-    b.y
-
-  );
-
-}
-
-
-/* ---------------------------------------------
-   GREEN EDGE OVERLAY
---------------------------------------------- */
-
-function drawDetectedEdges(
-  points
-) {
-
-  const overlay =
-    document.getElementById(
-      "edgeOverlay"
-    );
-
-
-  const ctx =
-    overlay.getContext(
-      "2d"
-    );
-
-
-  ctx.clearRect(
-    0,
-    0,
-    overlay.width,
-    overlay.height
-  );
-
-
-  ctx.strokeStyle =
-    "#00ff66";
-
-
-  ctx.lineWidth =
-    8;
-
-
-  ctx.beginPath();
-
-
-  ctx.moveTo(
-    points[0].x,
-    points[0].y
-  );
-
-
-  for (
-    let i = 1;
-    i < points.length;
-    i++
-  ) {
-
-    ctx.lineTo(
-      points[i].x,
-      points[i].y
-    );
-
-  }
-
-
-  ctx.closePath();
-  ctx.stroke();
-
-}
-
-
-function clearEdgeOverlay() {
-
-  const overlay =
-    document.getElementById(
-      "edgeOverlay"
-    );
-
-
-  const ctx =
-    overlay.getContext(
-      "2d"
-    );
-
-
-  ctx.clearRect(
-    0,
-    0,
-    overlay.width,
-    overlay.height
-  );
-
-}
-
-
-/* ---------------------------------------------
-   LIVE DESCRIPTOR
---------------------------------------------- */
-
-function createLiveDescriptor() {
-
-  const warped =
-    document.getElementById(
-      "warpedCanvas"
     );
 
 
   const canvas =
     document.getElementById(
-      "descriptorCanvas"
+      "workCanvas"
     );
 
 
   canvas.width =
-    DESCRIPTOR_WIDTH;
+    DESC_WIDTH;
 
 
   canvas.height =
-    DESCRIPTOR_HEIGHT;
+    DESC_HEIGHT;
 
 
   const ctx =
@@ -2127,7 +1634,109 @@ function createLiveDescriptor() {
 
   ctx.drawImage(
 
-    warped,
+    video,
+
+    sourceX,
+    sourceY,
+
+    cropWidth,
+    cropHeight,
+
+    0,
+    0,
+
+    DESC_WIDTH,
+    DESC_HEIGHT
+
+  );
+
+
+  return createDescriptor(
+    canvas
+  );
+
+}
+
+
+/* =====================================================
+   LIVE PREVIEW
+===================================================== */
+
+function updateLivePreview() {
+
+  const video =
+    document.getElementById(
+      "video"
+    );
+
+
+  const base =
+    getCardBaseCrop();
+
+
+  const canvas =
+    document.getElementById(
+      "liveCardCanvas"
+    );
+
+
+  canvas.width =
+    252;
+
+
+  canvas.height =
+    352;
+
+
+  const ctx =
+    canvas.getContext(
+      "2d"
+    );
+
+
+  let x =
+
+    base.centerX -
+    base.width / 2;
+
+
+  let y =
+
+    base.centerY -
+    base.height / 2;
+
+
+  x =
+    Math.max(
+      0,
+      x
+    );
+
+
+  y =
+    Math.max(
+      0,
+      y
+    );
+
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  ctx.drawImage(
+
+    video,
+
+    x,
+    y,
+
+    base.width,
+    base.height,
 
     0,
     0,
@@ -2137,56 +1746,316 @@ function createLiveDescriptor() {
 
   );
 
+}
 
-  return descriptorFromCanvas(
-    canvas
-  );
+
+/* =====================================================
+   SCAN LOOP
+===================================================== */
+
+function scheduleScan(
+  delay
+) {
+
+  if (
+    !scannerRunning ||
+    scannerPaused
+  ) {
+
+    return;
+
+  }
+
+
+  if (scanTimer) {
+
+    clearTimeout(
+      scanTimer
+    );
+
+  }
+
+
+  scanTimer =
+    setTimeout(
+      scanFrame,
+      delay
+    );
 
 }
 
 
-/* ---------------------------------------------
-   MATCHING
---------------------------------------------- */
+/* =====================================================
+   SCAN ONE FRAME
+===================================================== */
 
-function compareAgainstLibrary(
-  liveDescriptor
-) {
+async function scanFrame() {
 
-  const matches =
-    referenceLibrary.map(
-      reference => ({
+  if (
+    !scannerRunning ||
+    scannerPaused ||
+    scanBusy ||
+    !libraryReady
+  ) {
 
-        number:
-          reference.number,
+    return;
 
-        score:
-          descriptorDistance(
+  }
 
-            liveDescriptor,
 
-            reference.descriptor
-
-          )
-
-      })
+  const video =
+    document.getElementById(
+      "video"
     );
 
 
-  matches.sort(
-    (a, b) =>
-      a.score -
-      b.score
-  );
+  if (
+    !video.videoWidth ||
+    !video.videoHeight
+  ) {
+
+    scheduleScan(
+      400
+    );
+
+    return;
+
+  }
 
 
-  return matches.slice(
-    0,
-    5
-  );
+  scanBusy =
+    true;
+
+
+  try {
+
+    updateLivePreview();
+
+
+    /*
+      Start with central crop.
+    */
+
+    const centralDescriptor =
+      createLiveVariant(
+        0,
+        0,
+        1
+      );
+
+
+    /*
+      Fast first pass against all cards.
+
+      We keep only the strongest 15 candidates.
+    */
+
+    const firstPass =
+
+      referenceLibrary
+      .map(
+        reference => ({
+
+          number:
+            reference.number,
+
+          reference:
+            reference,
+
+          score:
+            descriptorDistance(
+              centralDescriptor,
+              reference.descriptor
+            )
+
+        })
+      )
+      .sort(
+        (a, b) =>
+          a.score -
+          b.score
+      )
+      .slice(
+        0,
+        15
+      );
+
+
+    /*
+      Second pass:
+
+      only those 15 candidates are tested against
+      multiple small camera shifts and zooms.
+
+      This keeps the phone responsive.
+    */
+
+    const refined =
+      [];
+
+
+    for (
+      const candidate of firstPass
+    ) {
+
+      let bestScore =
+        candidate.score;
+
+
+      let bestVariant =
+        "centre";
+
+
+      for (
+        const scale of SCALES
+      ) {
+
+        for (
+          const shift of SHIFTS
+        ) {
+
+          /*
+            Central 1.0 test was already performed.
+          */
+
+          if (
+            scale === 1 &&
+            shift[0] === 0 &&
+            shift[1] === 0
+          ) {
+
+            continue;
+
+          }
+
+
+          const liveVariant =
+            createLiveVariant(
+
+              shift[0],
+
+              shift[1],
+
+              scale
+
+            );
+
+
+          const score =
+            descriptorDistance(
+
+              liveVariant,
+
+              candidate.reference.descriptor
+
+            );
+
+
+          if (
+            score <
+            bestScore
+          ) {
+
+            bestScore =
+              score;
+
+
+            bestVariant =
+
+              "shift " +
+
+              shift[0].toFixed(3) +
+
+              "," +
+
+              shift[1].toFixed(3) +
+
+              " scale " +
+
+              scale.toFixed(3);
+
+          }
+
+        }
+
+      }
+
+
+      refined.push({
+
+        number:
+          candidate.number,
+
+        score:
+          bestScore,
+
+        variant:
+          bestVariant
+
+      });
+
+    }
+
+
+    refined.sort(
+      (a, b) =>
+        a.score -
+        b.score
+    );
+
+
+    const top =
+      refined.slice(
+        0,
+        5
+      );
+
+
+    displayMatches(
+      top
+    );
+
+
+    updateStability(
+      top
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Scan error:",
+      error
+    );
+
+  }
+
+  finally {
+
+    scanBusy =
+      false;
+
+
+    if (
+      scannerRunning &&
+      !scannerPaused
+    ) {
+
+      scheduleScan(
+        650
+      );
+
+    }
+
+  }
 
 }
 
+
+/* =====================================================
+   VISUAL DISTANCE
+===================================================== */
 
 function descriptorDistance(
   a,
@@ -2197,68 +2066,104 @@ function descriptorDistance(
     0;
 
 
-  let count =
+  let pixels =
     0;
 
 
   for (
     let i = 0;
     i < a.length;
-    i += 4
+    i += 6
   ) {
 
-    total +=
-
+    const luminance =
       Math.abs(
         a[i] -
         b[i]
-      ) *
-      1.8 +
+      );
 
+
+    const red =
       Math.abs(
         a[i + 1] -
         b[i + 1]
-      ) *
-      0.45 +
+      );
 
+
+    const green =
       Math.abs(
         a[i + 2] -
         b[i + 2]
-      ) *
-      0.45 +
+      );
 
+
+    const blue =
       Math.abs(
         a[i + 3] -
         b[i + 3]
-      ) *
-      0.45;
+      );
 
 
-    count++;
+    const edgeX =
+      Math.abs(
+        a[i + 4] -
+        b[i + 4]
+      );
+
+
+    const edgeY =
+      Math.abs(
+        a[i + 5] -
+        b[i + 5]
+      );
+
+
+    /*
+      Structure receives the strongest weighting.
+    */
+
+    total +=
+
+      luminance *
+      1.1 +
+
+      red *
+      0.28 +
+
+      green *
+      0.28 +
+
+      blue *
+      0.28 +
+
+      edgeX *
+      2.6 +
+
+      edgeY *
+      2.6;
+
+
+    pixels++;
 
   }
 
 
   return total /
-    count;
+    pixels;
 
 }
 
 
-/* ---------------------------------------------
+/* =====================================================
    DISPLAY MATCHES
---------------------------------------------- */
+===================================================== */
 
 function displayMatches(
   matches
 ) {
 
   const set =
-    SETS[
-      document.getElementById(
-        "setSelector"
-      ).value
-    ];
+    getSelectedSet();
 
 
   const best =
@@ -2290,53 +2195,162 @@ function displayMatches(
     );
 
 
+  const lines =
+    matches.map(
+
+      function(match, index) {
+
+        return (
+
+          (
+            index +
+            1
+          ) +
+
+          ". #" +
+
+          String(
+            match.number
+          ).padStart(
+            3,
+            "0"
+          ) +
+
+          "/" +
+
+          set.denominator +
+
+          " — " +
+
+          match.score.toFixed(
+            4
+          )
+
+        );
+
+      }
+
+    );
+
+
   document.getElementById(
     "topMatches"
   ).innerText =
 
     "Closest matches:\n" +
 
-    matches.map(
-
-      (
-        match,
-        index
-      ) =>
-
-        (
-          index +
-          1
-        ) +
-
-        ". #" +
-
-        String(
-          match.number
-        ).padStart(
-          3,
-          "0"
-        ) +
-
-        "/" +
-
-        set.denominator +
-
-        " — " +
-
-        match.score.toFixed(
-          4
-        )
-
-    ).join(
+    lines.join(
       "\n"
     );
 
 }
 
 
-/* ---------------------------------------------
-   FINAL MATCH
---------------------------------------------- */
+/* =====================================================
+   STABILITY / AUTOMATIC ACCEPTANCE
+===================================================== */
+
+function updateStability(
+  matches
+) {
+
+  if (
+    matches.length <
+    2
+  ) {
+
+    return;
+
+  }
+
+
+  const best =
+    matches[0];
+
+
+  const second =
+    matches[1];
+
+
+  winnerHistory.push(
+    best.number
+  );
+
+
+  scoreHistory.push(
+    best.score
+  );
+
+
+  if (
+    winnerHistory.length >
+    6
+  ) {
+
+    winnerHistory.shift();
+
+    scoreHistory.shift();
+
+  }
+
+
+  const sameCount =
+
+    winnerHistory.filter(
+      number =>
+        number ===
+        best.number
+    ).length;
+
+
+  const separation =
+
+    second.score -
+    best.score;
+
+
+  document.getElementById(
+    "stability"
+  ).innerText =
+
+    "Stable frames: " +
+
+    sameCount +
+
+    "/6" +
+
+    " • lead: " +
+
+    separation.toFixed(
+      4
+    );
+
+
+  /*
+    We deliberately don't stop after just a
+    couple of guesses.
+
+    Need the same winner in at least five of
+    the last six scans.
+  */
+
+  if (
+    winnerHistory.length >= 5 &&
+    sameCount >= 5
+  ) {
+
+    showDetectedCard(
+      best
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   FINAL DETECTED CARD
+===================================================== */
 
 function showDetectedCard(
   match
@@ -2351,20 +2365,7 @@ function showDetectedCard(
 
 
   const set =
-    SETS[
-      document.getElementById(
-        "setSelector"
-      ).value
-    ];
-
-
-  const padded =
-    String(
-      match.number
-    ).padStart(
-      3,
-      "0"
-    );
+    getSelectedSet();
 
 
   document.getElementById(
@@ -2372,8 +2373,16 @@ function showDetectedCard(
   ).innerText =
 
     "#" +
-    padded +
+
+    String(
+      match.number
+    ).padStart(
+      3,
+      "0"
+    ) +
+
     "/" +
+
     set.denominator;
 
 
@@ -2420,17 +2429,30 @@ function showDetectedCard(
     "success"
   );
 
+
+  document.getElementById(
+    "detectedCard"
+  ).scrollIntoView({
+
+    behavior:
+      "smooth",
+
+    block:
+      "center"
+
+  });
+
 }
 
 
-/* ---------------------------------------------
-   NEXT CARD
---------------------------------------------- */
+/* =====================================================
+   CORRECT / WRONG
+===================================================== */
 
 function confirmCard() {
 
   setStatus(
-    "✓ Correct — hold up the next card.",
+    "✓ Match confirmed — hold up the next card.",
     "success"
   );
 
@@ -2443,7 +2465,7 @@ function confirmCard() {
 function rejectCard() {
 
   setStatus(
-    "Trying again...",
+    "Match rejected — scanning again.",
     "working"
   );
 
@@ -2459,12 +2481,12 @@ function prepareNextCard() {
     null;
 
 
-  lastWinner =
-    null;
+  winnerHistory =
+    [];
 
 
-  consecutiveWins =
-    0;
+  scoreHistory =
+    [];
 
 
   document.getElementById(
@@ -2473,20 +2495,32 @@ function prepareNextCard() {
     "none";
 
 
+  document.getElementById(
+    "liveBest"
+  ).innerText =
+    "Waiting for card...";
+
+
+  document.getElementById(
+    "stability"
+  ).innerText =
+    "";
+
+
   scannerPaused =
     false;
 
 
   scheduleScan(
-    500
+    600
   );
 
 }
 
 
-/* ---------------------------------------------
+/* =====================================================
    STOP
---------------------------------------------- */
+===================================================== */
 
 function stopScanner() {
 
@@ -2520,8 +2554,13 @@ function stopScanner() {
     cameraStream
       .getTracks()
       .forEach(
-        track =>
-          track.stop()
+
+        function(track) {
+
+          track.stop();
+
+        }
+
       );
 
   }
@@ -2537,9 +2576,6 @@ function stopScanner() {
     null;
 
 
-  clearEdgeOverlay();
-
-
   document.getElementById(
     "cameraBox"
   ).style.display =
@@ -2547,7 +2583,7 @@ function stopScanner() {
 
 
   document.getElementById(
-    "cardPreviewSection"
+    "previewSection"
   ).style.display =
     "none";
 
@@ -2576,6 +2612,10 @@ function stopScanner() {
     "none";
 
 
+  winnerHistory =
+    [];
+
+
   setStatus(
     "Camera stopped.",
     "working"
@@ -2584,9 +2624,20 @@ function stopScanner() {
 }
 
 
-/* ---------------------------------------------
-   STATUS
---------------------------------------------- */
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function getSelectedSet() {
+
+  return SETS[
+    document.getElementById(
+      "setSelector"
+    ).value
+  ];
+
+}
+
 
 function setStatus(
   message,
@@ -2609,22 +2660,34 @@ function setStatus(
 }
 
 
+/* =====================================================
+   CAMERA CLEANUP
+===================================================== */
+
 window.addEventListener(
+
   "pagehide",
-  () => {
+
+  function() {
 
     if (cameraStream) {
 
       cameraStream
         .getTracks()
         .forEach(
-          track =>
-            track.stop()
+
+          function(track) {
+
+            track.stop();
+
+          }
+
         );
 
     }
 
   }
+
 );
 
 </script>
