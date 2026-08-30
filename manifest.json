@@ -1,0 +1,12 @@
+{
+  "name": "TCG Inventory Scanner",
+  "short_name": "TCG Scanner",
+  "description": "Personal trading card inventory scanner",
+  "start_url": "/pokemon-card-scanner/",
+  "scope": "/pokemon-card-scanner/",
+  "display": "standalone",
+  "background_color": "#f3f3f3",
+  "theme_color": "#222222",
+  "orientation": "portrait",
+  "icons": []
+}
