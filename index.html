@@ -2,13 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1, viewport-fit=cover"
->
-
-<title>Pokémon Card Scanner</title>
+<title>Scanner Compatibility Test</title>
 
 <style>
 * {
@@ -17,2677 +13,759 @@
 
 body {
   margin: 0;
-  padding: 12px;
+  padding: 20px;
   font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  background: #f3f3f3;
   color: #222;
 }
 
 .container {
-  width: 100%;
   max-width: 520px;
   margin: auto;
 }
 
 h1 {
   text-align: center;
-  font-size: 21px;
-  margin: 6px 0 14px;
+  font-size: 22px;
 }
 
-.section {
+.intro {
   background: white;
-  padding: 13px;
-  border-radius: 14px;
-  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  line-height: 1.5;
 }
 
-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
+.result {
+  background: white;
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.name {
   font-weight: bold;
 }
 
-select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 9px;
+.pass {
+  color: #16833b;
+  font-weight: bold;
+}
+
+.fail {
+  color: #c62828;
+  font-weight: bold;
+}
+
+.wait {
+  color: #777;
+  font-weight: bold;
+}
+
+#overall {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 12px;
+  text-align: center;
   background: white;
-  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.5;
 }
 
 button {
   width: 100%;
-  padding: 14px;
+  margin-top: 15px;
+  padding: 15px;
   border: 0;
   border-radius: 10px;
+  background: #222;
+  color: white;
   font-size: 16px;
   font-weight: bold;
 }
 
-#startButton {
-  margin-top: 10px;
+#details {
+  margin-top: 15px;
+  padding: 12px;
   background: #222;
-  color: white;
-}
-
-#stopButton {
-  display: none;
-  margin-top: 8px;
-  background: #777;
-  color: white;
-}
-
-#status {
-  display: none;
-  padding: 11px;
-  margin-bottom: 10px;
-  border-radius: 9px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.working {
-  display: block !important;
-  background: #fff3cd;
-}
-
-.success {
-  display: block !important;
-  background: #d4edda;
-}
-
-.error {
-  display: block !important;
-  background: #f8d7da;
-}
-
-
-/* REFERENCE LIBRARY */
-
-#libraryBox {
-  display: none;
-  padding: 12px;
-  margin-bottom: 10px;
-  background: white;
-  border-radius: 14px;
-}
-
-#libraryText {
-  margin-bottom: 7px;
-  text-align: center;
-  font-size: 13px;
-}
-
-#progressOuter {
-  width: 100%;
-  height: 13px;
-  overflow: hidden;
-  background: #ddd;
+  color: #eee;
   border-radius: 10px;
-}
-
-#progressInner {
-  width: 0%;
-  height: 100%;
-  background: #333;
-  transition: width .15s;
-}
-
-
-/* CAMERA */
-
-#cameraBox {
-  display: none;
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  background: #111;
-  border-radius: 14px;
-  margin-bottom: 10px;
-}
-
-#video {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/*
-  KEEPING THE WHITE FRAME EXACTLY
-  AS BEFORE.
-*/
-#cardGuide {
-  position: absolute;
-  width: 73%;
-  aspect-ratio: 73 / 98;
-
-  left: 50%;
-  top: 50%;
-
-  transform: translate(-50%, -50%);
-
-  border: 3px solid white;
-  border-radius: 14px;
-
-  pointer-events: none;
-}
-
-#cameraMessage {
-  position: absolute;
-
-  top: 8px;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  padding: 6px 10px;
-
-  background: rgba(0,0,0,.72);
-  color: white;
-
-  border-radius: 20px;
-
+  font-family: monospace;
   font-size: 11px;
-
-  white-space: nowrap;
-
-  pointer-events: none;
-}
-
-
-/* LIVE CROP PREVIEW */
-
-#previewSection {
-  display: none;
-
-  padding: 10px;
-  margin-bottom: 10px;
-
-  background: white;
-  border-radius: 14px;
-}
-
-#previewTitle {
-  text-align: center;
-  margin-bottom: 7px;
-
-  color: #666;
-  font-size: 12px;
-}
-
-#liveCardCanvas {
-  display: block;
-
-  width: 160px;
-  max-width: 50%;
-
-  margin: auto;
-
-  border: 2px solid #333;
-  border-radius: 7px;
-
-  background: #ddd;
-}
-
-#previewMessage {
-  text-align: center;
-  margin-top: 7px;
-
-  font-size: 12px;
-  color: #666;
-}
-
-
-/* MATCH INFO */
-
-#scanInfo {
-  display: none;
-
-  padding: 12px;
-  margin-bottom: 10px;
-
-  background: white;
-  border-radius: 14px;
-}
-
-#scanInfoTitle {
-  text-align: center;
-
-  font-size: 13px;
-  font-weight: bold;
-}
-
-#liveBest {
-  text-align: center;
-
-  margin-top: 7px;
-
-  font-size: 20px;
-  font-weight: bold;
-}
-
-#liveScore {
-  text-align: center;
-
-  margin-top: 3px;
-
-  color: #666;
-
-  font-size: 12px;
-}
-
-#stability {
-  text-align: center;
-
-  margin-top: 4px;
-
-  color: #666;
-
-  font-size: 12px;
-}
-
-#topMatches {
-  margin-top: 10px;
-
-  padding: 8px;
-
-  background: #eee;
-
-  border-radius: 8px;
-
-  font-size: 12px;
-
-  white-space: pre-line;
-
-  line-height: 1.55;
-}
-
-
-/* FINAL MATCH */
-
-#detectedCard {
-  display: none;
-
-  padding: 15px;
-  margin-bottom: 10px;
-
-  background: white;
-
-  border-radius: 14px;
-
-  text-align: center;
-}
-
-#detectedImage {
-  width: 190px;
-  max-width: 70%;
-
-  border-radius: 7px;
-}
-
-#detectedNumber {
-  margin-top: 8px;
-
-  font-size: 25px;
-  font-weight: bold;
-}
-
-#detectedSet {
-  margin-top: 3px;
-
-  color: #666;
-
-  font-size: 14px;
-}
-
-#detectedConfidence {
-  margin-top: 5px;
-
-  color: #666;
-
-  font-size: 12px;
-}
-
-#correctButton {
-  margin-top: 13px;
-
-  background: #4caf50;
-  color: white;
-}
-
-#wrongButton {
-  margin-top: 7px;
-
-  background: #ddd;
-  color: #222;
-}
-
-.smallText {
-  margin-top: 7px;
-
-  text-align: center;
-
-  color: #777;
-
-  font-size: 12px;
-
-  line-height: 1.4;
-}
-
-.hidden {
-  display: none;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 </style>
 </head>
-
 
 <body>
 
 <div class="container">
 
-<h1>Pokémon Card Scanner</h1>
+<h1>Pokémon Scanner Test</h1>
 
+<div class="intro">
+This page checks whether your phone's browser can use the OpenCV features needed for proper Pokémon card image matching.
+</div>
 
-<div class="section">
+<div class="result">
+  <span class="name">OpenCV.js</span>
+  <span id="opencv" class="wait">TESTING...</span>
+</div>
 
-<label for="setSelector">
-Set being scanned
-</label>
+<div class="result">
+  <span class="name">OpenCV Mat</span>
+  <span id="mat" class="wait">TESTING...</span>
+</div>
 
-<select id="setSelector">
-  <option value="destined-rivals">
-    Destined Rivals
-  </option>
-</select>
+<div class="result">
+  <span class="name">ORB</span>
+  <span id="orb" class="wait">TESTING...</span>
+</div>
 
-<button
-  id="startButton"
-  onclick="startScanner()"
->
-📷 START SCANNER
+<div class="result">
+  <span class="name">BFMatcher</span>
+  <span id="bfmatcher" class="wait">TESTING...</span>
+</div>
+
+<div class="result">
+  <span class="name">DescriptorMatcher</span>
+  <span id="descriptor" class="wait">TESTING...</span>
+</div>
+
+<div class="result">
+  <span class="name">Hamming Constant</span>
+  <span id="hamming" class="wait">TESTING...</span>
+</div>
+
+<div class="result">
+  <span class="name">AKAZE</span>
+  <span id="akaze" class="wait">TESTING...</span>
+</div>
+
+<div class="result">
+  <span class="name">Camera API</span>
+  <span id="camera" class="wait">TESTING...</span>
+</div>
+
+<div id="overall">
+Loading OpenCV...
+</div>
+
+<button onclick="runTests()">
+RUN TEST AGAIN
 </button>
 
-<button
-  id="stopButton"
-  onclick="stopScanner()"
->
-STOP CAMERA
-</button>
-
-<div class="smallText">
-Keep the card roughly inside the white frame.
-<br>
-Small movements are allowed.
+<div id="details">
+Waiting...
 </div>
 
 </div>
-
-
-<div id="status"></div>
-
-
-<div id="libraryBox">
-
-<div id="libraryText">
-Preparing card library...
-</div>
-
-<div id="progressOuter">
-  <div id="progressInner"></div>
-</div>
-
-</div>
-
-
-<div id="cameraBox">
-
-<video
-  id="video"
-  autoplay
-  muted
-  playsinline
-></video>
-
-<div id="cardGuide"></div>
-
-<div id="cameraMessage">
-Hold one card inside frame
-</div>
-
-</div>
-
-
-<div id="previewSection">
-
-<div id="previewTitle">
-What the matcher is seeing:
-</div>
-
-<canvas id="liveCardCanvas"></canvas>
-
-<div id="previewMessage">
-Whole-card visual crop
-</div>
-
-</div>
-
-
-<div id="scanInfo">
-
-<div id="scanInfoTitle">
-LIVE WHOLE-CARD MATCH
-</div>
-
-<div id="liveBest">
-Waiting for card...
-</div>
-
-<div id="liveScore"></div>
-
-<div id="stability"></div>
-
-<div id="topMatches"></div>
-
-</div>
-
-
-<div id="detectedCard">
-
-<div style="
-  font-size:13px;
-  color:#777;
-  margin-bottom:8px;
-">
-CARD MATCH
-</div>
-
-<img id="detectedImage">
-
-<div id="detectedNumber"></div>
-
-<div id="detectedSet"></div>
-
-<div id="detectedConfidence"></div>
-
-<button
-  id="correctButton"
-  onclick="confirmCard()"
->
-✓ CORRECT
-</button>
-
-<button
-  id="wrongButton"
-  onclick="rejectCard()"
->
-✕ WRONG — TRY AGAIN
-</button>
-
-</div>
-
-
-<canvas
-  id="referenceCanvas"
-  class="hidden"
-></canvas>
-
-<canvas
-  id="workCanvas"
-  class="hidden"
-></canvas>
-
-<canvas
-  id="descriptorCanvas"
-  class="hidden"
-></canvas>
-
-</div>
-
 
 <script>
+let CV = null;
 
-/* =====================================================
-   SET DATA
-===================================================== */
+function setResult(id, available) {
 
-const SETS = {
+  const element =
+    document.getElementById(id);
 
-  "destined-rivals": {
+  if (available) {
 
-    name:
-      "Destined Rivals",
+    element.innerText =
+      "✓ AVAILABLE";
 
-    denominator:
-      182,
+    element.className =
+      "pass";
 
-    maxNumber:
-      244,
+  } else {
 
-    imageSet:
-      "sv10"
+    element.innerText =
+      "✕ NOT AVAILABLE";
+
+    element.className =
+      "fail";
 
   }
+}
 
-};
 
+function resetResults() {
 
-/* =====================================================
-   VISUAL MATCH SETTINGS
-===================================================== */
+  const ids = [
+    "opencv",
+    "mat",
+    "orb",
+    "bfmatcher",
+    "descriptor",
+    "hamming",
+    "akaze",
+    "camera"
+  ];
 
-/*
-  Higher than the original 24×34 matcher.
+  ids.forEach(function(id) {
 
-  Still small enough to compare against
-  244 cards quickly on a phone.
-*/
+    const element =
+      document.getElementById(id);
 
-const DESC_WIDTH =
-  48;
+    element.innerText =
+      "TESTING...";
 
-const DESC_HEIGHT =
-  67;
+    element.className =
+      "wait";
 
+  });
 
-/*
-  The reference image itself contains the
-  complete card.
+  document.getElementById(
+    "overall"
+  ).innerText =
+    "Testing...";
 
-  For the LIVE camera image, the white
-  guide is 73 × 98 while the real card is
-  63 × 88.
+}
 
-  This converts the guide into the expected
-  real-card region.
-*/
 
-const CARD_WIDTH_RATIO =
-  63 / 73;
+async function loadOpenCV() {
 
-const CARD_HEIGHT_RATIO =
-  88 / 98;
+  return new Promise(function(resolve, reject) {
 
+    /*
+      If OpenCV already loaded,
+      don't load it twice.
+    */
 
-/*
-  Small translation tests.
+    if (
+      typeof window.cv !== "undefined"
+    ) {
 
-  These are fractions of the detected
-  card crop.
-
-  This means the matcher does not require
-  pixel-perfect centering.
-*/
-
-const SHIFTS = [
-
-  [ 0.00,  0.00],
-
-  [-0.025,  0.00],
-  [ 0.025,  0.00],
-
-  [ 0.00, -0.025],
-  [ 0.00,  0.025],
-
-  [-0.020, -0.020],
-  [ 0.020, -0.020],
-
-  [-0.020,  0.020],
-  [ 0.020,  0.020]
-
-];
-
-
-/*
-  Slight zoom differences.
-
-  1.00 = normal.
-
-  Smaller scale means a slightly larger
-  camera crop is considered.
-*/
-
-const SCALES = [
-
-  0.965,
-  1.000,
-  1.035
-
-];
-
-
-/* =====================================================
-   VARIABLES
-===================================================== */
-
-let cameraStream =
-  null;
-
-let scannerRunning =
-  false;
-
-let scannerPaused =
-  false;
-
-let scanBusy =
-  false;
-
-let scanTimer =
-  null;
-
-
-let referenceLibrary =
-  [];
-
-let libraryReady =
-  false;
-
-
-let winnerHistory =
-  [];
-
-let scoreHistory =
-  [];
-
-
-let detectedNumber =
-  null;
-
-
-/* =====================================================
-   START
-===================================================== */
-
-async function startScanner() {
-
-  try {
-
-    setStatus(
-      "Starting camera...",
-      "working"
-    );
-
-
-    cameraStream =
-      await navigator.mediaDevices.getUserMedia({
-
-        video: {
-
-          facingMode: {
-            ideal: "environment"
-          },
-
-          width: {
-            ideal: 1920
-          },
-
-          height: {
-            ideal: 1080
-          }
-
-        },
-
-        audio: false
-
-      });
-
-
-    const video =
-      document.getElementById(
-        "video"
-      );
-
-
-    video.srcObject =
-      cameraStream;
-
-
-    await video.play();
-
-
-    document.getElementById(
-      "cameraBox"
-    ).style.display =
-      "block";
-
-
-    document.getElementById(
-      "previewSection"
-    ).style.display =
-      "block";
-
-
-    document.getElementById(
-      "scanInfo"
-    ).style.display =
-      "block";
-
-
-    document.getElementById(
-      "startButton"
-    ).style.display =
-      "none";
-
-
-    document.getElementById(
-      "stopButton"
-    ).style.display =
-      "block";
-
-
-    scannerRunning =
-      true;
-
-
-    scannerPaused =
-      false;
-
-
-    if (!libraryReady) {
-
-      await buildReferenceLibrary();
-
-    }
-
-
-    if (!libraryReady) {
-
-      setStatus(
-        "Reference library could not be prepared.",
-        "error"
-      );
-
+      resolve();
       return;
 
     }
 
 
-    setStatus(
-      "Ready — hold a card inside the frame.",
-      "working"
-    );
+    const script =
+      document.createElement("script");
 
+    script.src =
+      "https://docs.opencv.org/4.x/opencv.js";
 
-    scheduleScan(
-      600
-    );
+    script.async =
+      true;
 
-  }
 
-  catch (error) {
-
-    console.error(
-      error
-    );
-
-
-    setStatus(
-      "Camera error: " +
-      error.message,
-      "error"
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   BUILD REFERENCE LIBRARY
-===================================================== */
-
-async function buildReferenceLibrary() {
-
-  const set =
-    getSelectedSet();
-
-
-  referenceLibrary =
-    [];
-
-
-  document.getElementById(
-    "libraryBox"
-  ).style.display =
-    "block";
-
-
-  document.getElementById(
-    "progressInner"
-  ).style.width =
-    "0%";
-
-
-  const batchSize =
-    8;
-
-
-  for (
-    let start = 1;
-    start <= set.maxNumber;
-    start += batchSize
-  ) {
-
-    const promises =
-      [];
-
-
-    for (
-      let number = start;
-      number < start + batchSize;
-      number++
-    ) {
-
-      if (
-        number >
-        set.maxNumber
-      ) {
-
-        break;
-
-      }
-
-
-      promises.push(
-
-        loadReferenceCard(
-          set,
-          number
-        )
-
-      );
-
-    }
-
-
-    const results =
-      await Promise.all(
-        promises
-      );
-
-
-    for (
-      const result of results
-    ) {
-
-      if (result) {
-
-        referenceLibrary.push(
-          result
-        );
-
-      }
-
-    }
-
-
-    const completed =
-      Math.min(
-        start +
-        batchSize -
-        1,
-        set.maxNumber
-      );
-
-
-    const percentage =
-      Math.round(
-        completed /
-        set.maxNumber *
-        100
-      );
-
-
-    document.getElementById(
-      "progressInner"
-    ).style.width =
-      percentage + "%";
-
-
-    document.getElementById(
-      "libraryText"
-    ).innerText =
-
-      "Preparing Destined Rivals: " +
-
-      completed +
-
-      " / " +
-
-      set.maxNumber;
-
-  }
-
-
-  libraryReady =
-    referenceLibrary.length >
-    200;
-
-
-  if (libraryReady) {
-
-    document.getElementById(
-      "libraryText"
-    ).innerText =
-
-      "✓ " +
-
-      referenceLibrary.length +
-
-      " cards ready";
-
-
-    setTimeout(
-
+    script.onload =
       function() {
 
-        document.getElementById(
-          "libraryBox"
-        ).style.display =
-          "none";
+        resolve();
 
-      },
+      };
 
-      1000
 
-    );
+    script.onerror =
+      function() {
 
-  }
-
-}
-
-
-/* =====================================================
-   LOAD ONE REFERENCE
-===================================================== */
-
-function loadReferenceCard(
-  set,
-  number
-) {
-
-  return new Promise(
-
-    function(resolve) {
-
-      const image =
-        new Image();
-
-
-      image.crossOrigin =
-        "anonymous";
-
-
-      image.onload =
-        function() {
-
-          try {
-
-            const descriptor =
-              createReferenceDescriptor(
-                image
-              );
-
-
-            resolve({
-
-              number:
-                number,
-
-              descriptor:
-                descriptor
-
-            });
-
-          }
-
-          catch (error) {
-
-            console.error(
-              "Reference descriptor failed:",
-              number,
-              error
-            );
-
-
-            resolve(
-              null
-            );
-
-          }
-
-        };
-
-
-      image.onerror =
-        function() {
-
-          console.error(
-            "Reference image failed:",
-            number
-          );
-
-
-          resolve(
-            null
-          );
-
-        };
-
-
-      image.src =
-
-        "https://images.pokemontcg.io/" +
-
-        set.imageSet +
-
-        "/" +
-
-        number +
-
-        ".png";
-
-    }
-
-  );
-
-}
-
-
-/* =====================================================
-   REFERENCE DESCRIPTOR
-===================================================== */
-
-function createReferenceDescriptor(
-  image
-) {
-
-  const canvas =
-    document.getElementById(
-      "referenceCanvas"
-    );
-
-
-  canvas.width =
-    DESC_WIDTH;
-
-
-  canvas.height =
-    DESC_HEIGHT;
-
-
-  const ctx =
-    canvas.getContext(
-      "2d",
-      {
-        willReadFrequently: true
-      }
-    );
-
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-
-  ctx.drawImage(
-
-    image,
-
-    0,
-    0,
-
-    DESC_WIDTH,
-    DESC_HEIGHT
-
-  );
-
-
-  return createDescriptor(
-    canvas
-  );
-
-}
-
-
-/* =====================================================
-   DESCRIPTOR
-
-   Each descriptor stores:
-
-   • normalized luminance
-   • red
-   • green
-   • blue
-   • horizontal edge
-   • vertical edge
-
-   The last two are important because they
-   represent artwork and text structure,
-   not just overall colour.
-===================================================== */
-
-function createDescriptor(
-  canvas
-) {
-
-  const ctx =
-    canvas.getContext(
-      "2d",
-      {
-        willReadFrequently: true
-      }
-    );
-
-
-  const width =
-    canvas.width;
-
-
-  const height =
-    canvas.height;
-
-
-  const pixels =
-    ctx.getImageData(
-      0,
-      0,
-      width,
-      height
-    ).data;
-
-
-  const count =
-    width *
-    height;
-
-
-  const luminance =
-    new Float32Array(
-      count
-    );
-
-
-  let totalLuminance =
-    0;
-
-
-  for (
-    let i = 0;
-    i < count;
-    i++
-  ) {
-
-    const p =
-      i * 4;
-
-
-    const r =
-      pixels[p] /
-      255;
-
-
-    const g =
-      pixels[p + 1] /
-      255;
-
-
-    const b =
-      pixels[p + 2] /
-      255;
-
-
-    const lum =
-
-      r * 0.299 +
-
-      g * 0.587 +
-
-      b * 0.114;
-
-
-    luminance[i] =
-      lum;
-
-
-    totalLuminance +=
-      lum;
-
-  }
-
-
-  const mean =
-    totalLuminance /
-    count;
-
-
-  const descriptor =
-    new Float32Array(
-      count * 6
-    );
-
-
-  let output =
-    0;
-
-
-  for (
-    let y = 0;
-    y < height;
-    y++
-  ) {
-
-    for (
-      let x = 0;
-      x < width;
-      x++
-    ) {
-
-      const index =
-        y *
-        width +
-        x;
-
-
-      const pixelIndex =
-        index * 4;
-
-
-      const r =
-        pixels[pixelIndex] /
-        255;
-
-
-      const g =
-        pixels[pixelIndex + 1] /
-        255;
-
-
-      const b =
-        pixels[pixelIndex + 2] /
-        255;
-
-
-      const lum =
-        luminance[index];
-
-
-      const left =
-
-        x > 0
-        ?
-        luminance[
-          index - 1
-        ]
-        :
-        lum;
-
-
-      const right =
-
-        x <
-        width - 1
-        ?
-        luminance[
-          index + 1
-        ]
-        :
-        lum;
-
-
-      const up =
-
-        y > 0
-        ?
-        luminance[
-          index -
-          width
-        ]
-        :
-        lum;
-
-
-      const down =
-
-        y <
-        height - 1
-        ?
-        luminance[
-          index +
-          width
-        ]
-        :
-        lum;
-
-
-      const horizontalEdge =
-        right -
-        left;
-
-
-      const verticalEdge =
-        down -
-        up;
-
-
-      descriptor[output++] =
-        lum -
-        mean;
-
-
-      descriptor[output++] =
-        r;
-
-
-      descriptor[output++] =
-        g;
-
-
-      descriptor[output++] =
-        b;
-
-
-      descriptor[output++] =
-        horizontalEdge;
-
-
-      descriptor[output++] =
-        verticalEdge;
-
-    }
-
-  }
-
-
-  return descriptor;
-
-}
-
-
-/* =====================================================
-   GUIDE POSITION
-===================================================== */
-
-function getCardBaseCrop() {
-
-  const video =
-    document.getElementById(
-      "video"
-    );
-
-
-  const videoRect =
-    video.getBoundingClientRect();
-
-
-  const guideRect =
-    document.getElementById(
-      "cardGuide"
-    ).getBoundingClientRect();
-
-
-  const scaleX =
-    video.videoWidth /
-    videoRect.width;
-
-
-  const scaleY =
-    video.videoHeight /
-    videoRect.height;
-
-
-  const guideX =
-
-    (
-      guideRect.left -
-      videoRect.left
-    ) *
-    scaleX;
-
-
-  const guideY =
-
-    (
-      guideRect.top -
-      videoRect.top
-    ) *
-    scaleY;
-
-
-  const guideWidth =
-
-    guideRect.width *
-    scaleX;
-
-
-  const guideHeight =
-
-    guideRect.height *
-    scaleY;
-
-
-  /*
-    Actual Pokémon card expected inside the
-    larger 73 × 98 guide.
-  */
-
-  const cardWidth =
-
-    guideWidth *
-    CARD_WIDTH_RATIO;
-
-
-  const cardHeight =
-
-    guideHeight *
-    CARD_HEIGHT_RATIO;
-
-
-  const centerX =
-
-    guideX +
-    guideWidth / 2;
-
-
-  const centerY =
-
-    guideY +
-    guideHeight / 2;
-
-
-  return {
-
-    centerX:
-      centerX,
-
-    centerY:
-      centerY,
-
-    width:
-      cardWidth,
-
-    height:
-      cardHeight
-
-  };
-
-}
-
-
-/* =====================================================
-   CREATE ONE LIVE VARIANT
-===================================================== */
-
-function createLiveVariant(
-  shiftX,
-  shiftY,
-  scale
-) {
-
-  const video =
-    document.getElementById(
-      "video"
-    );
-
-
-  const base =
-    getCardBaseCrop();
-
-
-  const cropWidth =
-
-    base.width /
-    scale;
-
-
-  const cropHeight =
-
-    base.height /
-    scale;
-
-
-  const centerX =
-
-    base.centerX +
-
-    base.width *
-    shiftX;
-
-
-  const centerY =
-
-    base.centerY +
-
-    base.height *
-    shiftY;
-
-
-  let sourceX =
-
-    centerX -
-    cropWidth / 2;
-
-
-  let sourceY =
-
-    centerY -
-    cropHeight / 2;
-
-
-  sourceX =
-    Math.max(
-      0,
-      Math.min(
-        video.videoWidth -
-        cropWidth,
-        sourceX
-      )
-    );
-
-
-  sourceY =
-    Math.max(
-      0,
-      Math.min(
-        video.videoHeight -
-        cropHeight,
-        sourceY
-      )
-    );
-
-
-  const canvas =
-    document.getElementById(
-      "workCanvas"
-    );
-
-
-  canvas.width =
-    DESC_WIDTH;
-
-
-  canvas.height =
-    DESC_HEIGHT;
-
-
-  const ctx =
-    canvas.getContext(
-      "2d",
-      {
-        willReadFrequently: true
-      }
-    );
-
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-
-  ctx.drawImage(
-
-    video,
-
-    sourceX,
-    sourceY,
-
-    cropWidth,
-    cropHeight,
-
-    0,
-    0,
-
-    DESC_WIDTH,
-    DESC_HEIGHT
-
-  );
-
-
-  return createDescriptor(
-    canvas
-  );
-
-}
-
-
-/* =====================================================
-   LIVE PREVIEW
-===================================================== */
-
-function updateLivePreview() {
-
-  const video =
-    document.getElementById(
-      "video"
-    );
-
-
-  const base =
-    getCardBaseCrop();
-
-
-  const canvas =
-    document.getElementById(
-      "liveCardCanvas"
-    );
-
-
-  canvas.width =
-    252;
-
-
-  canvas.height =
-    352;
-
-
-  const ctx =
-    canvas.getContext(
-      "2d"
-    );
-
-
-  let x =
-
-    base.centerX -
-    base.width / 2;
-
-
-  let y =
-
-    base.centerY -
-    base.height / 2;
-
-
-  x =
-    Math.max(
-      0,
-      x
-    );
-
-
-  y =
-    Math.max(
-      0,
-      y
-    );
-
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-
-  ctx.drawImage(
-
-    video,
-
-    x,
-    y,
-
-    base.width,
-    base.height,
-
-    0,
-    0,
-
-    canvas.width,
-    canvas.height
-
-  );
-
-}
-
-
-/* =====================================================
-   SCAN LOOP
-===================================================== */
-
-function scheduleScan(
-  delay
-) {
-
-  if (
-    !scannerRunning ||
-    scannerPaused
-  ) {
-
-    return;
-
-  }
-
-
-  if (scanTimer) {
-
-    clearTimeout(
-      scanTimer
-    );
-
-  }
-
-
-  scanTimer =
-    setTimeout(
-      scanFrame,
-      delay
-    );
-
-}
-
-
-/* =====================================================
-   SCAN ONE FRAME
-===================================================== */
-
-async function scanFrame() {
-
-  if (
-    !scannerRunning ||
-    scannerPaused ||
-    scanBusy ||
-    !libraryReady
-  ) {
-
-    return;
-
-  }
-
-
-  const video =
-    document.getElementById(
-      "video"
-    );
-
-
-  if (
-    !video.videoWidth ||
-    !video.videoHeight
-  ) {
-
-    scheduleScan(
-      400
-    );
-
-    return;
-
-  }
-
-
-  scanBusy =
-    true;
-
-
-  try {
-
-    updateLivePreview();
-
-
-    /*
-      Start with central crop.
-    */
-
-    const centralDescriptor =
-      createLiveVariant(
-        0,
-        0,
-        1
-      );
-
-
-    /*
-      Fast first pass against all cards.
-
-      We keep only the strongest 15 candidates.
-    */
-
-    const firstPass =
-
-      referenceLibrary
-      .map(
-        reference => ({
-
-          number:
-            reference.number,
-
-          reference:
-            reference,
-
-          score:
-            descriptorDistance(
-              centralDescriptor,
-              reference.descriptor
-            )
-
-        })
-      )
-      .sort(
-        (a, b) =>
-          a.score -
-          b.score
-      )
-      .slice(
-        0,
-        15
-      );
-
-
-    /*
-      Second pass:
-
-      only those 15 candidates are tested against
-      multiple small camera shifts and zooms.
-
-      This keeps the phone responsive.
-    */
-
-    const refined =
-      [];
-
-
-    for (
-      const candidate of firstPass
-    ) {
-
-      let bestScore =
-        candidate.score;
-
-
-      let bestVariant =
-        "centre";
-
-
-      for (
-        const scale of SCALES
-      ) {
-
-        for (
-          const shift of SHIFTS
-        ) {
-
-          /*
-            Central 1.0 test was already performed.
-          */
-
-          if (
-            scale === 1 &&
-            shift[0] === 0 &&
-            shift[1] === 0
-          ) {
-
-            continue;
-
-          }
-
-
-          const liveVariant =
-            createLiveVariant(
-
-              shift[0],
-
-              shift[1],
-
-              scale
-
-            );
-
-
-          const score =
-            descriptorDistance(
-
-              liveVariant,
-
-              candidate.reference.descriptor
-
-            );
-
-
-          if (
-            score <
-            bestScore
-          ) {
-
-            bestScore =
-              score;
-
-
-            bestVariant =
-
-              "shift " +
-
-              shift[0].toFixed(3) +
-
-              "," +
-
-              shift[1].toFixed(3) +
-
-              " scale " +
-
-              scale.toFixed(3);
-
-          }
-
-        }
-
-      }
-
-
-      refined.push({
-
-        number:
-          candidate.number,
-
-        score:
-          bestScore,
-
-        variant:
-          bestVariant
-
-      });
-
-    }
-
-
-    refined.sort(
-      (a, b) =>
-        a.score -
-        b.score
-    );
-
-
-    const top =
-      refined.slice(
-        0,
-        5
-      );
-
-
-    displayMatches(
-      top
-    );
-
-
-    updateStability(
-      top
-    );
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "Scan error:",
-      error
-    );
-
-  }
-
-  finally {
-
-    scanBusy =
-      false;
-
-
-    if (
-      scannerRunning &&
-      !scannerPaused
-    ) {
-
-      scheduleScan(
-        650
-      );
-
-    }
-
-  }
-
-}
-
-
-/* =====================================================
-   VISUAL DISTANCE
-===================================================== */
-
-function descriptorDistance(
-  a,
-  b
-) {
-
-  let total =
-    0;
-
-
-  let pixels =
-    0;
-
-
-  for (
-    let i = 0;
-    i < a.length;
-    i += 6
-  ) {
-
-    const luminance =
-      Math.abs(
-        a[i] -
-        b[i]
-      );
-
-
-    const red =
-      Math.abs(
-        a[i + 1] -
-        b[i + 1]
-      );
-
-
-    const green =
-      Math.abs(
-        a[i + 2] -
-        b[i + 2]
-      );
-
-
-    const blue =
-      Math.abs(
-        a[i + 3] -
-        b[i + 3]
-      );
-
-
-    const edgeX =
-      Math.abs(
-        a[i + 4] -
-        b[i + 4]
-      );
-
-
-    const edgeY =
-      Math.abs(
-        a[i + 5] -
-        b[i + 5]
-      );
-
-
-    /*
-      Structure receives the strongest weighting.
-    */
-
-    total +=
-
-      luminance *
-      1.1 +
-
-      red *
-      0.28 +
-
-      green *
-      0.28 +
-
-      blue *
-      0.28 +
-
-      edgeX *
-      2.6 +
-
-      edgeY *
-      2.6;
-
-
-    pixels++;
-
-  }
-
-
-  return total /
-    pixels;
-
-}
-
-
-/* =====================================================
-   DISPLAY MATCHES
-===================================================== */
-
-function displayMatches(
-  matches
-) {
-
-  const set =
-    getSelectedSet();
-
-
-  const best =
-    matches[0];
-
-
-  document.getElementById(
-    "liveBest"
-  ).innerText =
-
-    "Best: #" +
-
-    String(
-      best.number
-    ).padStart(
-      3,
-      "0"
-    );
-
-
-  document.getElementById(
-    "liveScore"
-  ).innerText =
-
-    "Visual distance: " +
-
-    best.score.toFixed(
-      4
-    );
-
-
-  const lines =
-    matches.map(
-
-      function(match, index) {
-
-        return (
-
-          (
-            index +
-            1
-          ) +
-
-          ". #" +
-
-          String(
-            match.number
-          ).padStart(
-            3,
-            "0"
-          ) +
-
-          "/" +
-
-          set.denominator +
-
-          " — " +
-
-          match.score.toFixed(
-            4
+        reject(
+          new Error(
+            "Could not download OpenCV.js"
           )
-
         );
 
-      }
+      };
 
+
+    document.head.appendChild(
+      script
     );
-
-
-  document.getElementById(
-    "topMatches"
-  ).innerText =
-
-    "Closest matches:\n" +
-
-    lines.join(
-      "\n"
-    );
-
-}
-
-
-/* =====================================================
-   STABILITY / AUTOMATIC ACCEPTANCE
-===================================================== */
-
-function updateStability(
-  matches
-) {
-
-  if (
-    matches.length <
-    2
-  ) {
-
-    return;
-
-  }
-
-
-  const best =
-    matches[0];
-
-
-  const second =
-    matches[1];
-
-
-  winnerHistory.push(
-    best.number
-  );
-
-
-  scoreHistory.push(
-    best.score
-  );
-
-
-  if (
-    winnerHistory.length >
-    6
-  ) {
-
-    winnerHistory.shift();
-
-    scoreHistory.shift();
-
-  }
-
-
-  const sameCount =
-
-    winnerHistory.filter(
-      number =>
-        number ===
-        best.number
-    ).length;
-
-
-  const separation =
-
-    second.score -
-    best.score;
-
-
-  document.getElementById(
-    "stability"
-  ).innerText =
-
-    "Stable frames: " +
-
-    sameCount +
-
-    "/6" +
-
-    " • lead: " +
-
-    separation.toFixed(
-      4
-    );
-
-
-  /*
-    We deliberately don't stop after just a
-    couple of guesses.
-
-    Need the same winner in at least five of
-    the last six scans.
-  */
-
-  if (
-    winnerHistory.length >= 5 &&
-    sameCount >= 5
-  ) {
-
-    showDetectedCard(
-      best
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   FINAL DETECTED CARD
-===================================================== */
-
-function showDetectedCard(
-  match
-) {
-
-  scannerPaused =
-    true;
-
-
-  detectedNumber =
-    match.number;
-
-
-  const set =
-    getSelectedSet();
-
-
-  document.getElementById(
-    "detectedNumber"
-  ).innerText =
-
-    "#" +
-
-    String(
-      match.number
-    ).padStart(
-      3,
-      "0"
-    ) +
-
-    "/" +
-
-    set.denominator;
-
-
-  document.getElementById(
-    "detectedSet"
-  ).innerText =
-    set.name;
-
-
-  document.getElementById(
-    "detectedConfidence"
-  ).innerText =
-
-    "Visual distance: " +
-
-    match.score.toFixed(
-      4
-    );
-
-
-  document.getElementById(
-    "detectedImage"
-  ).src =
-
-    "https://images.pokemontcg.io/" +
-
-    set.imageSet +
-
-    "/" +
-
-    match.number +
-
-    ".png";
-
-
-  document.getElementById(
-    "detectedCard"
-  ).style.display =
-    "block";
-
-
-  setStatus(
-    "Possible card match found.",
-    "success"
-  );
-
-
-  document.getElementById(
-    "detectedCard"
-  ).scrollIntoView({
-
-    behavior:
-      "smooth",
-
-    block:
-      "center"
 
   });
 
 }
 
 
-/* =====================================================
-   CORRECT / WRONG
-===================================================== */
+async function getCV() {
 
-function confirmCard() {
+  /*
+    OpenCV.js can expose cv either
+    directly or as a Promise depending
+    on the build.
 
-  setStatus(
-    "✓ Match confirmed — hold up the next card.",
-    "success"
-  );
+    This handles both.
+  */
 
+  for (
+    let attempt = 0;
+    attempt < 150;
+    attempt++
+  ) {
 
-  prepareNextCard();
+    if (
+      typeof window.cv !== "undefined"
+    ) {
 
-}
+      let candidate =
+        window.cv;
 
 
-function rejectCard() {
+      if (
+        candidate &&
+        typeof candidate.then === "function"
+      ) {
 
-  setStatus(
-    "Match rejected — scanning again.",
-    "working"
-  );
+        candidate =
+          await candidate;
 
+      }
 
-  prepareNextCard();
 
-}
+      if (
+        candidate &&
+        candidate.Mat
+      ) {
 
+        return candidate;
 
-function prepareNextCard() {
-
-  detectedNumber =
-    null;
-
-
-  winnerHistory =
-    [];
-
-
-  scoreHistory =
-    [];
-
-
-  document.getElementById(
-    "detectedCard"
-  ).style.display =
-    "none";
-
-
-  document.getElementById(
-    "liveBest"
-  ).innerText =
-    "Waiting for card...";
-
-
-  document.getElementById(
-    "stability"
-  ).innerText =
-    "";
-
-
-  scannerPaused =
-    false;
-
-
-  scheduleScan(
-    600
-  );
-
-}
-
-
-/* =====================================================
-   STOP
-===================================================== */
-
-function stopScanner() {
-
-  scannerRunning =
-    false;
-
-
-  scannerPaused =
-    false;
-
-
-  scanBusy =
-    false;
-
-
-  if (scanTimer) {
-
-    clearTimeout(
-      scanTimer
-    );
-
-
-    scanTimer =
-      null;
-
-  }
-
-
-  if (cameraStream) {
-
-    cameraStream
-      .getTracks()
-      .forEach(
-
-        function(track) {
-
-          track.stop();
-
-        }
-
-      );
-
-  }
-
-
-  cameraStream =
-    null;
-
-
-  document.getElementById(
-    "video"
-  ).srcObject =
-    null;
-
-
-  document.getElementById(
-    "cameraBox"
-  ).style.display =
-    "none";
-
-
-  document.getElementById(
-    "previewSection"
-  ).style.display =
-    "none";
-
-
-  document.getElementById(
-    "scanInfo"
-  ).style.display =
-    "none";
-
-
-  document.getElementById(
-    "detectedCard"
-  ).style.display =
-    "none";
-
-
-  document.getElementById(
-    "startButton"
-  ).style.display =
-    "block";
-
-
-  document.getElementById(
-    "stopButton"
-  ).style.display =
-    "none";
-
-
-  winnerHistory =
-    [];
-
-
-  setStatus(
-    "Camera stopped.",
-    "working"
-  );
-
-}
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function getSelectedSet() {
-
-  return SETS[
-    document.getElementById(
-      "setSelector"
-    ).value
-  ];
-
-}
-
-
-function setStatus(
-  message,
-  type
-) {
-
-  const status =
-    document.getElementById(
-      "status"
-    );
-
-
-  status.innerText =
-    message;
-
-
-  status.className =
-    type;
-
-}
-
-
-/* =====================================================
-   CAMERA CLEANUP
-===================================================== */
-
-window.addEventListener(
-
-  "pagehide",
-
-  function() {
-
-    if (cameraStream) {
-
-      cameraStream
-        .getTracks()
-        .forEach(
-
-          function(track) {
-
-            track.stop();
-
-          }
-
-        );
+      }
 
     }
 
+
+    await new Promise(
+      resolve =>
+        setTimeout(resolve, 100)
+    );
+
   }
 
+
+  throw new Error(
+    "OpenCV loaded but did not initialise."
+  );
+
+}
+
+
+function checkConstructor(name) {
+
+  try {
+
+    return (
+      CV &&
+      typeof CV[name] !== "undefined"
+    );
+
+  } catch (error) {
+
+    return false;
+
+  }
+
+}
+
+
+async function runTests() {
+
+  resetResults();
+
+
+  const details =
+    [];
+
+
+  try {
+
+    document.getElementById(
+      "overall"
+    ).innerText =
+      "Loading OpenCV.js...";
+
+
+    await loadOpenCV();
+
+
+    CV =
+      await getCV();
+
+
+    /*
+      OpenCV
+    */
+
+    const openCVAvailable =
+      !!CV;
+
+
+    setResult(
+      "opencv",
+      openCVAvailable
+    );
+
+
+    details.push(
+      "OpenCV object: " +
+      openCVAvailable
+    );
+
+
+    /*
+      MAT
+    */
+
+    let matAvailable =
+      false;
+
+
+    try {
+
+      const testMat =
+        new CV.Mat(
+          10,
+          10,
+          CV.CV_8UC1
+        );
+
+
+      matAvailable =
+        true;
+
+
+      testMat.delete();
+
+    } catch (error) {
+
+      details.push(
+        "Mat error: " +
+        error.message
+      );
+
+    }
+
+
+    setResult(
+      "mat",
+      matAvailable
+    );
+
+
+    /*
+      ORB
+    */
+
+    let orbAvailable =
+      checkConstructor("ORB");
+
+
+    /*
+      Some builds expose ORB_create
+      instead of the constructor.
+    */
+
+    if (
+      !orbAvailable &&
+      typeof CV.ORB_create === "function"
+    ) {
+
+      orbAvailable =
+        true;
+
+    }
+
+
+    setResult(
+      "orb",
+      orbAvailable
+    );
+
+
+    details.push(
+      "cv.ORB: " +
+      typeof CV.ORB
+    );
+
+
+    details.push(
+      "cv.ORB_create: " +
+      typeof CV.ORB_create
+    );
+
+
+    /*
+      BFMatcher
+    */
+
+    const bfAvailable =
+      checkConstructor(
+        "BFMatcher"
+      );
+
+
+    setResult(
+      "bfmatcher",
+      bfAvailable
+    );
+
+
+    details.push(
+      "cv.BFMatcher: " +
+      typeof CV.BFMatcher
+    );
+
+
+    /*
+      DescriptorMatcher
+    */
+
+    const descriptorAvailable =
+      checkConstructor(
+        "DescriptorMatcher"
+      );
+
+
+    setResult(
+      "descriptor",
+      descriptorAvailable
+    );
+
+
+    details.push(
+      "cv.DescriptorMatcher: " +
+      typeof CV.DescriptorMatcher
+    );
+
+
+    /*
+      HAMMING
+    */
+
+    const hammingAvailable =
+
+      typeof CV.NORM_HAMMING !==
+      "undefined";
+
+
+    setResult(
+      "hamming",
+      hammingAvailable
+    );
+
+
+    details.push(
+      "cv.NORM_HAMMING: " +
+      CV.NORM_HAMMING
+    );
+
+
+    /*
+      AKAZE
+
+      Useful fallback if ORB is
+      unavailable.
+    */
+
+    const akazeAvailable =
+      checkConstructor(
+        "AKAZE"
+      );
+
+
+    setResult(
+      "akaze",
+      akazeAvailable
+    );
+
+
+    details.push(
+      "cv.AKAZE: " +
+      typeof CV.AKAZE
+    );
+
+
+    /*
+      CAMERA API
+    */
+
+    const cameraAvailable =
+
+      !!(
+        navigator.mediaDevices &&
+        navigator.mediaDevices.getUserMedia
+      );
+
+
+    setResult(
+      "camera",
+      cameraAvailable
+    );
+
+
+    details.push(
+      "getUserMedia: " +
+      cameraAvailable
+    );
+
+
+    /*
+      VERSION
+    */
+
+    if (
+      typeof CV.getBuildInformation ===
+      "function"
+    ) {
+
+      try {
+
+        const build =
+          CV.getBuildInformation();
+
+
+        details.push(
+          "\nOpenCV build information available: YES"
+        );
+
+
+        /*
+          Only show first part because
+          the complete build string is huge.
+        */
+
+        details.push(
+          "\n" +
+          build.substring(
+            0,
+            800
+          )
+        );
+
+      } catch (error) {
+
+        details.push(
+          "Build information error: " +
+          error.message
+        );
+
+      }
+
+    }
+
+
+    /*
+      OVERALL RESULT
+    */
+
+    const featureMatcherPossible =
+
+      orbAvailable &&
+
+      (
+        bfAvailable ||
+        descriptorAvailable
+      ) &&
+
+      hammingAvailable;
+
+
+    if (
+      featureMatcherPossible
+    ) {
+
+      document.getElementById(
+        "overall"
+      ).innerHTML =
+
+        "✅ EXCELLENT<br><br>" +
+
+        "This browser exposes the features " +
+
+        "needed for ORB card matching.";
+
+    }
+
+    else if (
+      akazeAvailable &&
+      (
+        bfAvailable ||
+        descriptorAvailable
+      )
+    ) {
+
+      document.getElementById(
+        "overall"
+      ).innerHTML =
+
+        "🟡 POSSIBLE<br><br>" +
+
+        "ORB is unavailable, but another " +
+
+        "feature detector may be usable.";
+
+    }
+
+    else {
+
+      document.getElementById(
+        "overall"
+      ).innerHTML =
+
+        "🔴 FEATURE MATCHING NOT AVAILABLE<br><br>" +
+
+        "The standard OpenCV.js build does not " +
+
+        "expose enough of the required feature APIs.";
+
+    }
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      error
+    );
+
+
+    setResult(
+      "opencv",
+      false
+    );
+
+
+    document.getElementById(
+      "overall"
+    ).innerHTML =
+
+      "❌ TEST FAILED<br><br>" +
+
+      error.message;
+
+
+    details.push(
+      "ERROR: " +
+      error.message
+    );
+
+  }
+
+
+  document.getElementById(
+    "details"
+  ).innerText =
+    details.join("\n");
+
+}
+
+
+/*
+  Run automatically.
+*/
+
+window.addEventListener(
+  "load",
+  runTests
 );
 
 </script>
