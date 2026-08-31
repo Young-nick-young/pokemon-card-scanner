@@ -3,27 +3,20 @@ const DESTINED_RIVALS = {
   name: "Destined Rivals",
   setCode: "DRI",
 
-  imageSet: "sv10",
-
   denominator: 182,
   maxCard: 244,
 
+  imageSet: "sv10",
+
+  scriptUrl:
+    "https://script.google.com/a/macros/ikns.edu.bh/s/AKfycbwDF5oxhER534DF16jG94SHwJ9jS2ySAWJXIKgUsOpXjsdy26JKiu1FOIAsQnOqk_6f/exec",
+
   variants: [
-    {
-      key: "Normal",
-      label: "Normal"
-    },
-    {
-      key: "Reverse Holo",
-      label: "Reverse Holo"
-    },
-    {
-      key: "Holo",
-      label: "Holo"
-    },
-    {
-      key: "Other",
-      label: "Other"
-    }
-  ]
+    "Normal",
+    "Reverse Holo",
+    "Holo",
+    "Other"
+  ],
+
+  dynamicVariants: false
 };
