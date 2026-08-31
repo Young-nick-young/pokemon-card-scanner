@@ -55,6 +55,28 @@ function receiveCards(data){
 
 function loadSheetData(){
 
+  if(
+    !ACTIVE_SET ||
+    !ACTIVE_SET.scriptUrl
+  ){
+
+    sheetReady = false;
+
+    sheetStatus.textContent =
+      "Google Sheet not configured for this set";
+
+    console.error(
+      "No scriptUrl configured for:",
+      ACTIVE_SET
+    );
+
+    updateScanButton();
+
+    return;
+
+  }
+
+
   const oldScript =
     document.getElementById(
       "sheetJsonp"
@@ -64,6 +86,7 @@ function loadSheetData(){
     oldScript.remove();
   }
 
+
   const script =
     document.createElement(
       "script"
@@ -71,12 +94,14 @@ function loadSheetData(){
 
   script.id = "sheetJsonp";
 
+
   script.src =
-    SCRIPT_URL +
+    ACTIVE_SET.scriptUrl +
     "?api=cards" +
     "&callback=receiveCards" +
     "&_=" +
     Date.now();
+
 
   script.onerror = ()=>{
 
@@ -88,6 +113,7 @@ function loadSheetData(){
     updateScanButton();
 
   };
+
 
   document.body.appendChild(
     script
@@ -104,6 +130,23 @@ function addQuantity(
 
   return new Promise(
     (resolve,reject)=>{
+
+
+      if(
+        !ACTIVE_SET ||
+        !ACTIVE_SET.scriptUrl
+      ){
+
+        reject(
+          new Error(
+            "Google Sheet backend is not configured for this set."
+          )
+        );
+
+        return;
+
+      }
+
 
       const callbackName =
         "sheetWrite_" +
@@ -128,15 +171,19 @@ function addQuantity(
         if(
           window[callbackName]
         ){
+
           delete window[
             callbackName
           ];
+
         }
 
         if(
           script.parentNode
         ){
+
           script.remove();
+
         }
 
       }
@@ -255,7 +302,7 @@ function addQuantity(
 
 
       script.src =
-        SCRIPT_URL +
+        ACTIVE_SET.scriptUrl +
         "?" +
         parameters.toString();
 
@@ -284,13 +331,13 @@ async function chooseVariant(
       currentCard
     );
 
-
   if(!row){
 
     status.textContent =
       "Sheet row not found";
 
     return;
+
   }
 
 
@@ -369,6 +416,7 @@ async function chooseVariant(
       resetForNextCard();
 
     },350);
+
 
   }catch(error){
 
@@ -449,6 +497,7 @@ async function undoLastAdd(){
         "Ready for next card";
 
     },800);
+
 
   }catch(error){
 
