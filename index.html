@@ -31,9 +31,33 @@
 
   <div class="panel">
 
+    <!-- SET SELECTOR -->
+    <div id="setSelectorArea">
+
+      <label
+        for="setSelector"
+        id="setSelectorLabel"
+      >
+        SET
+      </label>
+
+      <select id="setSelector">
+        <option value="destined-rivals">
+          Destined Rivals
+        </option>
+
+        <option value="ascended-heroes">
+          Ascended Heroes
+        </option>
+      </select>
+
+    </div>
+
+
     <div id="status">
       Starting scanner...
     </div>
+
 
     <div id="cameraWrap">
 
@@ -48,12 +72,14 @@
 
     </div>
 
+
     <button
       id="scanButton"
       disabled
     >
       PLEASE WAIT...
     </button>
+
 
     <div id="resultPanel">
 
@@ -78,9 +104,11 @@
 
       </div>
 
+
       <div id="variantTitle">
         TAP VARIANT
       </div>
+
 
       <div class="variantGrid">
 
@@ -114,11 +142,14 @@
 
       </div>
 
+
       <button id="wrongButton">
         Wrong card / other matches
       </button>
 
+
       <div id="candidatePanel"></div>
+
 
       <div id="manualArea">
 
@@ -128,7 +159,7 @@
             id="manualNumber"
             type="number"
             min="1"
-            max="244"
+            max="295"
             inputmode="numeric"
             placeholder="Card number"
           >
@@ -141,17 +172,20 @@
 
       </div>
 
+
       <div id="addMessage">
         ✓ Added
       </div>
 
     </div>
 
+
     <div id="sheetStatus">
       Connecting to Google Sheet...
     </div>
 
   </div>
+
 
   <div class="panel sessionPanel">
 
@@ -173,6 +207,7 @@
   </div>
 
 </div>
+
 
 <canvas id="captureCanvas"></canvas>
 
