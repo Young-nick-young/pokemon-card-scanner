@@ -2,9 +2,19 @@ async function checkRecognizer(){
 
   try{
 
+    /*
+      v7.0:
+      Check the status of the CURRENT set.
+
+      This does NOT load the large recognition library.
+      The library loads only when the first card is scanned.
+    */
+
     const response =
       await fetch(
-        RECOGNIZER_URL + "/health",
+        RECOGNIZER_URL +
+        "/status/" +
+        encodeURIComponent(ACTIVE_SET.id),
         {
           cache:"no-store"
         }
@@ -21,23 +31,27 @@ async function checkRecognizer(){
     const data =
       await response.json();
 
-    if(data.library_ready){
 
-      recognizerReady = true;
+    /*
+      If the server responds successfully,
+      the recognizer service itself is available.
 
-      status.textContent =
-        "Ready to scan";
+      library_ready may still be false before
+      the first scan. That is expected in v7.0.
+    */
 
-    }else{
+    recognizerReady = true;
 
-      recognizerReady = false;
+    status.textContent =
+      "Ready to scan";
 
-      status.textContent =
-        "Recognizer waking up...";
-
-    }
 
   }catch(error){
+
+    console.error(
+      "Recognizer status error:",
+      error
+    );
 
     recognizerReady = false;
 
@@ -46,9 +60,11 @@ async function checkRecognizer(){
 
   }
 
+
   updateScanButton();
 
 }
+
 
 
 async function scanCard(){
@@ -60,6 +76,7 @@ async function scanCard(){
   ){
     return;
   }
+
 
   scanning = true;
 
@@ -79,6 +96,7 @@ async function scanCard(){
     const formData =
       new FormData();
 
+
     formData.append(
       "file",
       blob,
@@ -89,6 +107,14 @@ async function scanCard(){
     const controller =
       new AbortController();
 
+
+    /*
+      Render free instances can sleep.
+
+      The first request may therefore take
+      considerably longer than later scans.
+    */
+
     const timeout =
       setTimeout(
         ()=>{
@@ -98,25 +124,93 @@ async function scanCard(){
       );
 
 
-    const response =
-      await fetch(
-        RECOGNIZER_URL +
-        "/recognize",
-        {
-          method:"POST",
-          body:formData,
-          signal:
-            controller.signal
-        }
+    /*
+      v7.0 MULTI-SET ROUTING
+
+      Each set has its own recognition route.
+
+      Examples:
+
+      /recognize/destined-rivals
+
+      /recognize/ascended-heroes
+    */
+
+    const recognitionUrl =
+      RECOGNIZER_URL +
+      "/recognize/" +
+      encodeURIComponent(
+        ACTIVE_SET.id
       );
 
-    clearTimeout(timeout);
+
+    let response;
+
+
+    try{
+
+      response =
+        await fetch(
+          recognitionUrl,
+          {
+            method:"POST",
+            body:formData,
+            signal:
+              controller.signal
+          }
+        );
+
+    }finally{
+
+      clearTimeout(
+        timeout
+      );
+
+    }
 
 
     if(!response.ok){
 
+      let errorMessage =
+        "Recognition request failed";
+
+
+      try{
+
+        const errorData =
+          await response.json();
+
+
+        if(errorData?.detail){
+
+          if(
+            typeof errorData.detail ===
+            "string"
+          ){
+
+            errorMessage =
+              errorData.detail;
+
+          }else if(
+            errorData.detail.error
+          ){
+
+            errorMessage =
+              errorData.detail.error;
+
+          }
+
+        }
+
+      }catch(error){
+
+        // Keep the normal error message.
+
+      }
+
+
       throw new Error(
-        "Recognition request failed"
+        errorMessage
       );
 
     }
@@ -124,6 +218,7 @@ async function scanCard(){
 
     const result =
       await response.json();
+
 
     currentMatches =
       result.top_matches || [];
@@ -138,6 +233,7 @@ async function scanCard(){
         Number(
           result.best_match.number
         );
+
 
       if(
         result.confident &&
@@ -169,12 +265,30 @@ async function scanCard(){
 
     }
 
+
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Recognition error:",
+      error
+    );
 
-    status.textContent =
-      "Scan failed — try again";
+
+    if(
+      error &&
+      error.name ===
+        "AbortError"
+    ){
+
+      status.textContent =
+        "Recognizer timed out — try again";
+
+    }else{
+
+      status.textContent =
+        "Scan failed — try again";
+
+    }
 
   }
 
