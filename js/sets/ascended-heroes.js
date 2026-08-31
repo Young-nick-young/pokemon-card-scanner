@@ -7,28 +7,32 @@ const ASCENDED_HEROES = {
   maxCard: 295,
 
   /*
-    Ascended Heroes does NOT use one fixed set of
-    variant buttons for every card.
+    Ascended Heroes images come from
+    the card data returned by the Sheet.
+  */
+  imageSet: null,
 
-    The Google Sheet backend provides the valid
-    variants for each individual card.
+  scriptUrl:
+    "https://script.google.com/macros/s/AKfycbxzaDPrnUX_a8P7UXxAQ-lWCCbJ9RG_kiXzvUfERWk41cCDhdY5yIr8S1PK9CAD10vv/exec",
+
+  /*
+    Ascended Heroes uses card-specific
+    variant buttons supplied by the Sheet.
   */
   dynamicVariants: true,
 
   getVariants(card) {
+
     if (
       card &&
       Array.isArray(card.variants) &&
-      card.variants.length
+      card.variants.length > 0
     ) {
       return card.variants;
     }
 
     return [
-      {
-        key: "Other",
-        label: "Other"
-      }
+      "Other"
     ];
   }
 };
