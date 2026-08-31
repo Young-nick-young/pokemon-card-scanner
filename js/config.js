@@ -8,7 +8,7 @@ const RECOGNIZER_URL =
   Change this value when switching sets.
 */
 const ACTIVE_SET_ID =
-  "destined-rivals";
+  "ascended-heroes";
 
 
 /*
