@@ -1,3 +1,14 @@
+const SETS = {
+  "destined-rivals": DESTINED_RIVALS,
+  "ascended-heroes": ASCENDED_HEROES
+};
+
+
+const ACTIVE_SET =
+  SETS[ACTIVE_SET_ID] ||
+  DESTINED_RIVALS;
+
+
 let cards = [];
 let cardMap = {};
 
@@ -42,6 +53,9 @@ const cardNumber =
 
 const cardDetails =
   document.getElementById("cardDetails");
+
+const variantGrid =
+  document.querySelector(".variantGrid");
 
 const wrongButton =
   document.getElementById("wrongButton");
@@ -162,6 +176,170 @@ function getCardRow(card){
 }
 
 
+function getCardImageUrl(card){
+
+  if(
+    card &&
+    card.imageUrl
+  ){
+
+    return card.imageUrl;
+
+  }
+
+
+  const number =
+    getCardNumber(card);
+
+
+  if(
+    ACTIVE_SET.imageSet
+  ){
+
+    return (
+      "https://images.pokemontcg.io/" +
+      ACTIVE_SET.imageSet +
+      "/" +
+      number +
+      ".png"
+    );
+
+  }
+
+
+  return "";
+
+}
+
+
+function getVariantsForCard(card){
+
+  if(
+    ACTIVE_SET.dynamicVariants &&
+    typeof ACTIVE_SET.getVariants === "function"
+  ){
+
+    return ACTIVE_SET.getVariants(card);
+
+  }
+
+
+  if(
+    Array.isArray(ACTIVE_SET.variants)
+  ){
+
+    return ACTIVE_SET.variants;
+
+  }
+
+
+  return [
+    {
+      key: "Other",
+      label: "Other"
+    }
+  ];
+
+}
+
+
+function normalizeVariantOption(option){
+
+  if(
+    typeof option === "string"
+  ){
+
+    return {
+      key: option,
+      label: option
+    };
+
+  }
+
+
+  if(
+    option &&
+    typeof option === "object"
+  ){
+
+    const key =
+      option.key ??
+      option.value ??
+      option.variant ??
+      option.label ??
+      "Other";
+
+    const label =
+      option.label ??
+      option.name ??
+      key;
+
+    return {
+      key: String(key),
+      label: String(label)
+    };
+
+  }
+
+
+  return {
+    key: "Other",
+    label: "Other"
+  };
+
+}
+
+
+function renderVariantButtons(card){
+
+  const variants =
+    getVariantsForCard(card)
+      .map(
+        normalizeVariantOption
+      );
+
+
+  variantGrid.innerHTML = "";
+
+
+  variants.forEach(variant=>{
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.className =
+      "variantButton";
+
+    button.dataset.variant =
+      variant.key;
+
+    button.textContent =
+      variant.label;
+
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        chooseVariant(
+          variant.key
+        );
+
+      }
+    );
+
+
+    variantGrid.appendChild(
+      button
+    );
+
+  });
+
+}
+
+
 function showCard(card){
 
   currentCard = card;
@@ -180,22 +358,19 @@ function showCard(card){
 
 
   cardImage.src =
-    "https://images.pokemontcg.io/" +
-    IMAGE_SET +
-    "/" +
-    number +
-    ".png";
+    getCardImageUrl(card);
 
 
   cardName.textContent =
     name;
+
 
   cardNumber.textContent =
     "#" +
     String(number)
       .padStart(3,"0") +
     "/" +
-    DENOMINATOR;
+    ACTIVE_SET.denominator;
 
 
   const details = [];
@@ -210,6 +385,9 @@ function showCard(card){
 
   cardDetails.textContent =
     details.join(" • ");
+
+
+  renderVariantButtons(card);
 
 
   resultPanel.style.display =
@@ -312,11 +490,7 @@ function showCandidates(){
         );
 
       image.src =
-        "https://images.pokemontcg.io/" +
-        IMAGE_SET +
-        "/" +
-        number +
-        ".png";
+        getCardImageUrl(card);
 
 
       const text =
@@ -463,7 +637,7 @@ function manualFind(){
   if(
     !number ||
     number < 1 ||
-    number > MAX_CARD
+    number > ACTIVE_SET.maxCard
   ){
     return;
   }
@@ -481,6 +655,7 @@ function manualFind(){
     return;
 
   }
+
 
   showCard(card);
 
@@ -539,27 +714,17 @@ undoButton.addEventListener(
 );
 
 
-document
-  .querySelectorAll(
-    ".variantButton"
-  )
-  .forEach(button=>{
-
-    button.addEventListener(
-      "click",
-      ()=>{
-
-        chooseVariant(
-          button.dataset.variant
-        );
-
-      }
-    );
-
-  });
-
-
 async function initialize(){
+
+  manualNumber.max =
+    ACTIVE_SET.maxCard;
+
+
+  console.log(
+    "Active set:",
+    ACTIVE_SET.name
+  );
+
 
   status.textContent =
     "Starting camera...";
