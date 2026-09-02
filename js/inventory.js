@@ -420,39 +420,18 @@ function showInventoryToast(
 
 
 /* =====================================================
-   SHEET WRITE
+   ONE JSONP WRITE ATTEMPT
 ===================================================== */
 
-function addQuantity(
+function sendQuantityRequest(
   row,
   variant,
-  change = 1,
-  transactionId = null
+  change,
+  transactionId
 ){
 
   return new Promise(
     (resolve,reject)=>{
-
-
-      if(
-        !ACTIVE_SET ||
-        !ACTIVE_SET.scriptUrl
-      ){
-
-        reject(
-          new Error(
-            "Google Sheet backend is not configured for this set."
-          )
-        );
-
-        return;
-
-      }
-
-
-      const safeTransactionId =
-        transactionId ||
-        createTransactionId();
 
 
       const callbackName =
@@ -460,7 +439,7 @@ function addQuantity(
         Date.now() +
         "_" +
         Math.floor(
-          Math.random() * 100000
+          Math.random() * 1000000
         );
 
 
@@ -497,6 +476,13 @@ function addQuantity(
       }
 
 
+      /*
+        Give Apps Script substantially more time.
+
+        The Sheet may finish writing before
+        the JSONP response reaches the phone.
+      */
+
       const timeout =
         setTimeout(
           ()=>{
@@ -513,12 +499,12 @@ function addQuantity(
 
             reject(
               new Error(
-                "Google Sheet did not respond."
+                "SHEET_RESPONSE_TIMEOUT"
               )
             );
 
           },
-          15000
+          30000
         );
 
 
@@ -587,7 +573,7 @@ function addQuantity(
 
           reject(
             new Error(
-              "Could not contact Google Sheet."
+              "SHEET_NETWORK_ERROR"
             )
           );
 
@@ -609,9 +595,19 @@ function addQuantity(
           change:
             String(change),
 
+          /*
+            CRITICAL:
+
+            The retry uses this SAME transaction ID.
+
+            If Google Sheets already performed
+            the first request, the backend will
+            recognize the retry and NOT add again.
+          */
+
           transactionId:
             String(
-              safeTransactionId
+              transactionId
             ),
 
           callback:
@@ -634,6 +630,146 @@ function addQuantity(
       );
 
     }
+  );
+
+}
+
+
+
+/* =====================================================
+   SAFE SHEET WRITE WITH RETRY
+===================================================== */
+
+async function addQuantity(
+  row,
+  variant,
+  change = 1,
+  transactionId = null
+){
+
+  if(
+    !ACTIVE_SET ||
+    !ACTIVE_SET.scriptUrl
+  ){
+
+    throw new Error(
+      "Google Sheet backend is not configured for this set."
+    );
+
+  }
+
+
+  /*
+    Create the transaction ONCE.
+
+    Every retry must reuse this exact ID.
+  */
+
+  const safeTransactionId =
+    transactionId ||
+    createTransactionId();
+
+
+  let lastError = null;
+
+
+  /*
+    Maximum:
+      Attempt 1
+      Attempt 2
+
+    Both carry the SAME transaction ID.
+  */
+
+  for(
+    let attempt = 1;
+    attempt <= 2;
+    attempt++
+  ){
+
+    try{
+
+      if(attempt === 2){
+
+        status.textContent =
+          "Confirming Sheet update...";
+
+        /*
+          Brief pause before retry.
+        */
+
+        await new Promise(
+          resolve =>
+            setTimeout(
+              resolve,
+              1200
+            )
+        );
+
+      }
+
+
+      const result =
+        await sendQuantityRequest(
+          row,
+          variant,
+          change,
+          safeTransactionId
+        );
+
+
+      return result;
+
+
+    }catch(error){
+
+      lastError =
+        error;
+
+
+      console.warn(
+        "Sheet write attempt " +
+        attempt +
+        " failed:",
+        error
+      );
+
+
+      /*
+        Retry only communication-type failures.
+
+        A genuine backend error such as an
+        invalid variant should NOT be retried.
+      */
+
+      const retryable =
+        (
+          error.message ===
+            "SHEET_RESPONSE_TIMEOUT" ||
+          error.message ===
+            "SHEET_NETWORK_ERROR"
+        );
+
+
+      if(
+        !retryable ||
+        attempt === 2
+      ){
+
+        throw error;
+
+      }
+
+    }
+
+  }
+
+
+  throw (
+    lastError ||
+    new Error(
+      "Google Sheet update failed."
+    )
   );
 
 }
@@ -738,11 +874,6 @@ async function confirmInventoryAdd(){
   }
 
 
-  /*
-    Make sure the selected variant still belongs
-    to the card currently displayed.
-  */
-
   const currentRow =
     getCardRow(
       currentCard
@@ -768,6 +899,13 @@ async function confirmInventoryAdd(){
   const quantity =
     getInventoryQuantity();
 
+
+  /*
+    Create this ONCE.
+
+    addQuantity() will reuse it if the
+    response has to be retried.
+  */
 
   const transactionId =
     createTransactionId();
@@ -847,11 +985,6 @@ async function confirmInventoryAdd(){
       );
 
 
-    /*
-      Store EVERYTHING required to undo
-      the exact previous operation.
-    */
-
     lastAdd = {
 
       row:
@@ -872,11 +1005,6 @@ async function confirmInventoryAdd(){
     undoButton.disabled =
       false;
 
-
-    /*
-      Session count now represents actual
-      cards added, not number of button taps.
-    */
 
     sessionCount +=
       quantity;
@@ -917,11 +1045,6 @@ async function confirmInventoryAdd(){
     );
 
 
-    /*
-      Small visual delay before returning
-      to the camera for the next pile/card.
-    */
-
     setTimeout(
       ()=>{
 
@@ -944,7 +1067,9 @@ async function confirmInventoryAdd(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
     inventoryWriteInProgress =
@@ -954,12 +1079,19 @@ async function confirmInventoryAdd(){
     enableInventoryControls();
 
 
+    /*
+      At this stage both attempts failed to
+      receive confirmation.
+
+      Do NOT automatically send a third request.
+    */
+
     status.textContent =
-      "Google Sheet update failed";
+      "Could not confirm Sheet update";
 
 
     showInventoryToast(
-      "✕ Not added"
+      "⚠ Check Sheet before retrying"
     );
 
 
@@ -1167,13 +1299,6 @@ async function undoLastAdd(){
     );
 
 
-  /*
-    Undo gets its own transaction ID.
-
-    The backend will later use this to make
-    the undo operation idempotent as well.
-  */
-
   const undoTransactionId =
     createTransactionId();
 
@@ -1249,7 +1374,9 @@ async function undoLastAdd(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
     inventoryWriteInProgress =
@@ -1261,11 +1388,11 @@ async function undoLastAdd(){
 
 
     status.textContent =
-      "Undo failed";
+      "Could not confirm undo";
 
 
     showInventoryToast(
-      "✕ Undo failed"
+      "⚠ Check Sheet before retrying"
     );
 
   }
