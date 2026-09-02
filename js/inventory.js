@@ -53,6 +53,7 @@ function receiveCards(data){
 }
 
 
+
 function loadSheetData(){
 
   if(
@@ -92,7 +93,8 @@ function loadSheetData(){
       "script"
     );
 
-  script.id = "sheetJsonp";
+  script.id =
+    "sheetJsonp";
 
 
   script.src =
@@ -122,10 +124,310 @@ function loadSheetData(){
 }
 
 
+
+/* =====================================================
+   BULK ADD STATE
+===================================================== */
+
+let selectedInventoryVariant = null;
+
+let selectedInventoryRow = null;
+
+let inventoryWriteInProgress = false;
+
+let toastTimer = null;
+
+
+
+/* =====================================================
+   QUANTITY ELEMENTS
+===================================================== */
+
+const inventoryQuantityInput =
+  document.getElementById(
+    "quantityInput"
+  );
+
+const inventoryQuantityMinus =
+  document.getElementById(
+    "quantityMinus"
+  );
+
+const inventoryQuantityPlus =
+  document.getElementById(
+    "quantityPlus"
+  );
+
+const inventoryConfirmAddButton =
+  document.getElementById(
+    "confirmAddButton"
+  );
+
+const inventoryAddToast =
+  document.getElementById(
+    "addToast"
+  );
+
+
+
+/* =====================================================
+   TRANSACTION ID
+===================================================== */
+
+function createTransactionId(){
+
+  if(
+    window.crypto &&
+    typeof window.crypto.randomUUID ===
+      "function"
+  ){
+
+    return window.crypto.randomUUID();
+
+  }
+
+  return (
+    Date.now().toString(36) +
+    "-" +
+    Math.random()
+      .toString(36)
+      .slice(2) +
+    "-" +
+    Math.random()
+      .toString(36)
+      .slice(2)
+  );
+
+}
+
+
+
+/* =====================================================
+   QUANTITY HELPERS
+===================================================== */
+
+function getInventoryQuantity(){
+
+  if(!inventoryQuantityInput){
+    return 1;
+  }
+
+
+  let quantity =
+    Number(
+      inventoryQuantityInput.value
+    );
+
+
+  if(
+    !Number.isFinite(quantity)
+  ){
+
+    quantity = 1;
+
+  }
+
+
+  quantity =
+    Math.floor(
+      quantity
+    );
+
+
+  quantity =
+    Math.max(
+      1,
+      Math.min(
+        999,
+        quantity
+      )
+    );
+
+
+  inventoryQuantityInput.value =
+    String(quantity);
+
+
+  return quantity;
+
+}
+
+
+
+function setInventoryQuantity(
+  quantity
+){
+
+  if(!inventoryQuantityInput){
+    return;
+  }
+
+
+  quantity =
+    Number(quantity);
+
+
+  if(
+    !Number.isFinite(quantity)
+  ){
+
+    quantity = 1;
+
+  }
+
+
+  quantity =
+    Math.floor(
+      quantity
+    );
+
+
+  quantity =
+    Math.max(
+      1,
+      Math.min(
+        999,
+        quantity
+      )
+    );
+
+
+  inventoryQuantityInput.value =
+    String(quantity);
+
+
+  updateConfirmAddButton();
+
+}
+
+
+
+function updateConfirmAddButton(){
+
+  if(
+    !inventoryConfirmAddButton
+  ){
+    return;
+  }
+
+
+  const quantity =
+    getInventoryQuantity();
+
+
+  inventoryConfirmAddButton.textContent =
+    "ADD " +
+    quantity;
+
+
+  inventoryConfirmAddButton.disabled =
+    (
+      !selectedInventoryVariant ||
+      !selectedInventoryRow ||
+      inventoryWriteInProgress
+    );
+
+}
+
+
+
+/* =====================================================
+   RESET BULK CONTROLS
+===================================================== */
+
+function resetInventoryAddControls(){
+
+  selectedInventoryVariant =
+    null;
+
+  selectedInventoryRow =
+    null;
+
+
+  setInventoryQuantity(
+    1
+  );
+
+
+  document
+    .querySelectorAll(
+      ".variantButton"
+    )
+    .forEach(button=>{
+
+      button.classList.remove(
+        "selected"
+      );
+
+      button.disabled =
+        false;
+
+    });
+
+
+  updateConfirmAddButton();
+
+}
+
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function showInventoryToast(
+  message
+){
+
+  if(!inventoryAddToast){
+    return;
+  }
+
+
+  if(toastTimer){
+
+    clearTimeout(
+      toastTimer
+    );
+
+  }
+
+
+  inventoryAddToast.textContent =
+    message;
+
+
+  inventoryAddToast.classList.add(
+    "show"
+  );
+
+
+  toastTimer =
+    setTimeout(
+      ()=>{
+
+        inventoryAddToast
+          .classList.remove(
+            "show"
+          );
+
+      },
+      1600
+    );
+
+}
+
+
+
+/* =====================================================
+   SHEET WRITE
+===================================================== */
+
 function addQuantity(
   row,
   variant,
-  change = 1
+  change = 1,
+  transactionId = null
 ){
 
   return new Promise(
@@ -146,6 +448,11 @@ function addQuantity(
         return;
 
       }
+
+
+      const safeTransactionId =
+        transactionId ||
+        createTransactionId();
 
 
       const callbackName =
@@ -178,6 +485,7 @@ function addQuantity(
 
         }
 
+
         if(
           script.parentNode
         ){
@@ -197,9 +505,11 @@ function addQuantity(
               return;
             }
 
+
             completed = true;
 
             cleanup();
+
 
             reject(
               new Error(
@@ -219,11 +529,14 @@ function addQuantity(
             return;
           }
 
+
           completed = true;
+
 
           clearTimeout(
             timeout
           );
+
 
           cleanup();
 
@@ -260,13 +573,17 @@ function addQuantity(
             return;
           }
 
+
           completed = true;
+
 
           clearTimeout(
             timeout
           );
 
+
           cleanup();
+
 
           reject(
             new Error(
@@ -291,6 +608,11 @@ function addQuantity(
 
           change:
             String(change),
+
+          transactionId:
+            String(
+              safeTransactionId
+            ),
 
           callback:
             callbackName,
@@ -317,11 +639,19 @@ function addQuantity(
 }
 
 
-async function chooseVariant(
+
+/* =====================================================
+   SELECT VARIANT
+===================================================== */
+
+function chooseVariant(
   variant
 ){
 
-  if(!currentCard){
+  if(
+    !currentCard ||
+    inventoryWriteInProgress
+  ){
     return;
   }
 
@@ -330,6 +660,7 @@ async function chooseVariant(
     getCardRow(
       currentCard
     );
+
 
   if(!row){
 
@@ -341,34 +672,200 @@ async function chooseVariant(
   }
 
 
+  selectedInventoryVariant =
+    variant;
+
+  selectedInventoryRow =
+    row;
+
+
   document
     .querySelectorAll(
       ".variantButton"
     )
     .forEach(button=>{
 
-      button.disabled = true;
+      const buttonVariant =
+        String(
+          button.dataset.variant ??
+          ""
+        );
+
+
+      if(
+        buttonVariant ===
+        String(variant)
+      ){
+
+        button.classList.add(
+          "selected"
+        );
+
+      }else{
+
+        button.classList.remove(
+          "selected"
+        );
+
+      }
 
     });
 
 
   status.textContent =
-    "Adding to inventory...";
+    "Choose quantity";
+
+
+  updateConfirmAddButton();
+
+}
+
+
+
+/* =====================================================
+   CONFIRM BULK ADD
+===================================================== */
+
+async function confirmInventoryAdd(){
+
+  if(
+    inventoryWriteInProgress ||
+    !currentCard ||
+    !selectedInventoryVariant ||
+    !selectedInventoryRow
+  ){
+    return;
+  }
+
+
+  /*
+    Make sure the selected variant still belongs
+    to the card currently displayed.
+  */
+
+  const currentRow =
+    getCardRow(
+      currentCard
+    );
+
+
+  if(
+    !currentRow ||
+    Number(currentRow) !==
+      Number(selectedInventoryRow)
+  ){
+
+    resetInventoryAddControls();
+
+    status.textContent =
+      "Tap the card variant again";
+
+    return;
+
+  }
+
+
+  const quantity =
+    getInventoryQuantity();
+
+
+  const transactionId =
+    createTransactionId();
+
+
+  inventoryWriteInProgress =
+    true;
+
+
+  updateConfirmAddButton();
+
+
+  document
+    .querySelectorAll(
+      ".variantButton"
+    )
+    .forEach(button=>{
+
+      button.disabled =
+        true;
+
+    });
+
+
+  if(inventoryQuantityMinus){
+
+    inventoryQuantityMinus.disabled =
+      true;
+
+  }
+
+
+  if(inventoryQuantityPlus){
+
+    inventoryQuantityPlus.disabled =
+      true;
+
+  }
+
+
+  document
+    .querySelectorAll(
+      ".quantityQuickButton"
+    )
+    .forEach(button=>{
+
+      button.disabled =
+        true;
+
+    });
+
+
+  if(inventoryQuantityInput){
+
+    inventoryQuantityInput.disabled =
+      true;
+
+  }
+
+
+  status.textContent =
+    quantity === 1
+      ? "Adding to inventory..."
+      : "Adding " +
+        quantity +
+        " cards...";
 
 
   try{
 
     const result =
       await addQuantity(
-        row,
-        variant,
-        1
+        selectedInventoryRow,
+        selectedInventoryVariant,
+        quantity,
+        transactionId
       );
 
 
+    /*
+      Store EVERYTHING required to undo
+      the exact previous operation.
+    */
+
     lastAdd = {
-      row:row,
-      variant:variant
+
+      row:
+        selectedInventoryRow,
+
+      variant:
+        selectedInventoryVariant,
+
+      quantity:
+        quantity,
+
+      transactionId:
+        transactionId
+
     };
 
 
@@ -376,23 +873,42 @@ async function chooseVariant(
       false;
 
 
-    sessionCount++;
+    /*
+      Session count now represents actual
+      cards added, not number of button taps.
+    */
+
+    sessionCount +=
+      quantity;
+
 
     sessionCountElement.textContent =
       sessionCount;
 
 
-    addMessage.textContent =
-      "✓ " +
-      variant +
-      " added";
+    const toastText =
+      quantity === 1
+        ? "✓ Added 1 card"
+        : "✓ Added " +
+          quantity +
+          " cards";
 
-    addMessage.style.display =
-      "block";
+
+    showInventoryToast(
+      toastText
+    );
+
+
+    addMessage.textContent =
+      toastText;
 
 
     status.textContent =
-      "✓ Added to inventory";
+      quantity === 1
+        ? "✓ Added to inventory"
+        : "✓ Added " +
+          quantity +
+          " to inventory";
 
 
     console.log(
@@ -401,55 +917,238 @@ async function chooseVariant(
     );
 
 
-    setTimeout(()=>{
+    /*
+      Small visual delay before returning
+      to the camera for the next pile/card.
+    */
 
-      document
-        .querySelectorAll(
-          ".variantButton"
-        )
-        .forEach(button=>{
+    setTimeout(
+      ()=>{
 
-          button.disabled = false;
+        inventoryWriteInProgress =
+          false;
 
-        });
 
-      resetForNextCard();
+        enableInventoryControls();
 
-    },350);
+
+        resetInventoryAddControls();
+
+
+        resetForNextCard();
+
+      },
+      450
+    );
 
 
   }catch(error){
 
     console.error(error);
 
+
+    inventoryWriteInProgress =
+      false;
+
+
+    enableInventoryControls();
+
+
     status.textContent =
       "Google Sheet update failed";
 
-    addMessage.textContent =
-      "✕ Not added";
 
-    addMessage.style.display =
-      "block";
+    showInventoryToast(
+      "✕ Not added"
+    );
 
 
-    document
-      .querySelectorAll(
-        ".variantButton"
-      )
-      .forEach(button=>{
-
-        button.disabled = false;
-
-      });
+    updateConfirmAddButton();
 
   }
 
 }
 
 
+
+/* =====================================================
+   RE-ENABLE CONTROLS
+===================================================== */
+
+function enableInventoryControls(){
+
+  document
+    .querySelectorAll(
+      ".variantButton"
+    )
+    .forEach(button=>{
+
+      button.disabled =
+        false;
+
+    });
+
+
+  if(inventoryQuantityMinus){
+
+    inventoryQuantityMinus.disabled =
+      false;
+
+  }
+
+
+  if(inventoryQuantityPlus){
+
+    inventoryQuantityPlus.disabled =
+      false;
+
+  }
+
+
+  document
+    .querySelectorAll(
+      ".quantityQuickButton"
+    )
+    .forEach(button=>{
+
+      button.disabled =
+        false;
+
+    });
+
+
+  if(inventoryQuantityInput){
+
+    inventoryQuantityInput.disabled =
+      false;
+
+  }
+
+}
+
+
+
+/* =====================================================
+   QUANTITY EVENTS
+===================================================== */
+
+if(inventoryQuantityMinus){
+
+  inventoryQuantityMinus
+    .addEventListener(
+      "click",
+      ()=>{
+
+        setInventoryQuantity(
+          getInventoryQuantity() - 1
+        );
+
+      }
+    );
+
+}
+
+
+if(inventoryQuantityPlus){
+
+  inventoryQuantityPlus
+    .addEventListener(
+      "click",
+      ()=>{
+
+        setInventoryQuantity(
+          getInventoryQuantity() + 1
+        );
+
+      }
+    );
+
+}
+
+
+document
+  .querySelectorAll(
+    ".quantityQuickButton"
+  )
+  .forEach(button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        const amount =
+          Number(
+            button.dataset.add
+          );
+
+
+        if(
+          Number.isFinite(amount)
+        ){
+
+          setInventoryQuantity(
+            getInventoryQuantity() +
+            amount
+          );
+
+        }
+
+      }
+    );
+
+  });
+
+
+if(inventoryQuantityInput){
+
+  inventoryQuantityInput
+    .addEventListener(
+      "input",
+      ()=>{
+
+        updateConfirmAddButton();
+
+      }
+    );
+
+
+  inventoryQuantityInput
+    .addEventListener(
+      "change",
+      ()=>{
+
+        setInventoryQuantity(
+          inventoryQuantityInput.value
+        );
+
+      }
+    );
+
+}
+
+
+if(inventoryConfirmAddButton){
+
+  inventoryConfirmAddButton
+    .addEventListener(
+      "click",
+      confirmInventoryAdd
+    );
+
+}
+
+
+
+/* =====================================================
+   UNDO
+===================================================== */
+
 async function undoLastAdd(){
 
-  if(!lastAdd){
+  if(
+    !lastAdd ||
+    inventoryWriteInProgress
+  ){
     return;
   }
 
@@ -457,11 +1156,42 @@ async function undoLastAdd(){
   const itemToUndo =
     lastAdd;
 
+
+  const undoQuantity =
+    Math.max(
+      1,
+      Number(
+        itemToUndo.quantity ??
+        1
+      )
+    );
+
+
+  /*
+    Undo gets its own transaction ID.
+
+    The backend will later use this to make
+    the undo operation idempotent as well.
+  */
+
+  const undoTransactionId =
+    createTransactionId();
+
+
+  inventoryWriteInProgress =
+    true;
+
+
   undoButton.disabled =
     true;
 
+
   status.textContent =
-    "Undoing last add...";
+    undoQuantity === 1
+      ? "Undoing last add..."
+      : "Removing " +
+        undoQuantity +
+        " cards...";
 
 
   try{
@@ -469,7 +1199,8 @@ async function undoLastAdd(){
     await addQuantity(
       itemToUndo.row,
       itemToUndo.variant,
-      -1
+      -undoQuantity,
+      undoTransactionId
     );
 
 
@@ -479,7 +1210,8 @@ async function undoLastAdd(){
     sessionCount =
       Math.max(
         0,
-        sessionCount - 1
+        sessionCount -
+        undoQuantity
       );
 
 
@@ -487,28 +1219,67 @@ async function undoLastAdd(){
       sessionCount;
 
 
+    inventoryWriteInProgress =
+      false;
+
+
+    showInventoryToast(
+      undoQuantity === 1
+        ? "↶ Removed 1 card"
+        : "↶ Removed " +
+          undoQuantity +
+          " cards"
+    );
+
+
     status.textContent =
       "✓ Last add undone";
 
 
-    setTimeout(()=>{
+    setTimeout(
+      ()=>{
 
-      status.textContent =
-        "Ready for next card";
+        status.textContent =
+          "Ready for next card";
 
-    },800);
+      },
+      800
+    );
 
 
   }catch(error){
 
     console.error(error);
 
+
+    inventoryWriteInProgress =
+      false;
+
+
     undoButton.disabled =
       false;
+
 
     status.textContent =
       "Undo failed";
 
+
+    showInventoryToast(
+      "✕ Undo failed"
+    );
+
   }
 
 }
+
+
+
+/* =====================================================
+   INITIAL QUANTITY STATE
+===================================================== */
+
+setInventoryQuantity(
+  1
+);
+
+updateConfirmAddButton();
