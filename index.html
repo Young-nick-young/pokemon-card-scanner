@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -10,28 +12,80 @@
 
   <title>TCG Inventory Scanner</title>
 
+
   <!-- PWA -->
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#222222">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="TCG Scanner">
+  <link
+    rel="manifest"
+    href="./manifest.json"
+  >
+
+  <meta
+    name="theme-color"
+    content="#222222"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="TCG Scanner"
+  >
+
 
   <!-- Styles -->
-  <link rel="stylesheet" href="./css/styles.css">
+  <link
+    rel="stylesheet"
+    href="./css/styles.css"
+  >
 
 </head>
 
+
 <body>
+
+
+<!-- =====================================================
+     ON-SCREEN CONFIRMATION TOAST
+===================================================== -->
+
+<div
+  id="addToast"
+  role="status"
+  aria-live="polite"
+>
+  ✓ Added
+</div>
+
+
 
 <div class="app">
 
-  <h1>Pokémon Inventory Scanner</h1>
+
+  <h1>
+    Pokémon Inventory Scanner
+  </h1>
+
 
   <div class="panel">
 
-    <!-- SET SELECTOR -->
+
+    <!-- =================================================
+         SET SELECTOR
+    ================================================== -->
+
     <div id="setSelectorArea">
 
       <label
@@ -41,7 +95,9 @@
         SET
       </label>
 
+
       <select id="setSelector">
+
         <option value="destined-rivals">
           Destined Rivals
         </option>
@@ -49,17 +105,29 @@
         <option value="ascended-heroes">
           Ascended Heroes
         </option>
+
       </select>
 
     </div>
 
+
+
+    <!-- =================================================
+         SCANNER STATUS
+    ================================================== -->
 
     <div id="status">
       Starting scanner...
     </div>
 
 
+
+    <!-- =================================================
+         CAMERA
+    ================================================== -->
+
     <div id="cameraWrap">
+
 
       <video
         id="video"
@@ -68,10 +136,23 @@
         muted
       ></video>
 
+
+      <!--
+        IMPORTANT:
+        Position and dimensions of this guide
+        are controlled by styles.css.
+      -->
+
       <div id="cardGuide"></div>
+
 
     </div>
 
+
+
+    <!-- =================================================
+         SCAN BUTTON
+    ================================================== -->
 
     <button
       id="scanButton"
@@ -81,29 +162,49 @@
     </button>
 
 
+
+    <!-- =================================================
+         CARD RESULT
+    ================================================== -->
+
     <div id="resultPanel">
 
+
+      <!-- IDENTIFIED CARD -->
+
       <div id="identifiedRow">
+
 
         <img
           id="cardImage"
           alt=""
         >
 
+
         <div id="cardInfo">
+
 
           <div id="cardName">
             Card
           </div>
 
+
           <div id="cardNumber"></div>
+
 
           <div id="cardDetails"></div>
 
+
         </div>
+
 
       </div>
 
+
+
+      <!-- =================================================
+           VARIANT
+      ================================================== -->
 
       <div id="variantTitle">
         TAP VARIANT
@@ -112,12 +213,14 @@
 
       <div class="variantGrid">
 
+
         <button
           class="variantButton"
           data-variant="Normal"
         >
           Normal
         </button>
+
 
         <button
           class="variantButton"
@@ -126,12 +229,14 @@
           Reverse Holo
         </button>
 
+
         <button
           class="variantButton"
           data-variant="Holo"
         >
           Holo
         </button>
+
 
         <button
           class="variantButton"
@@ -140,8 +245,108 @@
           Other
         </button>
 
+
       </div>
 
+
+
+      <!-- =================================================
+           QUANTITY
+      ================================================== -->
+
+      <div id="quantityArea">
+
+
+        <div id="quantityTitle">
+          QUANTITY
+        </div>
+
+
+        <div id="quantityMainRow">
+
+
+          <button
+            id="quantityMinus"
+            type="button"
+            aria-label="Decrease quantity"
+          >
+            −
+          </button>
+
+
+          <input
+            id="quantityInput"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            max="999"
+            value="1"
+          >
+
+
+          <button
+            id="quantityPlus"
+            type="button"
+            aria-label="Increase quantity"
+          >
+            +
+          </button>
+
+
+        </div>
+
+
+
+        <div id="quantityQuickRow">
+
+
+          <button
+            class="quantityQuickButton"
+            data-add="1"
+            type="button"
+          >
+            +1
+          </button>
+
+
+          <button
+            class="quantityQuickButton"
+            data-add="5"
+            type="button"
+          >
+            +5
+          </button>
+
+
+          <button
+            class="quantityQuickButton"
+            data-add="10"
+            type="button"
+          >
+            +10
+          </button>
+
+
+        </div>
+
+
+
+        <button
+          id="confirmAddButton"
+          type="button"
+          disabled
+        >
+          ADD 1
+        </button>
+
+
+      </div>
+
+
+
+      <!-- =================================================
+           WRONG CARD / OTHER MATCHES
+      ================================================== -->
 
       <button id="wrongButton">
         Wrong card / other matches
@@ -151,9 +356,16 @@
       <div id="candidatePanel"></div>
 
 
+
+      <!-- =================================================
+           MANUAL CARD NUMBER
+      ================================================== -->
+
       <div id="manualArea">
 
+
         <div id="manualRow">
+
 
           <input
             id="manualNumber"
@@ -164,38 +376,65 @@
             placeholder="Card number"
           >
 
+
           <button id="manualButton">
             Find
           </button>
 
+
         </div>
+
 
       </div>
 
+
+
+      <!--
+        Existing message retained so current
+        JavaScript does not lose this element.
+
+        The new visible confirmation will use
+        #addToast.
+      -->
 
       <div id="addMessage">
         ✓ Added
       </div>
 
+
     </div>
 
+
+
+    <!-- =================================================
+         GOOGLE SHEET STATUS
+    ================================================== -->
 
     <div id="sheetStatus">
       Connecting to Google Sheet...
     </div>
 
+
   </div>
 
 
+
+  <!-- ===================================================
+       SESSION
+  ==================================================== -->
+
   <div class="panel sessionPanel">
+
 
     <div class="sessionLabel">
       Cards added this session
     </div>
 
+
     <div id="sessionCount">
       0
     </div>
+
 
     <button
       id="undoButton"
@@ -204,15 +443,26 @@
       ↶ UNDO LAST ADD
     </button>
 
+
   </div>
+
 
 </div>
 
 
+
+<!-- =====================================================
+     CAPTURE CANVAS
+===================================================== -->
+
 <canvas id="captureCanvas"></canvas>
 
 
-<!-- Scanner JavaScript -->
+
+<!-- =====================================================
+     SCANNER JAVASCRIPT
+===================================================== -->
+
 <script src="./js/config.js"></script>
 
 <script src="./js/sets/destined-rivals.js"></script>
@@ -223,5 +473,7 @@
 <script src="./js/inventory.js"></script>
 <script src="./js/app.js"></script>
 
+
 </body>
+
 </html>
