@@ -32,9 +32,9 @@ body{
   margin:0 auto;
 
   padding:
-    max(8px, env(safe-area-inset-top))
-    10px
-    max(8px, env(safe-area-inset-bottom));
+    max(6px, env(safe-area-inset-top))
+    9px
+    max(6px, env(safe-area-inset-bottom));
 
   display:grid;
 
@@ -43,7 +43,7 @@ body{
     minmax(0, 1fr)
     auto;
 
-  gap:8px;
+  gap:6px;
 
   overflow:hidden;
 }
@@ -62,7 +62,7 @@ body{
   align-items:center;
   justify-content:center;
 
-  min-height:30px;
+  min-height:26px;
 }
 
 h1{
@@ -70,18 +70,18 @@ h1{
 
   text-align:center;
 
-  font-size:20px;
-  line-height:1.15;
+  font-size:19px;
+  line-height:1.1;
   font-weight:800;
 }
 
 .headerControls{
-  margin-top:6px;
+  margin-top:4px;
 
   display:grid;
   grid-template-columns:1fr;
 
-  gap:4px;
+  gap:2px;
 }
 
 
@@ -93,15 +93,15 @@ h1{
   display:flex;
   align-items:center;
 
-  gap:6px;
+  gap:5px;
 
-  min-height:34px;
+  min-height:31px;
 }
 
 #setSelectorLabel{
   flex:0 0 auto;
 
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
 
   color:#666;
@@ -111,7 +111,7 @@ h1{
   flex:1;
   min-width:0;
 
-  height:34px;
+  height:31px;
 
   border:1px solid #bbb;
   border-radius:9px;
@@ -119,9 +119,9 @@ h1{
   background:white;
   color:#222;
 
-  padding:4px 8px;
+  padding:3px 8px;
 
-  font-size:14px;
+  font-size:13px;
   font-weight:700;
 }
 
@@ -131,7 +131,7 @@ h1{
 ===================================================== */
 
 #sheetStatus{
-  height:18px;
+  height:16px;
 
   display:flex;
   align-items:center;
@@ -139,8 +139,8 @@ h1{
 
   text-align:center;
 
-  font-size:12px;
-  line-height:18px;
+  font-size:11px;
+  line-height:16px;
 
   color:#666;
 
@@ -159,11 +159,16 @@ h1{
 
   display:grid;
 
+  /*
+    Camera gets priority.
+    Controls take only the space they actually need.
+  */
+
   grid-template-rows:
-    minmax(0, 1fr)
+    minmax(290px, 1fr)
     auto;
 
-  gap:8px;
+  gap:6px;
 
   overflow:hidden;
 }
@@ -178,34 +183,38 @@ h1{
 
   display:grid;
 
-  grid-template-rows:
-    24px
-    minmax(0, 1fr)
-    48px;
+  /*
+    IMPORTANT:
+    auto rows prevent an invisible scan button
+    from reserving unnecessary height.
+  */
 
-  gap:6px;
+  grid-template-rows:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  gap:4px;
 }
 
 
 /* =====================================================
    STATUS
-
-   Fixed height so text changes do NOT move anything.
 ===================================================== */
 
 #status{
-  height:24px;
+  height:21px;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  padding:0 6px;
+  padding:0 5px;
 
   text-align:center;
 
-  font-size:14px;
-  line-height:24px;
+  font-size:13px;
+  line-height:21px;
   font-weight:800;
 
   white-space:nowrap;
@@ -216,9 +225,6 @@ h1{
 
 /* =====================================================
    CAMERA
-
-   Camera occupies the available space but the outer
-   layout never changes height.
 ===================================================== */
 
 #cameraWrap{
@@ -227,7 +233,11 @@ h1{
   width:100%;
   height:100%;
 
-  min-height:210px;
+  /*
+    Larger than the previous 210px minimum.
+  */
+
+  min-height:285px;
 
   overflow:hidden;
 
@@ -276,19 +286,20 @@ h1{
 
 #scanButton{
   width:100%;
-  height:48px;
+  min-height:0;
+  height:42px;
 
   border:none;
-  border-radius:12px;
+  border-radius:11px;
 
-  padding:0 12px;
+  padding:0 10px;
 
   margin:0;
 
   background:#222;
   color:white;
 
-  font-size:18px;
+  font-size:16px;
   font-weight:800;
 
   cursor:pointer;
@@ -304,8 +315,6 @@ h1{
 
 /* =====================================================
    CONTROL SECTION
-
-   The outer section stays the same place.
 ===================================================== */
 
 .controlSection{
@@ -326,13 +335,6 @@ h1{
 
 /* =====================================================
    RESULT PANEL
-
-   IMPORTANT:
-   display:block !important keeps this physical area
-   present even if existing JavaScript attempts to hide
-   it between scans.
-
-   This prevents the page from collapsing/jumping.
 ===================================================== */
 
 #resultPanel{
@@ -340,7 +342,7 @@ h1{
 
   margin:0;
 
-  padding:9px;
+  padding:7px 8px;
 
   background:white;
 
@@ -360,21 +362,21 @@ h1{
 ===================================================== */
 
 #identifiedRow{
-  height:58px;
+  height:50px;
 
   display:flex;
   align-items:center;
 
-  gap:9px;
+  gap:8px;
 
   overflow:hidden;
 }
 
 .cardImageSlot{
-  flex:0 0 42px;
+  flex:0 0 36px;
 
-  width:42px;
-  height:58px;
+  width:36px;
+  height:50px;
 
   display:flex;
   align-items:center;
@@ -388,8 +390,8 @@ h1{
 }
 
 #cardImage{
-  width:42px;
-  max-height:58px;
+  width:36px;
+  max-height:50px;
 
   object-fit:contain;
 
@@ -407,12 +409,12 @@ h1{
 }
 
 #cardName{
-  min-height:20px;
+  min-height:18px;
 
-  margin-bottom:2px;
+  margin-bottom:1px;
 
-  font-size:16px;
-  line-height:20px;
+  font-size:15px;
+  line-height:18px;
   font-weight:800;
 
   white-space:nowrap;
@@ -421,12 +423,12 @@ h1{
 }
 
 #cardNumber{
-  min-height:17px;
+  min-height:14px;
 
   margin-bottom:1px;
 
-  font-size:13px;
-  line-height:17px;
+  font-size:11px;
+  line-height:14px;
 
   color:#555;
 
@@ -436,10 +438,10 @@ h1{
 }
 
 #cardDetails{
-  min-height:16px;
+  min-height:13px;
 
-  font-size:12px;
-  line-height:16px;
+  font-size:10px;
+  line-height:13px;
 
   color:#777;
 
@@ -454,14 +456,14 @@ h1{
 ===================================================== */
 
 #variantTitle{
-  height:18px;
+  height:16px;
 
-  margin:6px 0 5px;
+  margin:3px 0 4px;
 
   text-align:center;
 
-  font-size:12px;
-  line-height:18px;
+  font-size:11px;
+  line-height:16px;
   font-weight:800;
 
   color:#666;
@@ -473,22 +475,22 @@ h1{
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
 
-  gap:6px;
+  gap:5px;
 }
 
 .variantButton{
-  min-height:38px;
+  min-height:33px;
 
   border:none;
   border-radius:9px;
 
-  padding:6px;
+  padding:4px;
 
   background:#e9e9e9;
   color:#222;
 
-  font-size:14px;
-  line-height:16px;
+  font-size:12px;
+  line-height:15px;
   font-weight:800;
 
   cursor:pointer;
@@ -518,9 +520,9 @@ h1{
 ===================================================== */
 
 #quantityArea{
-  margin-top:7px;
+  margin-top:5px;
 
-  padding:7px;
+  padding:5px;
 
   border:1px solid #e2e2e2;
   border-radius:10px;
@@ -529,14 +531,14 @@ h1{
 }
 
 #quantityTitle{
-  height:16px;
+  height:14px;
 
-  margin-bottom:5px;
+  margin-bottom:3px;
 
   text-align:center;
 
-  font-size:11px;
-  line-height:16px;
+  font-size:10px;
+  line-height:14px;
   font-weight:800;
 
   color:#666;
@@ -546,28 +548,28 @@ h1{
   display:grid;
 
   grid-template-columns:
-    42px
+    38px
     minmax(0, 1fr)
-    42px;
+    38px;
 
-  gap:6px;
+  gap:5px;
 
   align-items:center;
 }
 
 #quantityMinus,
 #quantityPlus{
-  width:42px;
-  height:38px;
+  width:38px;
+  height:34px;
 
   border:none;
-  border-radius:9px;
+  border-radius:8px;
 
   background:#e8e8e8;
   color:#222;
 
-  font-size:23px;
-  line-height:38px;
+  font-size:21px;
+  line-height:34px;
   font-weight:700;
 
   cursor:pointer;
@@ -582,17 +584,17 @@ h1{
 
 #quantityInput{
   width:100%;
-  height:38px;
+  height:34px;
 
   border:1px solid #bbb;
-  border-radius:9px;
+  border-radius:8px;
 
   background:white;
   color:#222;
 
   text-align:center;
 
-  font-size:18px;
+  font-size:17px;
   font-weight:800;
 
   outline:none;
@@ -613,23 +615,23 @@ h1{
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap:6px;
+  gap:5px;
 
-  margin-top:6px;
+  margin-top:5px;
 }
 
 .quantityQuickButton{
-  min-height:31px;
+  min-height:28px;
 
   border:none;
   border-radius:8px;
 
-  padding:4px;
+  padding:3px;
 
   background:#ededed;
   color:#333;
 
-  font-size:13px;
+  font-size:11px;
   font-weight:800;
 
   cursor:pointer;
@@ -648,19 +650,19 @@ h1{
 
 #confirmAddButton{
   width:100%;
-  height:40px;
+  height:35px;
 
-  margin-top:6px;
+  margin-top:5px;
 
   border:none;
-  border-radius:9px;
+  border-radius:8px;
 
-  padding:0 8px;
+  padding:0 7px;
 
   background:#222;
   color:white;
 
-  font-size:16px;
+  font-size:14px;
   font-weight:800;
 
   cursor:pointer;
@@ -676,30 +678,27 @@ h1{
 
 /* =====================================================
    SECONDARY ACTIONS
-
-   These are kept compact so they don't alter the main
-   scanner geometry.
 ===================================================== */
 
 .secondaryActions{
-  margin-top:3px;
+  margin-top:2px;
 }
 
 #wrongButton{
   width:100%;
-  height:26px;
+  height:22px;
 
   border:none;
 
   background:transparent;
 
-  padding:0 4px;
+  padding:0 3px;
 
   color:#666;
 
   text-decoration:underline;
 
-  font-size:12px;
+  font-size:10px;
 
   cursor:pointer;
 }
@@ -707,17 +706,14 @@ h1{
 
 /* =====================================================
    CANDIDATES
-
-   If opened, this section scrolls INSIDE the result
-   panel instead of making the entire page move.
 ===================================================== */
 
 #candidatePanel{
   display:none;
 
-  max-height:160px;
+  max-height:150px;
 
-  margin-top:4px;
+  margin-top:3px;
 
   overflow-y:auto;
 }
@@ -726,16 +722,16 @@ h1{
   display:flex;
   align-items:center;
 
-  gap:8px;
+  gap:7px;
 
   width:100%;
 
   border:none;
   border-radius:8px;
 
-  padding:6px;
+  padding:5px;
 
-  margin-bottom:5px;
+  margin-bottom:4px;
 
   background:#f4f4f4;
 
@@ -745,7 +741,7 @@ h1{
 }
 
 .candidate img{
-  width:38px;
+  width:35px;
 
   border-radius:4px;
 }
@@ -757,7 +753,7 @@ h1{
 }
 
 .candidateName{
-  font-size:13px;
+  font-size:12px;
   font-weight:800;
 }
 
@@ -766,7 +762,7 @@ h1{
 
   color:#777;
 
-  font-size:11px;
+  font-size:10px;
 }
 
 
@@ -777,49 +773,47 @@ h1{
 #manualArea{
   display:none;
 
-  margin-top:4px;
+  margin-top:3px;
 }
 
 #manualRow{
   display:flex;
 
-  gap:5px;
+  gap:4px;
 }
 
 #manualNumber{
   flex:1;
 
   min-width:0;
-  height:34px;
+  height:31px;
 
   border:1px solid #ccc;
   border-radius:8px;
 
-  padding:5px 8px;
+  padding:4px 7px;
 
-  font-size:14px;
+  font-size:13px;
 }
 
 #manualButton{
-  height:34px;
+  height:31px;
 
   border:none;
   border-radius:8px;
 
-  padding:0 12px;
+  padding:0 10px;
 
   background:#333;
   color:white;
 
-  font-size:13px;
+  font-size:12px;
   font-weight:700;
 }
 
 
 /* =====================================================
    ADD MESSAGE
-
-   Retained only for JavaScript compatibility.
 ===================================================== */
 
 #addMessage{
@@ -829,19 +823,17 @@ h1{
 
 /* =====================================================
    CONFIRMATION TOAST
-
-   Fixed overlay:
-   NEVER affects layout.
 ===================================================== */
 
 #addToast{
   position:fixed;
 
   left:50%;
+
   top:
     calc(
       env(safe-area-inset-top) +
-      68px
+      62px
     );
 
   transform:
@@ -850,12 +842,13 @@ h1{
   z-index:9999;
 
   width:max-content;
+
   max-width:
-    calc(100vw - 32px);
+    calc(100vw - 30px);
 
-  padding:10px 16px;
+  padding:9px 14px;
 
-  border-radius:11px;
+  border-radius:10px;
 
   background:#222;
   color:white;
@@ -863,7 +856,7 @@ h1{
   box-shadow:
     0 5px 18px rgba(0,0,0,.25);
 
-  font-size:15px;
+  font-size:14px;
   font-weight:800;
 
   text-align:center;
@@ -890,18 +883,16 @@ h1{
 
 /* =====================================================
    SESSION BAR
-
-   Always stays at the bottom.
 ===================================================== */
 
 .sessionPanel{
   flex-shrink:0;
 
-  min-height:52px;
+  min-height:45px;
 
-  padding:7px 10px;
+  padding:5px 8px;
 
-  border-radius:12px;
+  border-radius:11px;
 
   background:white;
 
@@ -910,18 +901,18 @@ h1{
 }
 
 .sessionSummary{
-  min-height:38px;
+  min-height:34px;
 
   display:flex;
   align-items:center;
   justify-content:space-between;
 
-  gap:10px;
+  gap:8px;
 }
 
 .sessionLabel{
-  font-size:11px;
-  line-height:14px;
+  font-size:10px;
+  line-height:12px;
 
   color:#666;
 
@@ -934,34 +925,34 @@ h1{
   display:flex;
   align-items:baseline;
 
-  gap:4px;
+  gap:3px;
 }
 
 #sessionCount{
-  font-size:23px;
-  line-height:24px;
+  font-size:21px;
+  line-height:22px;
   font-weight:800;
 }
 
 .sessionUnit{
-  font-size:12px;
+  font-size:11px;
   color:#777;
 }
 
 #undoButton{
-  height:36px;
+  height:31px;
 
   margin:0;
 
-  padding:0 12px;
+  padding:0 10px;
 
   border:none;
-  border-radius:9px;
+  border-radius:8px;
 
   background:#e9e9e9;
   color:#333;
 
-  font-size:12px;
+  font-size:10px;
   font-weight:800;
 
   cursor:pointer;
@@ -986,9 +977,6 @@ canvas{
 
 /* =====================================================
    SHORT PHONE SCREENS
-
-   Shrinks controls slightly instead of allowing the
-   whole webpage to begin moving around.
 ===================================================== */
 
 @media (max-height:760px){
@@ -996,187 +984,202 @@ canvas{
   .app{
     padding-top:
       max(
-        5px,
+        4px,
         env(safe-area-inset-top)
       );
 
     padding-bottom:
       max(
-        5px,
+        4px,
         env(safe-area-inset-bottom)
       );
-
-    gap:5px;
-  }
-
-  h1{
-    font-size:18px;
-  }
-
-  .headerControls{
-    margin-top:3px;
-  }
-
-  #setSelectorArea{
-    min-height:30px;
-  }
-
-  #setSelector{
-    height:30px;
-
-    font-size:13px;
-  }
-
-  #sheetStatus{
-    height:15px;
-
-    line-height:15px;
-
-    font-size:11px;
-  }
-
-  .cameraSection{
-    grid-template-rows:
-      20px
-      minmax(0, 1fr)
-      43px;
 
     gap:4px;
   }
 
-  #status{
-    height:20px;
 
-    line-height:20px;
+  h1{
+    font-size:17px;
+  }
+
+
+  .headerControls{
+    margin-top:2px;
+  }
+
+
+  #setSelectorArea{
+    min-height:28px;
+  }
+
+
+  #setSelector{
+    height:28px;
 
     font-size:12px;
   }
 
-  #scanButton{
-    height:43px;
 
-    font-size:16px;
+  #sheetStatus{
+    height:14px;
+
+    line-height:14px;
+
+    font-size:10px;
   }
 
-  #identifiedRow{
-    height:48px;
+
+  .scannerLayout{
+    grid-template-rows:
+      minmax(250px, 1fr)
+      auto;
+
+    gap:4px;
   }
 
-  .cardImageSlot{
-    width:35px;
-    height:48px;
 
-    flex-basis:35px;
+  #cameraWrap{
+    min-height:250px;
   }
 
-  #cardImage{
-    width:35px;
-    max-height:48px;
-  }
 
-  #cardName{
-    min-height:18px;
+  #status{
+    height:18px;
 
-    font-size:14px;
     line-height:18px;
-  }
-
-  #cardNumber{
-    min-height:14px;
 
     font-size:11px;
-    line-height:14px;
   }
 
-  #cardDetails{
+
+  #scanButton{
+    height:38px;
+
+    font-size:15px;
+  }
+
+
+  #identifiedRow{
+    height:44px;
+  }
+
+
+  .cardImageSlot{
+    width:32px;
+    height:44px;
+
+    flex-basis:32px;
+  }
+
+
+  #cardImage{
+    width:32px;
+    max-height:44px;
+  }
+
+
+  #cardName{
+    min-height:16px;
+
+    font-size:13px;
+    line-height:16px;
+  }
+
+
+  #cardNumber{
     min-height:13px;
 
     font-size:10px;
     line-height:13px;
   }
 
-  #variantTitle{
-    margin:3px 0;
+
+  #cardDetails{
+    min-height:12px;
+
+    font-size:9px;
+    line-height:12px;
   }
+
 
   .variantButton{
-    min-height:32px;
-
-    padding:4px;
-
-    font-size:12px;
-  }
-
-  #quantityArea{
-    margin-top:4px;
-
-    padding:5px;
-  }
-
-  #quantityTitle{
-    margin-bottom:3px;
-  }
-
-  #quantityMainRow{
-    grid-template-columns:
-      36px
-      minmax(0, 1fr)
-      36px;
-  }
-
-  #quantityMinus,
-  #quantityPlus{
-    width:36px;
-    height:33px;
-
-    font-size:20px;
-    line-height:33px;
-  }
-
-  #quantityInput{
-    height:33px;
-
-    font-size:16px;
-  }
-
-  #quantityQuickRow{
-    margin-top:4px;
-  }
-
-  .quantityQuickButton{
-    min-height:27px;
+    min-height:29px;
 
     font-size:11px;
   }
 
-  #confirmAddButton{
-    height:34px;
 
-    margin-top:4px;
+  #quantityArea{
+    margin-top:3px;
 
-    font-size:14px;
+    padding:4px;
   }
 
-  #wrongButton{
-    height:21px;
+
+  #quantityMainRow{
+    grid-template-columns:
+      34px
+      minmax(0, 1fr)
+      34px;
+  }
+
+
+  #quantityMinus,
+  #quantityPlus{
+    width:34px;
+    height:30px;
+
+    font-size:19px;
+    line-height:30px;
+  }
+
+
+  #quantityInput{
+    height:30px;
+
+    font-size:15px;
+  }
+
+
+  .quantityQuickButton{
+    min-height:24px;
 
     font-size:10px;
   }
 
-  .sessionPanel{
-    min-height:46px;
 
-    padding:5px 8px;
+  #confirmAddButton{
+    height:31px;
+
+    margin-top:3px;
+
+    font-size:13px;
   }
+
+
+  #wrongButton{
+    height:18px;
+
+    font-size:9px;
+  }
+
+
+  .sessionPanel{
+    min-height:41px;
+
+    padding:4px 7px;
+  }
+
 
   #sessionCount{
-    font-size:20px;
+    font-size:18px;
   }
 
-  #undoButton{
-    height:32px;
 
-    font-size:11px;
+  #undoButton{
+    height:28px;
+
+    font-size:10px;
   }
 
 }
@@ -1189,16 +1192,35 @@ canvas{
 @media (max-width:380px){
 
   h1{
-    font-size:18px;
+    font-size:17px;
   }
 
   .app{
-    padding-left:7px;
-    padding-right:7px;
+    padding-left:6px;
+    padding-right:6px;
   }
 
   .variantButton{
-    font-size:12px;
+    font-size:11px;
+  }
+
+}
+
+
+/* =====================================================
+   TALL PHONES
+===================================================== */
+
+@media (min-height:820px){
+
+  .scannerLayout{
+    grid-template-rows:
+      minmax(320px, 1fr)
+      auto;
+  }
+
+  #cameraWrap{
+    min-height:320px;
   }
 
 }
@@ -1206,15 +1228,18 @@ canvas{
 
 /* =====================================================
    VERY TALL PHONES
-
-   Gives the camera extra room while leaving the controls
-   completely stationary.
 ===================================================== */
 
 @media (min-height:900px){
 
+  .scannerLayout{
+    grid-template-rows:
+      minmax(360px, 1fr)
+      auto;
+  }
+
   #cameraWrap{
-    min-height:300px;
+    min-height:360px;
   }
 
 }
