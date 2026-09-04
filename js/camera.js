@@ -1,5 +1,24 @@
-const CAMERA_DISPLAY_SCALE = 1.12;
+/*
+=========================================================
+CAMERA DISPLAY SETTINGS
+=========================================================
 
+1.00 = completely zoomed out
+1.12 = slight zoom, but still much wider than old "cover"
+
+We can adjust ONLY this number later if needed.
+=========================================================
+*/
+
+const CAMERA_DISPLAY_ZOOM = 1.12;
+
+
+
+/*
+=========================================================
+START CAMERA
+=========================================================
+*/
 
 async function startCamera(){
 
@@ -9,6 +28,7 @@ async function startCamera(){
       await navigator.mediaDevices.getUserMedia({
 
         video:{
+
           facingMode:{
             ideal:"environment"
           },
@@ -20,6 +40,7 @@ async function startCamera(){
           height:{
             ideal:1080
           }
+
         },
 
         audio:false
@@ -31,15 +52,18 @@ async function startCamera(){
       stream;
 
 
+    /*
+      Show the full camera image rather than
+      using object-fit:cover, which cropped it.
+    */
+
     video.style.objectFit =
       "contain";
 
-
     video.style.transform =
       "scale(" +
-      CAMERA_DISPLAY_SCALE +
+      CAMERA_DISPLAY_ZOOM +
       ")";
-
 
     video.style.transformOrigin =
       "center center";
@@ -48,8 +72,11 @@ async function startCamera(){
     await video.play();
 
 
+
     /*
-      Start at minimum camera zoom where supported.
+    =====================================================
+    USE MINIMUM CAMERA ZOOM WHEN AVAILABLE
+    =====================================================
     */
 
     try{
@@ -70,31 +97,22 @@ async function startCamera(){
 
         if(
           capabilities &&
-          capabilities.zoom
+          capabilities.zoom &&
+          Number.isFinite(
+            capabilities.zoom.min
+          )
         ){
 
-          const minimumZoom =
-            capabilities.zoom.min;
+          await track.applyConstraints({
 
+            advanced:[
+              {
+                zoom:
+                  capabilities.zoom.min
+              }
+            ]
 
-          if(
-            Number.isFinite(
-              minimumZoom
-            )
-          ){
-
-            await track.applyConstraints({
-
-              advanced:[
-                {
-                  zoom:
-                    minimumZoom
-                }
-              ]
-
-            });
-
-          }
+          });
 
         }
 
@@ -102,12 +120,35 @@ async function startCamera(){
 
     }catch(zoomError){
 
+      /*
+        Not all phones expose zoom controls.
+        This is optional and must never stop
+        the scanner.
+      */
+
       console.log(
         "Camera zoom control unavailable:",
         zoomError
       );
 
     }
+
+
+
+    /*
+      Wait one frame so browser dimensions
+      are fully updated.
+    */
+
+    await new Promise(
+      resolve =>
+        requestAnimationFrame(
+          resolve
+        )
+    );
+
+
+    syncCameraGuide();
 
 
     cameraReady =
@@ -133,14 +174,25 @@ async function startCamera(){
 
 
 
-function captureGuide(){
+/*
+=========================================================
+CALCULATE ACTUAL DISPLAYED CAMERA AREA
+=========================================================
 
-  const videoRect =
+The video element fills the camera box.
+
+But because we use object-fit:contain, the actual camera
+picture may occupy only part of that box.
+
+This function calculates the REAL image rectangle,
+including our slight 1.12 display zoom.
+=========================================================
+*/
+
+function getDisplayedCameraGeometry(){
+
+  const wrapperRect =
     video.getBoundingClientRect();
-
-
-  const guideRect =
-    guide.getBoundingClientRect();
 
 
   const sourceWidth =
@@ -151,20 +203,249 @@ function captureGuide(){
     video.videoHeight;
 
 
-  const displayWidth =
-    videoRect.width;
+  const boxWidth =
+    wrapperRect.width;
 
 
-  const displayHeight =
-    videoRect.height;
+  const boxHeight =
+    wrapperRect.height;
 
 
   if(
     !sourceWidth ||
     !sourceHeight ||
-    !displayWidth ||
-    !displayHeight
+    !boxWidth ||
+    !boxHeight
   ){
+
+    return null;
+
+  }
+
+
+  const sourceRatio =
+    sourceWidth /
+    sourceHeight;
+
+
+  const boxRatio =
+    boxWidth /
+    boxHeight;
+
+
+  let imageWidth;
+  let imageHeight;
+
+
+  /*
+    Calculate object-fit:contain size
+  */
+
+  if(
+    sourceRatio >
+    boxRatio
+  ){
+
+    imageWidth =
+      boxWidth;
+
+    imageHeight =
+      boxWidth /
+      sourceRatio;
+
+  }else{
+
+    imageHeight =
+      boxHeight;
+
+    imageWidth =
+      boxHeight *
+      sourceRatio;
+
+  }
+
+
+  /*
+    Apply our visual zoom.
+  */
+
+  imageWidth *=
+    CAMERA_DISPLAY_ZOOM;
+
+  imageHeight *=
+    CAMERA_DISPLAY_ZOOM;
+
+
+  /*
+    Image remains centred.
+  */
+
+  const left =
+    (
+      boxWidth -
+      imageWidth
+    ) / 2;
+
+
+  const top =
+    (
+      boxHeight -
+      imageHeight
+    ) / 2;
+
+
+  return {
+
+    width:
+      imageWidth,
+
+    height:
+      imageHeight,
+
+    left:
+      left,
+
+    top:
+      top,
+
+    boxWidth:
+      boxWidth,
+
+    boxHeight:
+      boxHeight,
+
+    sourceWidth:
+      sourceWidth,
+
+    sourceHeight:
+      sourceHeight
+
+  };
+
+}
+
+
+
+/*
+=========================================================
+FIX WHITE CARD GUIDE
+=========================================================
+
+Previously the white guide was sized against the entire
+camera container.
+
+That caused it to extend into the black areas when the
+camera was zoomed out.
+
+Now it is sized against the ACTUAL visible camera image.
+=========================================================
+*/
+
+function syncCameraGuide(){
+
+  const geometry =
+    getDisplayedCameraGeometry();
+
+
+  if(!geometry){
+    return;
+  }
+
+
+  /*
+    Start at 73% of actual camera image width.
+  */
+
+  let guideWidth =
+    geometry.width *
+    0.73;
+
+
+  /*
+    Pokémon guide ratio = 73 : 98
+  */
+
+  let guideHeight =
+    guideWidth *
+    (
+      98 / 73
+    );
+
+
+  /*
+    Make sure guide never extends outside
+    the actual camera picture vertically.
+  */
+
+  const maximumGuideHeight =
+    geometry.height *
+    0.92;
+
+
+  if(
+    guideHeight >
+    maximumGuideHeight
+  ){
+
+    guideHeight =
+      maximumGuideHeight;
+
+
+    guideWidth =
+      guideHeight *
+      (
+        73 / 98
+      );
+
+  }
+
+
+  /*
+    Centre guide inside camera.
+  */
+
+  guide.style.width =
+    guideWidth +
+    "px";
+
+
+  guide.style.height =
+    guideHeight +
+    "px";
+
+
+  guide.style.aspectRatio =
+    "auto";
+
+
+  guide.style.left =
+    "50%";
+
+
+  guide.style.top =
+    "50%";
+
+
+  guide.style.transform =
+    "translate(-50%, -50%)";
+
+}
+
+
+
+/*
+=========================================================
+CAPTURE EXACTLY WHAT IS INSIDE WHITE GUIDE
+=========================================================
+*/
+
+function captureGuide(){
+
+  const geometry =
+    getDisplayedCameraGeometry();
+
+
+  if(!geometry){
 
     throw new Error(
       "Camera dimensions unavailable."
@@ -173,139 +454,90 @@ function captureGuide(){
   }
 
 
-  const videoRatio =
-    sourceWidth /
-    sourceHeight;
+  const videoRect =
+    video.getBoundingClientRect();
 
 
-  const displayRatio =
-    displayWidth /
-    displayHeight;
+  const guideRect =
+    guide.getBoundingClientRect();
 
-
-  /*
-    Base object-fit: contain dimensions.
-  */
-
-  let baseRenderedWidth;
-  let baseRenderedHeight;
-
-
-  if(
-    videoRatio >
-    displayRatio
-  ){
-
-    baseRenderedWidth =
-      displayWidth;
-
-
-    baseRenderedHeight =
-      displayWidth /
-      videoRatio;
-
-  }else{
-
-    baseRenderedHeight =
-      displayHeight;
-
-
-    baseRenderedWidth =
-      displayHeight *
-      videoRatio;
-
-  }
 
 
   /*
-    Apply the SAME visual scale used by the preview.
-  */
-
-  const renderedWidth =
-    baseRenderedWidth *
-    CAMERA_DISPLAY_SCALE;
-
-
-  const renderedHeight =
-    baseRenderedHeight *
-    CAMERA_DISPLAY_SCALE;
-
-
-  const renderedLeft =
-    (
-      displayWidth -
-      renderedWidth
-    ) / 2;
-
-
-  const renderedTop =
-    (
-      displayHeight -
-      renderedHeight
-    ) / 2;
-
-
-  /*
-    Find guide position inside the scaled camera image.
+    Guide position relative to camera wrapper.
   */
 
   const guideLeft =
     guideRect.left -
-    videoRect.left -
-    renderedLeft;
+    videoRect.left;
 
 
   const guideTop =
     guideRect.top -
-    videoRect.top -
-    renderedTop;
+    videoRect.top;
 
-
-  const guideWidth =
-    guideRect.width;
-
-
-  const guideHeight =
-    guideRect.height;
 
 
   /*
-    Convert displayed pixels back into
+    Convert guide coordinates into coordinates
+    relative to the ACTUAL displayed camera image.
+  */
+
+  const relativeLeft =
+    (
+      guideLeft -
+      geometry.left
+    ) /
+    geometry.width;
+
+
+  const relativeTop =
+    (
+      guideTop -
+      geometry.top
+    ) /
+    geometry.height;
+
+
+  const relativeWidth =
+    guideRect.width /
+    geometry.width;
+
+
+  const relativeHeight =
+    guideRect.height /
+    geometry.height;
+
+
+
+  /*
+    Convert displayed coordinates back to
     original camera pixels.
   */
 
-  const scaleX =
-    sourceWidth /
-    renderedWidth;
-
-
-  const scaleY =
-    sourceHeight /
-    renderedHeight;
-
-
   let sx =
-    guideLeft *
-    scaleX;
+    relativeLeft *
+    geometry.sourceWidth;
 
 
   let sy =
-    guideTop *
-    scaleY;
+    relativeTop *
+    geometry.sourceHeight;
 
 
   let sw =
-    guideWidth *
-    scaleX;
+    relativeWidth *
+    geometry.sourceWidth;
 
 
   let sh =
-    guideHeight *
-    scaleY;
+    relativeHeight *
+    geometry.sourceHeight;
+
 
 
   /*
-    Keep crop inside the camera frame.
+    Keep crop inside physical camera image.
   */
 
   sx =
@@ -325,7 +557,7 @@ function captureGuide(){
   sw =
     Math.min(
       sw,
-      sourceWidth -
+      geometry.sourceWidth -
       sx
     );
 
@@ -333,7 +565,7 @@ function captureGuide(){
   sh =
     Math.min(
       sh,
-      sourceHeight -
+      geometry.sourceHeight -
       sy
     );
 
@@ -349,6 +581,12 @@ function captureGuide(){
 
   }
 
+
+
+  /*
+    Recognition image stays exactly the
+    same size as before.
+  */
 
   captureCanvas.width =
     UPLOAD_WIDTH;
@@ -373,6 +611,7 @@ function captureGuide(){
 
 
   context.drawImage(
+
     video,
 
     sx,
@@ -384,6 +623,7 @@ function captureGuide(){
     0,
     UPLOAD_WIDTH,
     UPLOAD_HEIGHT
+
   );
 
 
@@ -391,12 +631,48 @@ function captureGuide(){
     resolve=>{
 
       captureCanvas.toBlob(
+
         resolve,
+
         "image/jpeg",
+
         0.82
+
       );
 
     }
   );
 
 }
+
+
+
+/*
+=========================================================
+KEEP GUIDE CORRECT AFTER PHONE ROTATION / RESIZE
+=========================================================
+*/
+
+window.addEventListener(
+  "resize",
+  ()=>{
+
+    requestAnimationFrame(
+      syncCameraGuide
+    );
+
+  }
+);
+
+
+window.addEventListener(
+  "orientationchange",
+  ()=>{
+
+    setTimeout(
+      syncCameraGuide,
+      250
+    );
+
+  }
+);
