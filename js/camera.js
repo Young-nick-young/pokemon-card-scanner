@@ -1,3 +1,6 @@
+const CAMERA_DISPLAY_SCALE = 1.12;
+
+
 async function startCamera(){
 
   try{
@@ -28,29 +31,25 @@ async function startCamera(){
       stream;
 
 
-    /*
-      IMPORTANT
-
-      Show the FULL camera image instead of
-      cropping it to fill the preview.
-
-      "cover" was making the camera appear
-      artificially zoomed in.
-    */
-
     video.style.objectFit =
       "contain";
+
+
+    video.style.transform =
+      "scale(" +
+      CAMERA_DISPLAY_SCALE +
+      ")";
+
+
+    video.style.transformOrigin =
+      "center center";
 
 
     await video.play();
 
 
     /*
-      If the device exposes a camera zoom
-      control, make sure we start at its
-      minimum optical/digital zoom.
-
-      On most phones this will be 1x.
+      Start at minimum camera zoom where supported.
     */
 
     try{
@@ -102,13 +101,6 @@ async function startCamera(){
       }
 
     }catch(zoomError){
-
-      /*
-        Zoom control is optional.
-
-        Some phones/browsers don't expose it,
-        so failure here must NOT stop scanning.
-      */
 
       console.log(
         "Camera zoom control unavailable:",
@@ -192,28 +184,11 @@ function captureGuide(){
 
 
   /*
-    =====================================================
-    OBJECT-FIT: CONTAIN MAPPING
-
-    The previous scanner used object-fit:cover.
-
-    "cover" cropped the sides/top of the camera,
-    which made the preview appear zoomed in.
-
-    We now use "contain", so the complete camera
-    image is visible.
-
-    These calculations determine exactly where
-    that uncropped camera image sits inside the
-    preview element.
-    =====================================================
+    Base object-fit: contain dimensions.
   */
 
-
-  let renderedWidth;
-  let renderedHeight;
-  let renderedLeft;
-  let renderedTop;
+  let baseRenderedWidth;
+  let baseRenderedHeight;
 
 
   if(
@@ -221,68 +196,57 @@ function captureGuide(){
     displayRatio
   ){
 
-    /*
-      Video is proportionally wider than
-      the preview box.
-
-      Full width is shown.
-      Empty space may appear above/below.
-    */
-
-    renderedWidth =
+    baseRenderedWidth =
       displayWidth;
 
 
-    renderedHeight =
+    baseRenderedHeight =
       displayWidth /
       videoRatio;
 
-
-    renderedLeft =
-      0;
-
-
-    renderedTop =
-      (
-        displayHeight -
-        renderedHeight
-      ) / 2;
-
   }else{
 
-    /*
-      Video is proportionally taller than
-      the preview box.
-
-      Full height is shown.
-      Empty space may appear left/right.
-    */
-
-    renderedHeight =
+    baseRenderedHeight =
       displayHeight;
 
 
-    renderedWidth =
+    baseRenderedWidth =
       displayHeight *
       videoRatio;
-
-
-    renderedTop =
-      0;
-
-
-    renderedLeft =
-      (
-        displayWidth -
-        renderedWidth
-      ) / 2;
 
   }
 
 
   /*
-    Guide coordinates relative to the
-    ACTUAL displayed camera image.
+    Apply the SAME visual scale used by the preview.
+  */
+
+  const renderedWidth =
+    baseRenderedWidth *
+    CAMERA_DISPLAY_SCALE;
+
+
+  const renderedHeight =
+    baseRenderedHeight *
+    CAMERA_DISPLAY_SCALE;
+
+
+  const renderedLeft =
+    (
+      displayWidth -
+      renderedWidth
+    ) / 2;
+
+
+  const renderedTop =
+    (
+      displayHeight -
+      renderedHeight
+    ) / 2;
+
+
+  /*
+    Find guide position inside the scaled camera image.
   */
 
   const guideLeft =
@@ -341,8 +305,7 @@ function captureGuide(){
 
 
   /*
-    Keep the crop safely inside the
-    physical camera image.
+    Keep crop inside the camera frame.
   */
 
   sx =
