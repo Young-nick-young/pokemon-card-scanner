@@ -1055,3 +1055,22 @@ canvas{
   }
 
 }
+
+
+/* =====================================================
+   INSTALLED MOBILE APP
+===================================================== */
+
+@media (max-width:560px){
+
+  .scannerLayout{
+    grid-template-rows:
+      minmax(0,1fr)
+      auto;
+  }
+
+  #cameraWrap{
+    min-height:0;
+  }
+
+}
