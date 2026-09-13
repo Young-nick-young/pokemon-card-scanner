@@ -424,8 +424,7 @@ function showInventoryToast(
 ===================================================== */
 
 function sendQuantityRequest(
-  row,
-  variant,
+  writeTarget,
   change,
   transactionId
 ){
@@ -581,42 +580,38 @@ function sendQuantityRequest(
 
 
       const parameters =
-        new URLSearchParams({
+        new URLSearchParams(
+          window
+            .InventoryRequestContract
+            .buildRequestParameters({
 
-          api:
-            "changeQuantity",
+              writeTarget:
+                writeTarget,
 
-          row:
-            String(row),
+              quantityDelta:
+                change,
 
-          variant:
-            String(variant),
+              /*
+                CRITICAL:
 
-          change:
-            String(change),
+                The retry uses this SAME transaction ID.
 
-          /*
-            CRITICAL:
+                If Google Sheets already performed
+                the first request, the backend will
+                recognize the retry and NOT add again.
+              */
 
-            The retry uses this SAME transaction ID.
+              transactionId:
+                transactionId,
 
-            If Google Sheets already performed
-            the first request, the backend will
-            recognize the retry and NOT add again.
-          */
+              callbackName:
+                callbackName,
 
-          transactionId:
-            String(
-              transactionId
-            ),
+              cacheBust:
+                Date.now()
 
-          callback:
-            callbackName,
-
-          _:
-            String(Date.now())
-
-        });
+            })
+        );
 
 
       script.src =
@@ -641,8 +636,7 @@ function sendQuantityRequest(
 ===================================================== */
 
 async function addQuantity(
-  row,
-  variant,
+  writeTarget,
   change = 1,
   transactionId = null
 ){
@@ -711,8 +705,7 @@ async function addQuantity(
 
       const result =
         await sendQuantityRequest(
-          row,
-          variant,
+          writeTarget,
           change,
           safeTransactionId
         );
@@ -900,6 +893,46 @@ async function confirmInventoryAdd(){
     getInventoryQuantity();
 
 
+  let writeTarget;
+
+
+  try{
+
+    writeTarget =
+      window
+        .InventoryRequestContract
+        .createWriteTarget({
+
+          activeSet:
+            ACTIVE_SET,
+
+          card:
+            currentCard,
+
+          row:
+            selectedInventoryRow,
+
+          variant:
+            selectedInventoryVariant,
+
+          schemaAdapter:
+            window
+              .DestinedRivalsSchemaV1Display
+
+        });
+
+  }catch(error){
+
+    console.error(error);
+
+    status.textContent =
+      "Inventory identity unavailable";
+
+    return;
+
+  }
+
+
   /*
     Create this ONCE.
 
@@ -978,8 +1011,7 @@ async function confirmInventoryAdd(){
 
     const result =
       await addQuantity(
-        selectedInventoryRow,
-        selectedInventoryVariant,
+        writeTarget,
         quantity,
         transactionId
       );
@@ -997,7 +1029,10 @@ async function confirmInventoryAdd(){
         quantity,
 
       transactionId:
-        transactionId
+        transactionId,
+
+      writeTarget:
+        writeTarget
 
     };
 
@@ -1322,8 +1357,13 @@ async function undoLastAdd(){
   try{
 
     await addQuantity(
-      itemToUndo.row,
-      itemToUndo.variant,
+      itemToUndo.writeTarget ||
+        window
+          .InventoryRequestContract
+          .createLegacyWriteTarget(
+            itemToUndo.row,
+            itemToUndo.variant
+          ),
       -undoQuantity,
       undoTransactionId
     );

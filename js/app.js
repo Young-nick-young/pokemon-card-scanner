@@ -129,14 +129,64 @@ function getCardNumber(card){
 }
 
 
-function getCardName(card){
+function getDestinedRivalsDisplay(){
+
+  if(
+    ACTIVE_SET.id !==
+      "destined-rivals" ||
+    !window.DestinedRivalsSchemaV1Display ||
+    window.DestinedRivalsSchemaV1Display
+      .getDisplayAuthority() !==
+        "schema-v1"
+  ){
+
+    return null;
+
+  }
+
 
   return (
+    window.DestinedRivalsSchemaV1Display
+  );
+
+}
+
+
+function getActiveSetDisplayName(){
+
+  const display =
+    getDestinedRivalsDisplay();
+
+
+  return display
+    ? display.getSetDisplayName(
+        ACTIVE_SET.name
+      )
+    : ACTIVE_SET.name;
+
+}
+
+
+function getCardName(card){
+
+  const legacyName = (
     card.name ??
     card.cardName ??
     card["Card Name"] ??
     "Unknown Card"
   );
+
+
+  const display =
+    getDestinedRivalsDisplay();
+
+
+  return display
+    ? display.getCardDisplayName(
+        card,
+        legacyName
+      )
+    : legacyName;
 
 }
 
@@ -178,67 +228,120 @@ function getCardRow(card){
 
 function getCardImageUrl(card){
 
+  let legacyImage = "";
+
+
   if(
     card &&
     card.imageUrl
   ){
 
-    return card.imageUrl;
+    legacyImage =
+      card.imageUrl;
 
-  }
-
-
-  const number =
-    getCardNumber(card);
-
-
-  if(
+  }else if(
     ACTIVE_SET.imageSet
   ){
 
-    return (
+    legacyImage = (
       "https://images.pokemontcg.io/" +
       ACTIVE_SET.imageSet +
       "/" +
-      number +
+      getCardNumber(card) +
       ".png"
     );
 
   }
 
 
-  return "";
+  const display =
+    getDestinedRivalsDisplay();
+
+
+  return display
+    ? display.getCardReferenceImage(
+        card,
+        legacyImage
+      )
+    : legacyImage;
 
 }
 
 
 function getVariantsForCard(card){
 
+  let legacyVariants;
+
+
   if(
     ACTIVE_SET.dynamicVariants &&
     typeof ACTIVE_SET.getVariants === "function"
   ){
 
-    return ACTIVE_SET.getVariants(card);
+    legacyVariants =
+      ACTIVE_SET.getVariants(card);
 
-  }
-
-
-  if(
+  }else if(
     Array.isArray(ACTIVE_SET.variants)
   ){
 
-    return ACTIVE_SET.variants;
+    legacyVariants =
+      ACTIVE_SET.variants;
+
+  }else{
+
+    legacyVariants = [
+      {
+        key: "Other",
+        label: "Other"
+      }
+    ];
 
   }
 
 
-  return [
-    {
-      key: "Other",
-      label: "Other"
-    }
-  ];
+  const display =
+    getDestinedRivalsDisplay();
+
+
+  return display
+    ? display.getCardVariants(
+        card,
+        legacyVariants
+      )
+    : legacyVariants;
+
+}
+
+
+function getCardCollectorNumber(card){
+
+  const legacyNumber =
+    String(
+      getCardNumber(card)
+    )
+      .padStart(3,"0") +
+    "/" +
+    ACTIVE_SET.denominator;
+
+  const display =
+    getDestinedRivalsDisplay();
+
+
+  return display
+    ? display.getCardCollectorNumber(
+        card,
+        legacyNumber
+      )
+    : legacyNumber;
+
+}
+
+
+function getCardShortCollectorNumber(card){
+
+  return getCardCollectorNumber(card)
+    .split("/")[0];
 
 }
 
@@ -344,9 +447,6 @@ function showCard(card){
 
   currentCard = card;
 
-  const number =
-    getCardNumber(card);
-
   const name =
     getCardName(card);
 
@@ -367,10 +467,7 @@ function showCard(card){
 
   cardNumber.textContent =
     "#" +
-    String(number)
-      .padStart(3,"0") +
-    "/" +
-    ACTIVE_SET.denominator;
+    getCardCollectorNumber(card);
 
 
   const details = [];
@@ -513,8 +610,9 @@ function showCandidates(){
       name.textContent =
         getCardName(card) +
         " #" +
-        String(number)
-          .padStart(3,"0");
+        getCardShortCollectorNumber(
+          card
+        );
 
 
       const stats =
@@ -722,7 +820,7 @@ async function initialize(){
 
   console.log(
     "Active set:",
-    ACTIVE_SET.name
+    getActiveSetDisplayName()
   );
 
 
