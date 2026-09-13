@@ -986,12 +986,12 @@ canvas{
 
   .scannerLayout{
     grid-template-rows:
-      minmax(330px,1fr)
+      minmax(0,1fr)
       auto;
   }
 
   #cameraWrap{
-    min-height:330px;
+    min-height:0;
   }
 
 }
