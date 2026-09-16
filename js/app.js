@@ -1,6 +1,7 @@
 const SETS = {
   "destined-rivals": DESTINED_RIVALS,
-  "ascended-heroes": ASCENDED_HEROES
+  "ascended-heroes": ASCENDED_HEROES,
+  "perfect-order": PERFECT_ORDER
 };
 
 
@@ -129,25 +130,82 @@ function getCardNumber(card){
 }
 
 
-function getDestinedRivalsDisplay(){
+function getActiveSetSchemaAdapter(){
 
+  /*
+    Preserve the accepted Destined Rivals display authority.
+    New Schema v1 sets use the shared set loader instead.
+  */
   if(
-    ACTIVE_SET.id !==
-      "destined-rivals" ||
-    !window.DestinedRivalsSchemaV1Display ||
+    ACTIVE_SET.id === "destined-rivals" &&
+    window.DestinedRivalsSchemaV1Display &&
     window.DestinedRivalsSchemaV1Display
-      .getDisplayAuthority() !==
-        "schema-v1"
+      .getDisplayAuthority() === "schema-v1"
   ){
 
-    return null;
+    return window.DestinedRivalsSchemaV1Display;
 
   }
 
 
-  return (
-    window.DestinedRivalsSchemaV1Display
-  );
+  if(
+    window.SchemaV1SetLoader &&
+    typeof window.SchemaV1SetLoader.getAdapter === "function"
+  ){
+
+    const adapter =
+      window.SchemaV1SetLoader.getAdapter(
+        ACTIVE_SET.id
+      );
+
+    if(
+      adapter &&
+      adapter.getDisplayAuthority() === "schema-v1"
+    ){
+
+      return adapter;
+
+    }
+
+  }
+
+
+  return null;
+
+}
+
+
+async function loadActiveSetSchemaAdapter(){
+
+  if(
+    ACTIVE_SET.id === "destined-rivals" ||
+    !window.SchemaV1SetLoader ||
+    typeof window.SchemaV1SetLoader.loadAdapter !== "function" ||
+    !window.SchemaV1SetLoader.hasSchemaPackage(ACTIVE_SET)
+  ){
+
+    return getActiveSetSchemaAdapter();
+
+  }
+
+
+  try{
+
+    return await window.SchemaV1SetLoader.loadAdapter(
+      ACTIVE_SET
+    );
+
+  }catch(error){
+
+    console.error(
+      "Schema v1 package load failed:",
+      ACTIVE_SET.id,
+      error
+    );
+
+    return null;
+
+  }
 
 }
 
@@ -155,14 +213,18 @@ function getDestinedRivalsDisplay(){
 function getActiveSetDisplayName(){
 
   const display =
-    getDestinedRivalsDisplay();
+    getActiveSetSchemaAdapter();
 
+  if(!display){
+    return ACTIVE_SET.name;
+  }
 
-  return display
-    ? display.getSetDisplayName(
-        ACTIVE_SET.name
-      )
-    : ACTIVE_SET.name;
+  return (
+    display.getSetDisplayName(
+      ACTIVE_SET.name
+    ) ||
+    ACTIVE_SET.name
+  );
 
 }
 
@@ -178,12 +240,15 @@ function getCardName(card){
 
 
   const display =
-    getDestinedRivalsDisplay();
+    getActiveSetSchemaAdapter();
 
 
   return display
-    ? display.getCardDisplayName(
-        card,
+    ? (
+        display.getCardDisplayName(
+          card,
+          legacyName
+        ) ||
         legacyName
       )
     : legacyName;
@@ -255,12 +320,15 @@ function getCardImageUrl(card){
 
 
   const display =
-    getDestinedRivalsDisplay();
+    getActiveSetSchemaAdapter();
 
 
   return display
-    ? display.getCardReferenceImage(
-        card,
+    ? (
+        display.getCardReferenceImage(
+          card,
+          legacyImage
+        ) ||
         legacyImage
       )
     : legacyImage;
@@ -301,14 +369,26 @@ function getVariantsForCard(card){
 
 
   const display =
-    getDestinedRivalsDisplay();
+    getActiveSetSchemaAdapter();
 
 
-  return display
-    ? display.getCardVariants(
-        card,
-        legacyVariants
-      )
+  if(!display){
+    return legacyVariants;
+  }
+
+
+  const schemaVariants =
+    display.getCardVariants(
+      card,
+      legacyVariants
+    );
+
+
+  return (
+    Array.isArray(schemaVariants) &&
+    schemaVariants.length > 0
+  )
+    ? schemaVariants
     : legacyVariants;
 
 }
@@ -325,12 +405,15 @@ function getCardCollectorNumber(card){
     ACTIVE_SET.denominator;
 
   const display =
-    getDestinedRivalsDisplay();
+    getActiveSetSchemaAdapter();
 
 
   return display
-    ? display.getCardCollectorNumber(
-        card,
+    ? (
+        display.getCardCollectorNumber(
+          card,
+          legacyNumber
+        ) ||
         legacyNumber
       )
     : legacyNumber;
@@ -816,6 +899,9 @@ async function initialize(){
 
   manualNumber.max =
     ACTIVE_SET.maxCard;
+
+
+  await loadActiveSetSchemaAdapter();
 
 
   console.log(
