@@ -8,7 +8,7 @@
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
->
+  >
   <title>TCG Inventory Scanner</title>
 
 
@@ -50,6 +50,11 @@
   <link
     rel="stylesheet"
     href="./css/styles.css?v=20260913-1"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./css/set-selector.css?v=20260917-1"
   >
 
 </head>
@@ -97,28 +102,13 @@
       <div id="setSelectorArea">
 
         <label
-          for="setSelector"
+          for="setSelectorButton"
           id="setSelectorLabel"
         >
           SET
         </label>
 
-
-        <select id="setSelector">
-
-          <option value="destined-rivals">
-            Destined Rivals
-          </option>
-
-          <option value="ascended-heroes">
-            Ascended Heroes
-          </option>
-
-          <option value="perfect-order">
-            Perfect Order
-          </option>
-
-        </select>
+        <div id="setSelector"></div>
 
       </div>
 
@@ -516,12 +506,14 @@
 ===================================================== -->
 
 <script src="./js/config.js"></script>
+<script src="./js/set-registry.js"></script>
 <script src="./js/schema-v1-adapter.js"></script>
 <script src="./js/schema-v1-set-loader.js"></script>
 
 <script src="./js/sets/destined-rivals.js"></script>
 <script src="./js/sets/ascended-heroes.js"></script>
 <script src="./js/sets/perfect-order.js"></script>
+<script src="./js/set-selector.js"></script>
 
 <script src="./js/camera.js"></script>
 <script src="./js/recognizer.js"></script>

@@ -1,10 +1,11 @@
-const CACHE_NAME = "tcg-scanner-v13-perfect-order-1";
+const CACHE_NAME = "tcg-scanner-v14-set-selector-1";
 
 const APP_FILES = [
   "/pokemon-card-scanner/",
   "/pokemon-card-scanner/index.html",
   "/pokemon-card-scanner/manifest.json",
-  "/pokemon-card-scanner/css/styles.css?v=20260913-1"
+  "/pokemon-card-scanner/css/styles.css?v=20260913-1",
+  "/pokemon-card-scanner/css/set-selector.css?v=20260917-1"
 ];
 
 

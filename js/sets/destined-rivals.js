@@ -2,6 +2,7 @@ const DESTINED_RIVALS = {
   id: "destined-rivals",
   name: "Destined Rivals",
   setCode: "DRI",
+  series: "Scarlet & Violet",
 
   denominator: 182,
   maxCard: 244,
@@ -20,3 +21,7 @@ const DESTINED_RIVALS = {
 
   dynamicVariants: false
 };
+
+SetRegistry.register(
+  DESTINED_RIVALS
+);

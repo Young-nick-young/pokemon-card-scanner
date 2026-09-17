@@ -2,6 +2,7 @@ const PERFECT_ORDER = {
   id: "perfect-order",
   name: "Perfect Order",
   setCode: "POR",
+  series: "Mega Evolution",
   officialCode: "ME03",
   datasetId: "me3",
   denominator: 88,
@@ -31,3 +32,7 @@ const PERFECT_ORDER = {
     RECOGNIZER_URL +
     "/api/v1/sets/perfect-order/package"
 };
+
+SetRegistry.register(
+  PERFECT_ORDER
+);

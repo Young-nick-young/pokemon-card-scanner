@@ -1,13 +1,12 @@
-const SETS = {
-  "destined-rivals": DESTINED_RIVALS,
-  "ascended-heroes": ASCENDED_HEROES,
-  "perfect-order": PERFECT_ORDER
-};
-
-
 const ACTIVE_SET =
-  SETS[ACTIVE_SET_ID] ||
-  DESTINED_RIVALS;
+  SetRegistry.get(ACTIVE_SET_ID) ||
+  SetRegistry.get(DEFAULT_SET_ID);
+
+if(!ACTIVE_SET){
+  throw new Error(
+    "No registered scanner set is available."
+  );
+}
 
 
 let cards = [];

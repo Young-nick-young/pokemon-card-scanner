@@ -6,6 +6,8 @@ const ASCENDED_HEROES = {
 
   setCode: "ASC",
 
+  series: "Mega Evolution",
+
   denominator: 217,
 
   maxCard: 295,
@@ -46,3 +48,7 @@ const ASCENDED_HEROES = {
   }
 
 };
+
+SetRegistry.register(
+  ASCENDED_HEROES
+);
