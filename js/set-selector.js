@@ -491,7 +491,28 @@
         setId
       );
 
-      window.location.reload();
+      /*
+       * Dismiss the selector search keyboard before reloading.
+       * On mobile browsers, reloading while the search input is
+       * still focused can preserve a reduced visual viewport and
+       * leave the fixed session footer below the visible screen.
+       */
+      search.blur();
+
+      if(
+        document.activeElement &&
+        typeof document.activeElement.blur === "function"
+      ){
+        document.activeElement.blur();
+      }
+
+      closePanel();
+
+      requestAnimationFrame(
+        ()=>{
+          window.location.reload();
+        }
+      );
     }
 
     function render(){
