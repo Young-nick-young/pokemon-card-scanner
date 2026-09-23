@@ -131,6 +131,22 @@ function getCardNumber(card){
 
 function getActiveSetSchemaAdapter(){
 
+  /*
+    Preserve the accepted Destined Rivals display authority.
+    New Schema v1 sets use the shared set loader instead.
+  */
+  if(
+    ACTIVE_SET.id === "destined-rivals" &&
+    window.DestinedRivalsSchemaV1Display &&
+    window.DestinedRivalsSchemaV1Display
+      .getDisplayAuthority() === "schema-v1"
+  ){
+
+    return window.DestinedRivalsSchemaV1Display;
+
+  }
+
+
   if(
     window.SchemaV1SetLoader &&
     typeof window.SchemaV1SetLoader.getAdapter === "function"
@@ -161,6 +177,7 @@ function getActiveSetSchemaAdapter(){
 async function loadActiveSetSchemaAdapter(){
 
   if(
+    ACTIVE_SET.id === "destined-rivals" ||
     !window.SchemaV1SetLoader ||
     typeof window.SchemaV1SetLoader.loadAdapter !== "function" ||
     !window.SchemaV1SetLoader.hasSchemaPackage(ACTIVE_SET)
