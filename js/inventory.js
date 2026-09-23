@@ -913,11 +913,7 @@ async function confirmInventoryAdd(){
             selectedInventoryRow,
 
           variant:
-            selectedInventoryVariant,
-
-          schemaAdapter:
-            window
-              .DestinedRivalsSchemaV1Display
+            selectedInventoryVariant
 
         });
 
