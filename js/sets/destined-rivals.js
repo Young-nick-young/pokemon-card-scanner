@@ -19,11 +19,7 @@ const DESTINED_RIVALS = {
     "Other"
   ],
 
-  dynamicVariants: false,
-
-  schemaPackageUrl:
-    RECOGNIZER_URL +
-    "/api/v1/sets/destined-rivals/package"
+  dynamicVariants: false
 };
 
 SetRegistry.register(

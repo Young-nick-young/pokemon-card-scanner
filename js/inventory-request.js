@@ -13,6 +13,15 @@
   function(root){
     "use strict";
 
+    const DESTINED_RIVALS_SET_ID = "destined-rivals";
+
+    /*
+      Preserve the accepted Destined Rivals rollback switch.
+      Other Schema v1 sets select canonical mode through their
+      declarative schemaPackageUrl configuration.
+    */
+    const DESTINED_RIVALS_REQUEST_MODE = "canonical";
+
     function requireNonEmptyString(value,field){
       if(typeof value !== "string" || !value.trim()){
         throw new Error(field + " is required.");
@@ -56,6 +65,19 @@
         return false;
       }
 
+      if(activeSet.id === DESTINED_RIVALS_SET_ID){
+        if(
+          DESTINED_RIVALS_REQUEST_MODE !== "canonical" &&
+          DESTINED_RIVALS_REQUEST_MODE !== "legacy"
+        ){
+          throw new Error(
+            "Unsupported Destined Rivals inventory request mode."
+          );
+        }
+
+        return DESTINED_RIVALS_REQUEST_MODE === "canonical";
+      }
+
       return Boolean(
         typeof activeSet.schemaPackageUrl === "string" &&
         activeSet.schemaPackageUrl.trim()
@@ -63,8 +85,14 @@
     }
 
     function resolveSchemaAdapter(activeSet,schemaAdapter){
+      /*
+        DRI keeps its accepted explicit adapter path. For every other
+        Schema v1 set, prefer the shared set loader so inventory.js does
+        not need a new set-specific adapter reference for each set.
+      */
       if(
         activeSet &&
+        activeSet.id !== DESTINED_RIVALS_SET_ID &&
         root &&
         root.SchemaV1SetLoader &&
         typeof root.SchemaV1SetLoader.getAdapter === "function"
@@ -188,6 +216,7 @@
     }
 
     return Object.freeze({
+      DESTINED_RIVALS_REQUEST_MODE,
       buildRequestParameters,
       createLegacyWriteTarget,
       createWriteTarget,
