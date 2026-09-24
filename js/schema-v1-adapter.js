@@ -125,10 +125,10 @@
 
     function getNumericCompatibilityAlias(value){
       const text = String(value || "");
-      if(!/^\\d+$/.test(text)){
+      if(!/^\d+$/.test(text)){
         return null;
       }
-      return text.replace(/^0+(?=\\d)/,"");
+      return text.replace(/^0+(?=\d)/,"");
     }
 
     function getCard(cardOrId){
