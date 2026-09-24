@@ -123,10 +123,39 @@
       cardsByNumber.set(String(sortKey),adaptedCard);
     });
 
+    function getNumericCompatibilityAlias(value){
+      const text = String(value || "");
+      if(!/^\\d+$/.test(text)){
+        return null;
+      }
+      return text.replace(/^0+(?=\\d)/,"");
+    }
+
     function getCard(cardOrId){
       if(typeof cardOrId === "string"){
-        return cardsById.get(cardOrId) || cardsByNumber.get(cardOrId) || null;
+        const exact =
+          cardsById.get(cardOrId) ||
+          cardsByNumber.get(cardOrId);
+
+        if(exact){
+          return exact;
+        }
+
+        const lowercaseId =
+          cardsById.get(cardOrId.toLowerCase());
+
+        if(lowercaseId){
+          return lowercaseId;
+        }
+
+        const numericAlias =
+          getNumericCompatibilityAlias(cardOrId);
+
+        return numericAlias
+          ? cardsByNumber.get(numericAlias) || null
+          : null;
       }
+
       if(cardOrId && typeof cardOrId === "object"){
         const id = String(cardOrId.cardId || "");
         const rawNumber = cardOrId.number || cardOrId.cardNumber || cardOrId["Card #"] || "";
@@ -135,8 +164,30 @@
             ? rawNumber.display || rawNumber.sortKey || ""
             : rawNumber
         );
-        return cardsById.get(id) || cardsByNumber.get(number) || null;
+
+        const exact =
+          cardsById.get(id) ||
+          cardsByNumber.get(number);
+
+        if(exact){
+          return exact;
+        }
+
+        const lowercaseId =
+          cardsById.get(id.toLowerCase());
+
+        if(lowercaseId){
+          return lowercaseId;
+        }
+
+        const numericAlias =
+          getNumericCompatibilityAlias(number);
+
+        return numericAlias
+          ? cardsByNumber.get(numericAlias) || null
+          : null;
       }
+
       return null;
     }
 
