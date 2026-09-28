@@ -24,6 +24,13 @@ let sheetReady = false;
 let startupReady = false;
 let startupStartedAt = null;
 let startupReadyLogged = false;
+let startupTimings = {
+  schema: null,
+  sheet: null,
+  camera: null,
+  recognizer: null,
+  total: null
+};
 let scanning = false;
 
 
@@ -88,6 +95,87 @@ const captureCanvas =
   document.getElementById("captureCanvas");
 
 
+function renderStartupDiagnostic(){
+
+  let panel =
+    document.getElementById(
+      "startupDiagnosticPanel"
+    );
+
+
+  if(!panel){
+
+    panel =
+      document.createElement(
+        "div"
+      );
+
+    panel.id =
+      "startupDiagnosticPanel";
+
+    panel.style.position =
+      "fixed";
+
+    panel.style.left =
+      "12px";
+
+    panel.style.right =
+      "12px";
+
+    panel.style.bottom =
+      "12px";
+
+    panel.style.zIndex =
+      "99999";
+
+    panel.style.padding =
+      "10px 12px";
+
+    panel.style.borderRadius =
+      "10px";
+
+    panel.style.background =
+      "rgba(0,0,0,0.88)";
+
+    panel.style.color =
+      "#fff";
+
+    panel.style.font =
+      "600 13px/1.4 system-ui, sans-serif";
+
+    panel.style.textAlign =
+      "center";
+
+    document.body.appendChild(
+      panel
+    );
+
+  }
+
+
+  const format =
+    value =>
+      Number.isFinite(value)
+        ? Math.round(value) + " ms"
+        : "…";
+
+
+  panel.textContent =
+    "PARALLEL • " +
+    "Schema " +
+    format(startupTimings.schema) +
+    " • Sheet " +
+    format(startupTimings.sheet) +
+    " • Camera " +
+    format(startupTimings.camera) +
+    " • Recognizer " +
+    format(startupTimings.recognizer) +
+    " • Total " +
+    format(startupTimings.total);
+
+}
+
+
 function updateScanButton(){
 
   if(
@@ -109,16 +197,18 @@ function updateScanButton(){
 
       startupReadyLogged = true;
 
-      const startupElapsed =
+      startupTimings.total =
         performance.now() -
         startupStartedAt;
 
       console.log(
         "Startup timing — scanner fully ready:",
-        Math.round(startupElapsed) + " ms"
+        Math.round(
+          startupTimings.total
+        ) + " ms"
       );
 
-      showStartupTiming(startupElapsed);
+      renderStartupDiagnostic();
 
     }
 
@@ -902,30 +992,6 @@ undoButton.addEventListener(
 );
 
 
-function showStartupTiming(milliseconds){
-
-  let panel = document.getElementById("startupTimingPanel");
-
-  if(!panel){
-    panel = document.createElement("div");
-    panel.id = "startupTimingPanel";
-    panel.style.position = "fixed";
-    panel.style.left = "12px";
-    panel.style.right = "12px";
-    panel.style.bottom = "12px";
-    panel.style.zIndex = "99999";
-    panel.style.padding = "10px 12px";
-    panel.style.borderRadius = "10px";
-    panel.style.background = "rgba(0,0,0,0.86)";
-    panel.style.color = "#fff";
-    panel.style.font = "600 14px/1.35 system-ui, sans-serif";
-    panel.style.textAlign = "center";
-    document.body.appendChild(panel);
-  }
-
-  panel.textContent = "PARALLEL READY: " + Math.round(milliseconds) + " ms";
-}
-
 async function initialize(){
 
   const startupStarted =
@@ -961,17 +1027,55 @@ async function initialize(){
   loadSheetData();
 
 
+  const sheetTimingPoll =
+    setInterval(
+      ()=>{
+
+        if(
+          sheetReady &&
+          startupTimings.sheet === null
+        ){
+
+          startupTimings.sheet =
+            performance.now() -
+            startupStarted;
+
+          console.log(
+            "Startup timing — sheet:",
+            Math.round(
+              startupTimings.sheet
+            ) + " ms"
+          );
+
+          renderStartupDiagnostic();
+
+          clearInterval(
+            sheetTimingPoll
+          );
+
+        }
+
+      },
+      25
+    );
+
+
   const schemaPromise =
     loadActiveSetSchemaAdapter()
       .then(result=>{
 
+        startupTimings.schema =
+          performance.now() -
+          startupStarted;
+
         console.log(
           "Startup timing — schema:",
           Math.round(
-            performance.now() -
-            startupStarted
+            startupTimings.schema
           ) + " ms"
         );
+
+        renderStartupDiagnostic();
 
         return result;
 
@@ -982,13 +1086,18 @@ async function initialize(){
     startCamera()
       .then(()=>{
 
+        startupTimings.camera =
+          performance.now() -
+          startupStarted;
+
         console.log(
           "Startup timing — camera:",
           Math.round(
-            performance.now() -
-            startupStarted
+            startupTimings.camera
           ) + " ms"
         );
+
+        renderStartupDiagnostic();
 
       });
 
@@ -997,13 +1106,18 @@ async function initialize(){
     checkRecognizer()
       .then(()=>{
 
+        startupTimings.recognizer =
+          performance.now() -
+          startupStarted;
+
         console.log(
           "Startup timing — recognizer:",
           Math.round(
-            performance.now() -
-            startupStarted
+            startupTimings.recognizer
           ) + " ms"
         );
+
+        renderStartupDiagnostic();
 
       });
 
