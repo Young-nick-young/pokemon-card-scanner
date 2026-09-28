@@ -21,6 +21,7 @@ let lastAdd = null;
 let cameraReady = false;
 let recognizerReady = false;
 let sheetReady = false;
+let startupReady = false;
 let scanning = false;
 
 
@@ -88,6 +89,7 @@ const captureCanvas =
 function updateScanButton(){
 
   if(
+    startupReady &&
     cameraReady &&
     recognizerReady &&
     sheetReady &&
@@ -879,11 +881,88 @@ undoButton.addEventListener(
 
 async function initialize(){
 
+  const startupStarted =
+    performance.now();
+
+
   manualNumber.max =
     ACTIVE_SET.maxCard;
 
 
-  await loadActiveSetSchemaAdapter();
+  /*
+    PERFORMANCE STAGE 1
+
+    These startup jobs are independent and can begin together:
+
+    - Schema package/display adapter
+    - Google Sheet card-list request
+    - camera initialization
+    - recognizer availability check
+
+    The scan button stays gated by startupReady, so parallel startup
+    cannot expose scanning before the required initialization work
+    has completed.
+  */
+
+  status.textContent =
+    "Starting scanner...";
+
+
+  loadSheetData();
+
+
+  const schemaPromise =
+    loadActiveSetSchemaAdapter()
+      .then(result=>{
+
+        console.log(
+          "Startup timing — schema:",
+          Math.round(
+            performance.now() -
+            startupStarted
+          ) + " ms"
+        );
+
+        return result;
+
+      });
+
+
+  const cameraPromise =
+    startCamera()
+      .then(()=>{
+
+        console.log(
+          "Startup timing — camera:",
+          Math.round(
+            performance.now() -
+            startupStarted
+          ) + " ms"
+        );
+
+      });
+
+
+  const recognizerPromise =
+    checkRecognizer()
+      .then(()=>{
+
+        console.log(
+          "Startup timing — recognizer:",
+          Math.round(
+            performance.now() -
+            startupStarted
+          ) + " ms"
+        );
+
+      });
+
+
+  await Promise.all([
+    schemaPromise,
+    cameraPromise,
+    recognizerPromise
+  ]);
 
 
   console.log(
@@ -892,14 +971,18 @@ async function initialize(){
   );
 
 
-  status.textContent =
-    "Starting camera...";
+  startupReady = true;
 
-  loadSheetData();
+  updateScanButton();
 
-  await startCamera();
 
-  await checkRecognizer();
+  console.log(
+    "Startup timing — parallel gate complete:",
+    Math.round(
+      performance.now() -
+      startupStarted
+    ) + " ms"
+  );
 
 
   if(!recognizerReady){
