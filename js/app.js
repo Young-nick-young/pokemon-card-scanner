@@ -22,6 +22,8 @@ let cameraReady = false;
 let recognizerReady = false;
 let sheetReady = false;
 let startupReady = false;
+let startupStartedAt = null;
+let startupReadyLogged = false;
 let scanning = false;
 
 
@@ -98,6 +100,24 @@ function updateScanButton(){
 
     scanButton.disabled = false;
     scanButton.textContent = "SCAN CARD";
+
+
+    if(
+      !startupReadyLogged &&
+      Number.isFinite(startupStartedAt)
+    ){
+
+      startupReadyLogged = true;
+
+      console.log(
+        "Startup timing — scanner fully ready:",
+        Math.round(
+          performance.now() -
+          startupStartedAt
+        ) + " ms"
+      );
+
+    }
 
   }else{
 
@@ -883,6 +903,9 @@ async function initialize(){
 
   const startupStarted =
     performance.now();
+
+  startupStartedAt =
+    startupStarted;
 
 
   manualNumber.max =
