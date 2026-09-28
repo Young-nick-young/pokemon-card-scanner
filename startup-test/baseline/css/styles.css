@@ -1,0 +1,1076 @@
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+body{
+  font-family:Arial, Helvetica, sans-serif;
+  background:#f3f3f3;
+  color:#222;
+  overscroll-behavior:none;
+}
+
+
+/* =====================================================
+   APP
+===================================================== */
+
+.app{
+  width:100%;
+  max-width:560px;
+
+  height:100svh;
+  min-height:0;
+
+  margin:0 auto;
+
+  padding:
+    max(5px, env(safe-area-inset-top))
+    8px
+    max(5px, env(safe-area-inset-bottom));
+
+  display:grid;
+
+  grid-template-rows:
+    auto
+    minmax(0,1fr)
+    auto;
+
+  gap:5px;
+
+  overflow:hidden;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.appHeader{
+  flex-shrink:0;
+}
+
+.headerTopRow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  min-height:25px;
+}
+
+h1{
+  margin:0;
+
+  text-align:center;
+
+  font-size:19px;
+  line-height:1.05;
+  font-weight:800;
+}
+
+.headerControls{
+  margin-top:3px;
+
+  display:grid;
+  grid-template-columns:1fr;
+
+  gap:2px;
+}
+
+
+/* =====================================================
+   SET SELECTOR
+===================================================== */
+
+#setSelectorArea{
+  display:flex;
+  align-items:center;
+
+  gap:5px;
+
+  min-height:30px;
+}
+
+#setSelectorLabel{
+  flex:0 0 auto;
+
+  font-size:11px;
+  font-weight:800;
+
+  color:#666;
+}
+
+#setSelector{
+  flex:1;
+  min-width:0;
+
+  height:30px;
+
+  border:1px solid #bbb;
+  border-radius:9px;
+
+  background:white;
+  color:#222;
+
+  padding:3px 8px;
+
+  font-size:13px;
+  font-weight:700;
+}
+
+
+/* =====================================================
+   GOOGLE SHEET STATUS
+===================================================== */
+
+#sheetStatus{
+  height:15px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+
+  font-size:10px;
+  line-height:15px;
+
+  color:#666;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* =====================================================
+   MAIN SCANNER
+===================================================== */
+
+.scannerLayout{
+  min-height:0;
+
+  display:grid;
+
+  grid-template-rows:
+    minmax(0,1fr)
+    auto;
+
+  gap:5px;
+
+  overflow:hidden;
+}
+
+
+/* =====================================================
+   CAMERA SECTION
+===================================================== */
+
+.cameraSection{
+  min-height:0;
+
+  display:grid;
+
+  grid-template-rows:
+    20px
+    minmax(0,1fr)
+    auto;
+
+  gap:3px;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+#status{
+  height:20px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:0 4px;
+
+  text-align:center;
+
+  font-size:12px;
+  line-height:20px;
+  font-weight:800;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* =====================================================
+   CAMERA
+===================================================== */
+
+#cameraWrap{
+  position:relative;
+
+  width:100%;
+  height:100%;
+
+  min-height:330px;
+
+  overflow:hidden;
+
+  border-radius:14px;
+
+  background:#111;
+}
+
+
+/*
+  =====================================================
+  CAMERA DISPLAY
+
+  v9 showed the complete camera feed using "contain".
+
+  This version keeps that full-view behaviour but
+  enlarges the displayed feed by 12%.
+
+  This gives us a middle ground between:
+  - v8: heavily cropped / too zoomed in
+  - v9: full image / too zoomed out
+
+  IMPORTANT:
+  This is currently a VISUAL test.
+  Do not test recognition until captureGuide()
+  is updated to match this zoom.
+  =====================================================
+*/
+
+#video{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+
+  transform-origin:center center;
+
+  display:block;
+}
+
+
+/*
+  =====================================================
+  LOCKED CARD GUIDE
+  DO NOT CHANGE
+
+  Standard card: 63 mm x 88 mm
+  Guide: 73 mm x 98 mm
+  =====================================================
+*/
+
+#cardGuide{
+  position:absolute;
+
+  width:73%;
+  aspect-ratio:73 / 98;
+
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%,-50%);
+
+  border:3px solid white;
+  border-radius:14px;
+
+  pointer-events:none;
+}
+
+
+/* =====================================================
+   SCAN BUTTON
+===================================================== */
+
+#scanButton{
+  width:100%;
+  height:38px;
+
+  border:none;
+  border-radius:10px;
+
+  padding:0 10px;
+
+  margin:0;
+
+  background:#222;
+  color:white;
+
+  font-size:15px;
+  font-weight:800;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+#scanButton:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+
+
+/* =====================================================
+   CONTROL PANEL
+===================================================== */
+
+.controlSection{
+  flex-shrink:0;
+
+  min-height:0;
+
+  background:white;
+
+  border-radius:13px;
+
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.06);
+
+  overflow:hidden;
+}
+
+#resultPanel{
+  display:block !important;
+
+  margin:0;
+
+  padding:6px 7px;
+
+  background:white;
+
+  overflow-y:auto;
+  overflow-x:hidden;
+
+  scrollbar-width:none;
+}
+
+#resultPanel::-webkit-scrollbar{
+  display:none;
+}
+
+
+/* =====================================================
+   CARD INFO
+===================================================== */
+
+#identifiedRow{
+  height:42px;
+
+  display:flex;
+  align-items:center;
+
+  gap:7px;
+
+  overflow:hidden;
+}
+
+.cardImageSlot{
+  flex:0 0 31px;
+
+  width:31px;
+  height:42px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  overflow:hidden;
+
+  border-radius:4px;
+
+  background:#eee;
+}
+
+#cardImage{
+  width:31px;
+  max-height:42px;
+
+  object-fit:contain;
+
+  border-radius:4px;
+
+  display:block;
+}
+
+#cardInfo{
+  flex:1;
+  min-width:0;
+
+  overflow:hidden;
+}
+
+#cardName{
+  min-height:16px;
+
+  margin-bottom:1px;
+
+  font-size:13px;
+  line-height:16px;
+  font-weight:800;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#cardNumber{
+  min-height:12px;
+
+  margin-bottom:1px;
+
+  font-size:10px;
+  line-height:12px;
+
+  color:#555;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#cardDetails{
+  min-height:11px;
+
+  font-size:9px;
+  line-height:11px;
+
+  color:#777;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* =====================================================
+   VARIANTS
+===================================================== */
+
+#variantTitle{
+  height:14px;
+
+  margin:2px 0 3px;
+
+  text-align:center;
+
+  font-size:10px;
+  line-height:14px;
+  font-weight:800;
+
+  color:#666;
+}
+
+.variantGrid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+
+  gap:4px;
+}
+
+.variantButton{
+  min-height:28px;
+
+  border:none;
+  border-radius:8px;
+
+  padding:3px;
+
+  background:#e9e9e9;
+  color:#222;
+
+  font-size:11px;
+  line-height:13px;
+  font-weight:800;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+
+  overflow:hidden;
+}
+
+.variantButton:active{
+  transform:scale(.98);
+}
+
+.variantButton:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+}
+
+.variantButton.selected{
+  background:#222;
+  color:white;
+}
+
+
+/* =====================================================
+   QUANTITY
+===================================================== */
+
+#quantityArea{
+  margin-top:4px;
+
+  padding:4px;
+
+  border:1px solid #e2e2e2;
+  border-radius:9px;
+
+  background:#fafafa;
+}
+
+#quantityTitle{
+  height:12px;
+
+  margin-bottom:2px;
+
+  text-align:center;
+
+  font-size:9px;
+  line-height:12px;
+  font-weight:800;
+
+  color:#666;
+}
+
+#quantityMainRow{
+  display:grid;
+
+  grid-template-columns:
+    33px
+    minmax(0,1fr)
+    33px;
+
+  gap:4px;
+
+  align-items:center;
+}
+
+#quantityMinus,
+#quantityPlus{
+  width:33px;
+  height:30px;
+
+  border:none;
+  border-radius:8px;
+
+  background:#e8e8e8;
+  color:#222;
+
+  font-size:19px;
+  line-height:30px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+#quantityMinus:active,
+#quantityPlus:active{
+  transform:scale(.96);
+}
+
+#quantityInput{
+  width:100%;
+  height:30px;
+
+  border:1px solid #bbb;
+  border-radius:8px;
+
+  background:white;
+  color:#222;
+
+  text-align:center;
+
+  font-size:15px;
+  font-weight:800;
+
+  outline:none;
+}
+
+#quantityInput:focus{
+  border-color:#555;
+}
+
+
+/* =====================================================
+   QUICK QUANTITY
+===================================================== */
+
+#quantityQuickRow{
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+
+  gap:4px;
+
+  margin-top:4px;
+}
+
+.quantityQuickButton{
+  min-height:23px;
+
+  border:none;
+  border-radius:7px;
+
+  padding:2px;
+
+  background:#ededed;
+  color:#333;
+
+  font-size:10px;
+  font-weight:800;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+.quantityQuickButton:active{
+  transform:scale(.97);
+}
+
+
+/* =====================================================
+   ADD BUTTON
+===================================================== */
+
+#confirmAddButton{
+  width:100%;
+  height:31px;
+
+  margin-top:4px;
+
+  border:none;
+  border-radius:8px;
+
+  padding:0 6px;
+
+  background:#222;
+  color:white;
+
+  font-size:13px;
+  font-weight:800;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+#confirmAddButton:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+
+
+/* =====================================================
+   WRONG CARD
+===================================================== */
+
+.secondaryActions{
+  margin-top:1px;
+}
+
+#wrongButton{
+  width:100%;
+  height:18px;
+
+  border:none;
+
+  background:transparent;
+
+  padding:0 2px;
+
+  color:#666;
+
+  text-decoration:underline;
+
+  font-size:9px;
+
+  cursor:pointer;
+}
+
+
+/* =====================================================
+   CANDIDATES
+===================================================== */
+
+#candidatePanel{
+  display:none;
+
+  max-height:140px;
+
+  margin-top:3px;
+
+  overflow-y:auto;
+}
+
+.candidate{
+  display:flex;
+  align-items:center;
+
+  gap:6px;
+
+  width:100%;
+
+  border:none;
+  border-radius:7px;
+
+  padding:5px;
+
+  margin-bottom:4px;
+
+  background:#f4f4f4;
+
+  text-align:left;
+
+  cursor:pointer;
+}
+
+.candidate img{
+  width:33px;
+  border-radius:4px;
+}
+
+.candidateText{
+  flex:1;
+  min-width:0;
+}
+
+.candidateName{
+  font-size:11px;
+  font-weight:800;
+}
+
+.candidateStats{
+  margin-top:1px;
+
+  color:#777;
+
+  font-size:9px;
+}
+
+
+/* =====================================================
+   MANUAL CARD SEARCH
+===================================================== */
+
+#manualArea{
+  display:none;
+
+  margin-top:3px;
+}
+
+#manualRow{
+  display:flex;
+
+  gap:4px;
+}
+
+#manualNumber{
+  flex:1;
+
+  min-width:0;
+  height:29px;
+
+  border:1px solid #ccc;
+  border-radius:7px;
+
+  padding:3px 6px;
+
+  font-size:12px;
+}
+
+#manualButton{
+  height:29px;
+
+  border:none;
+  border-radius:7px;
+
+  padding:0 9px;
+
+  background:#333;
+  color:white;
+
+  font-size:11px;
+  font-weight:700;
+}
+
+
+/* =====================================================
+   OLD ADD MESSAGE
+===================================================== */
+
+#addMessage{
+  display:none !important;
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+#addToast{
+  position:fixed;
+
+  left:50%;
+
+  top:
+    calc(
+      env(safe-area-inset-top) +
+      58px
+    );
+
+  transform:
+    translate(-50%,-10px);
+
+  z-index:9999;
+
+  width:max-content;
+
+  max-width:
+    calc(100vw - 28px);
+
+  padding:8px 13px;
+
+  border-radius:10px;
+
+  background:#222;
+  color:white;
+
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.25);
+
+  font-size:13px;
+  font-weight:800;
+
+  text-align:center;
+
+  opacity:0;
+  visibility:hidden;
+
+  pointer-events:none;
+
+  transition:
+    opacity .18s ease,
+    transform .18s ease,
+    visibility .18s;
+}
+
+#addToast.show{
+  opacity:1;
+  visibility:visible;
+
+  transform:
+    translate(-50%,0);
+}
+
+
+/* =====================================================
+   SESSION
+===================================================== */
+
+.sessionPanel{
+  flex-shrink:0;
+
+  min-height:39px;
+
+  padding:4px 7px;
+
+  border-radius:10px;
+
+  background:white;
+
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.06);
+}
+
+.sessionSummary{
+  min-height:31px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:7px;
+}
+
+.sessionLabel{
+  font-size:9px;
+  line-height:11px;
+
+  color:#666;
+
+  text-transform:uppercase;
+
+  font-weight:700;
+}
+
+.sessionCountRow{
+  display:flex;
+  align-items:baseline;
+
+  gap:3px;
+}
+
+#sessionCount{
+  font-size:18px;
+  line-height:19px;
+  font-weight:800;
+}
+
+.sessionUnit{
+  font-size:10px;
+  color:#777;
+}
+
+#undoButton{
+  height:27px;
+
+  margin:0;
+
+  padding:0 9px;
+
+  border:none;
+  border-radius:7px;
+
+  background:#e9e9e9;
+  color:#333;
+
+  font-size:9px;
+  font-weight:800;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+#undoButton:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+
+/* =====================================================
+   CANVAS
+===================================================== */
+
+canvas{
+  display:none;
+}
+
+
+/* =====================================================
+   PHONE-SIZED VIEWPORTS
+===================================================== */
+
+@media (max-height:800px){
+
+  .scannerLayout{
+    grid-template-rows:
+      minmax(0,1fr)
+      auto;
+  }
+
+  #cameraWrap{
+    min-height:0;
+  }
+
+}
+
+
+/* =====================================================
+   TALL PHONES
+===================================================== */
+
+@media (min-height:801px){
+
+  .scannerLayout{
+    grid-template-rows:
+      minmax(380px,1fr)
+      auto;
+  }
+
+  #cameraWrap{
+    min-height:380px;
+  }
+
+}
+
+
+/* =====================================================
+   VERY TALL PHONES
+===================================================== */
+
+@media (min-height:900px){
+
+  .scannerLayout{
+    grid-template-rows:
+      minmax(420px,1fr)
+      auto;
+  }
+
+  #cameraWrap{
+    min-height:420px;
+  }
+
+}
+
+
+/* =====================================================
+   NARROW PHONES
+===================================================== */
+
+@media (max-width:380px){
+
+  h1{
+    font-size:17px;
+  }
+
+  .app{
+    padding-left:6px;
+    padding-right:6px;
+  }
+
+  .variantButton{
+    font-size:10px;
+  }
+
+}
+
+
+/* =====================================================
+   INSTALLED MOBILE APP
+===================================================== */
+
+@media (max-width:560px){
+
+  .scannerLayout{
+    grid-template-rows:
+      minmax(0,1fr)
+      auto;
+  }
+
+  #cameraWrap{
+    min-height:0;
+  }
+
+}

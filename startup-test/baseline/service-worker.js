@@ -1,0 +1,86 @@
+const CACHE_NAME = "tcg-scanner-v18-dri-identity-fix-1";
+
+const APP_FILES = [
+  "/pokemon-card-scanner/",
+  "/pokemon-card-scanner/index.html",
+  "/pokemon-card-scanner/manifest.json",
+  "/pokemon-card-scanner/css/styles.css?v=20260913-1",
+  "/pokemon-card-scanner/css/set-selector.css?v=20260917-1"
+];
+
+
+self.addEventListener("install", event => {
+
+  event.waitUntil(
+
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        return cache.addAll(APP_FILES);
+      })
+
+  );
+
+  self.skipWaiting();
+
+});
+
+
+self.addEventListener("activate", event => {
+
+  event.waitUntil(
+
+    caches.keys()
+      .then(cacheNames => {
+
+        return Promise.all(
+
+          cacheNames.map(cacheName => {
+
+            if(cacheName !== CACHE_NAME){
+              return caches.delete(cacheName);
+            }
+
+          })
+
+        );
+
+      })
+
+  );
+
+  self.clients.claim();
+
+});
+
+
+self.addEventListener("fetch", event => {
+
+  if(event.request.method !== "GET"){
+    return;
+  }
+
+
+  event.respondWith(
+
+    fetch(
+      event.request,
+      {
+        cache: "no-store"
+      }
+    )
+      .then(response => {
+
+        return response;
+
+      })
+      .catch(() => {
+
+        return caches.match(
+          event.request
+        );
+
+      })
+
+  );
+
+});

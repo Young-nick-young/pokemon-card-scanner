@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+  >
+  <title>TCG Inventory Scanner</title>
+
+
+  <!-- PWA -->
+
+  <link
+    rel="manifest"
+    href="./manifest.json"
+  >
+
+  <meta
+    name="theme-color"
+    content="#222222"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="TCG Scanner"
+  >
+
+
+  <!-- Styles -->
+
+  <link
+    rel="stylesheet"
+    href="./css/styles.css?v=20260913-1"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./css/set-selector.css?v=20260917-1"
+  >
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     ON-SCREEN CONFIRMATION
+===================================================== -->
+
+<div
+  id="addToast"
+  role="status"
+  aria-live="polite"
+>
+  ✓ Added
+</div>
+
+
+
+<div class="app">
+
+
+  <!-- ===================================================
+       HEADER
+  ==================================================== -->
+
+  <header class="appHeader">
+
+
+    <div class="headerTopRow">
+
+      <h1>
+        Pokémon Inventory Scanner
+      </h1>
+
+    </div>
+
+
+    <div class="headerControls">
+
+
+      <div id="setSelectorArea">
+
+        <label
+          for="setSelectorButton"
+          id="setSelectorLabel"
+        >
+          SET
+        </label>
+
+        <div id="setSelector"></div>
+
+      </div>
+
+
+      <div id="sheetStatus">
+        Connecting to Google Sheet...
+      </div>
+
+
+    </div>
+
+
+  </header>
+
+
+
+  <!-- ===================================================
+       MAIN SCANNER
+  ==================================================== -->
+
+  <main class="scannerLayout">
+
+
+    <!-- =================================================
+         CAMERA SECTION
+    ================================================== -->
+
+    <section class="cameraSection">
+
+
+      <div id="status">
+        Starting scanner...
+      </div>
+
+
+      <div id="cameraWrap">
+
+
+        <video
+          id="video"
+          autoplay
+          playsinline
+          muted
+        ></video>
+
+
+        <!--
+          LOCKED CARD GUIDE.
+          Dimensions and position remain controlled
+          by styles.css.
+        -->
+
+        <div id="cardGuide"></div>
+
+
+      </div>
+
+
+      <button
+        id="scanButton"
+        disabled
+      >
+        PLEASE WAIT...
+      </button>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         FIXED CONTROL SECTION
+    ================================================== -->
+
+    <section class="controlSection">
+
+
+      <!-- =================================================
+           CARD RESULT
+
+           This area remains physically present so the
+           screen does not jump when a result appears.
+      ================================================== -->
+
+      <div id="resultPanel">
+
+
+        <!-- IDENTIFIED CARD -->
+
+        <div id="identifiedRow">
+
+
+          <div class="cardImageSlot">
+
+            <img
+              id="cardImage"
+              alt=""
+            >
+
+          </div>
+
+
+          <div id="cardInfo">
+
+
+            <div id="cardName">
+              Waiting for card...
+            </div>
+
+
+            <div id="cardNumber">
+              —
+            </div>
+
+
+            <div id="cardDetails">
+              Scan a card to begin
+            </div>
+
+
+          </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             VARIANT
+        ================================================== -->
+
+        <div id="variantTitle">
+          TAP VARIANT
+        </div>
+
+
+        <div class="variantGrid">
+
+
+          <button
+            class="variantButton"
+            data-variant="Normal"
+          >
+            Normal
+          </button>
+
+
+          <button
+            class="variantButton"
+            data-variant="Reverse Holo"
+          >
+            Reverse Holo
+          </button>
+
+
+          <button
+            class="variantButton"
+            data-variant="Holo"
+          >
+            Holo
+          </button>
+
+
+          <button
+            class="variantButton"
+            data-variant="Other"
+          >
+            Other
+          </button>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             QUANTITY
+        ================================================== -->
+
+        <div id="quantityArea">
+
+
+          <div id="quantityTitle">
+            QUANTITY
+          </div>
+
+
+          <div id="quantityMainRow">
+
+
+            <button
+              id="quantityMinus"
+              type="button"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+
+
+            <input
+              id="quantityInput"
+              type="number"
+              inputmode="numeric"
+              min="1"
+              max="999"
+              value="1"
+            >
+
+
+            <button
+              id="quantityPlus"
+              type="button"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+
+
+          </div>
+
+
+
+          <div id="quantityQuickRow">
+
+
+            <button
+              class="quantityQuickButton"
+              data-add="1"
+              type="button"
+            >
+              +1
+            </button>
+
+
+            <button
+              class="quantityQuickButton"
+              data-add="5"
+              type="button"
+            >
+              +5
+            </button>
+
+
+            <button
+              class="quantityQuickButton"
+              data-add="10"
+              type="button"
+            >
+              +10
+            </button>
+
+
+          </div>
+
+
+
+          <button
+            id="confirmAddButton"
+            type="button"
+            disabled
+          >
+            ADD 1
+          </button>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             SECONDARY ACTIONS
+        ================================================== -->
+
+        <div class="secondaryActions">
+
+
+          <button id="wrongButton">
+            Wrong card / other matches
+          </button>
+
+
+          <div id="candidatePanel"></div>
+
+
+          <div id="manualArea">
+
+
+            <div id="manualRow">
+
+
+              <input
+                id="manualNumber"
+                type="number"
+                min="1"
+                max="295"
+                inputmode="numeric"
+                placeholder="Card number"
+              >
+
+
+              <button id="manualButton">
+                Find
+              </button>
+
+
+            </div>
+
+
+          </div>
+
+
+        </div>
+
+
+
+        <!--
+          Retained for existing JavaScript compatibility.
+        -->
+
+        <div id="addMessage">
+          ✓ Added
+        </div>
+
+
+      </div>
+
+
+    </section>
+
+
+  </main>
+
+
+
+  <!-- ===================================================
+       FIXED SESSION BAR
+  ==================================================== -->
+
+  <footer class="sessionPanel">
+
+
+    <div class="sessionSummary">
+
+
+      <div>
+
+        <div class="sessionLabel">
+          Session
+        </div>
+
+
+        <div class="sessionCountRow">
+
+          <span id="sessionCount">
+            0
+          </span>
+
+          <span class="sessionUnit">
+            cards
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="undoButton"
+        disabled
+      >
+        ↶ UNDO
+      </button>
+
+
+    </div>
+
+
+  </footer>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     CAPTURE CANVAS
+===================================================== -->
+
+<canvas id="captureCanvas"></canvas>
+
+
+
+<!-- =====================================================
+     SCANNER JAVASCRIPT
+===================================================== -->
+
+<script src="./js/config.js"></script>
+<script src="./js/set-registry.js"></script>
+<script src="./js/schema-v1-adapter.js"></script>
+<script src="./js/schema-v1-set-loader.js"></script>
+
+<script src="./js/sets/destined-rivals.js"></script>
+<script src="./js/sets/ascended-heroes.js"></script>
+<script src="./js/sets/perfect-order.js"></script>
+<script src="./js/sets/chaos-rising.js"></script>
+<script src="./js/sets/pitch-black.js"></script>
+<script src="./js/set-selector.js"></script>
+
+<script src="./js/camera.js"></script>
+<script src="./js/recognizer.js"></script>
+<script src="./js/inventory-request.js"></script>
+<script src="./js/inventory.js"></script>
+<script src="./js/schema-v1-inventory-loader.js"></script>
+<script src="./js/app.js"></script>
+
+
+</body>
+
+</html>
