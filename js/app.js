@@ -197,13 +197,18 @@ function updateScanButton(){
 
       startupReadyLogged = true;
 
+      startupTimings.total =
+        performance.now() -
+        startupStartedAt;
+
       console.log(
         "Startup timing — scanner fully ready:",
         Math.round(
-          performance.now() -
-          startupStartedAt
+          startupTimings.total
         ) + " ms"
       );
+
+      renderStartupDiagnostic();
 
     }
 
