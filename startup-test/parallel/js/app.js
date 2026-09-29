@@ -161,7 +161,7 @@ function renderStartupDiagnostic(){
 
 
   panel.textContent =
-    "PARALLEL • " +
+    "SCHEMA • " +
     "Schema " +
     format(startupTimings.schema) +
     " • Sheet " +
