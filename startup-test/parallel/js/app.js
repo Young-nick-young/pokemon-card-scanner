@@ -1024,9 +1024,6 @@ async function initialize(){
     "Starting scanner...";
 
 
-  loadSheetData();
-
-
   const sheetTimingPoll =
     setInterval(
       ()=>{
@@ -1076,6 +1073,13 @@ async function initialize(){
         );
 
         renderStartupDiagnostic();
+
+        /*
+          Schema-backed inventory catalogue must be populated only after
+          the adapter exists. Otherwise the loader can incorrectly fall
+          back to the legacy Google Sheet card-list request.
+        */
+        loadSheetData();
 
         return result;
 
