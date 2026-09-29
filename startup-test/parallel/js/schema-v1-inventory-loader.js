@@ -1,26 +1,75 @@
 /*
- * Shared inventory card-list loader extension for Schema v1 sets.
+ * Shared inventory catalogue loader for Schema v1 sets.
  *
- * inventory.js remains unchanged. This file deliberately replaces only
- * loadSheetData() after inventory.js loads, preserving the established
- * inventory/write UI while allowing shared Apps Script deployments to
- * route card-list reads by setId when a set opts in.
+ * Schema-backed sets now build their local card catalogue directly from the
+ * already-loaded public Schema package. Apps Script remains the write path for
+ * inventory changes. Non-Schema/legacy sets retain the previous JSONP card-list
+ * fallback unchanged.
  */
 
 function loadSheetData(){
 
-  /*
-   * Clear any previous set's inventory state before starting a new read.
-   * This prevents stale card counts/maps being shown during a set reload.
-   */
   cards = [];
   cardMap = {};
   sheetReady = false;
 
+  updateScanButton();
+
+
+  const schemaAdapter =
+    window.SchemaV1SetLoader &&
+    typeof window.SchemaV1SetLoader.getAdapter === "function"
+      ? window.SchemaV1SetLoader.getAdapter(ACTIVE_SET.id)
+      : null;
+
+
+  if(
+    schemaAdapter &&
+    Array.isArray(schemaAdapter.cards) &&
+    schemaAdapter.cards.length > 0
+  ){
+
+    cards =
+      Array.from(
+        schemaAdapter.cards
+      );
+
+    cards.forEach(card=>{
+
+      const number =
+        Number(
+          card.sortKey ??
+          card.number ??
+          card.cardNumber ??
+          card["Card #"]
+        );
+
+      if(number){
+
+        cardMap[number] =
+          card;
+
+      }
+
+    });
+
+
+    sheetReady = true;
+
+    sheetStatus.textContent =
+      "✓ Inventory catalogue ready • " +
+      cards.length +
+      " cards";
+
+    updateScanButton();
+
+    return;
+
+  }
+
+
   sheetStatus.textContent =
     "Connecting to Google Sheet...";
-
-  updateScanButton();
 
 
   if(
