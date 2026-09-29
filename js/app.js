@@ -883,7 +883,32 @@ async function initialize(){
     ACTIVE_SET.maxCard;
 
 
-  await loadActiveSetSchemaAdapter();
+  status.textContent =
+    "Starting scanner...";
+
+
+  /*
+    Camera and recognizer can start immediately.
+
+    The local inventory catalogue depends on the Schema adapter, so it is
+    deliberately populated only after the Schema package has loaded. This
+    prevents Schema-backed sets from falling through to the legacy Sheet
+    card-list request during parallel startup.
+  */
+
+  const schemaPromise =
+    loadActiveSetSchemaAdapter();
+
+  const cameraPromise =
+    startCamera();
+
+  const recognizerPromise =
+    checkRecognizer();
+
+
+  await schemaPromise;
+
+  loadSheetData();
 
 
   console.log(
@@ -892,14 +917,10 @@ async function initialize(){
   );
 
 
-  status.textContent =
-    "Starting camera...";
-
-  loadSheetData();
-
-  await startCamera();
-
-  await checkRecognizer();
+  await Promise.all([
+    cameraPromise,
+    recognizerPromise
+  ]);
 
 
   if(!recognizerReady){
