@@ -21,6 +21,7 @@ let lastAdd = null;
 let cameraReady = false;
 let recognizerReady = false;
 let sheetReady = false;
+let startupReady = false;
 let scanning = false;
 
 
@@ -88,6 +89,7 @@ const captureCanvas =
 function updateScanButton(){
 
   if(
+    startupReady &&
     cameraReady &&
     recognizerReady &&
     sheetReady &&
@@ -883,7 +885,43 @@ async function initialize(){
     ACTIVE_SET.maxCard;
 
 
-  await loadActiveSetSchemaAdapter();
+  /*
+    Start independent scanner work together.
+
+    The Schema adapter must finish before the inventory catalogue is
+    requested so Schema-backed sets do not fall back to the legacy
+    Google Sheet card-list path. Camera and recognizer initialization
+    can run at the same time.
+  */
+
+  status.textContent =
+    "Starting scanner...";
+
+
+  const schemaPromise =
+    loadActiveSetSchemaAdapter()
+      .then(result=>{
+
+        loadSheetData();
+
+        return result;
+
+      });
+
+
+  const cameraPromise =
+    startCamera();
+
+
+  const recognizerPromise =
+    checkRecognizer();
+
+
+  await Promise.all([
+    schemaPromise,
+    cameraPromise,
+    recognizerPromise
+  ]);
 
 
   console.log(
@@ -892,14 +930,9 @@ async function initialize(){
   );
 
 
-  status.textContent =
-    "Starting camera...";
+  startupReady = true;
 
-  loadSheetData();
-
-  await startCamera();
-
-  await checkRecognizer();
+  updateScanButton();
 
 
   if(!recognizerReady){
