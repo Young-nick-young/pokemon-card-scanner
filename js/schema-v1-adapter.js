@@ -116,7 +116,27 @@
           card.referenceImage,
           "card.referenceImage"
         ),
-        variants: Object.freeze(cardVariants)
+        variants: Object.freeze(cardVariants),
+        rarity:
+          typeof card.rarity === "string"
+            ? card.rarity
+            : "",
+        type:
+          typeof card.type === "string"
+            ? card.type
+            : (
+                typeof card.cardType === "string"
+                  ? card.cardType
+                  : ""
+              ),
+        specialPattern:
+          typeof card.specialPattern === "string"
+            ? card.specialPattern
+            : null,
+        legacyInventoryCardId:
+          typeof card.legacyInventoryCardId === "string"
+            ? card.legacyInventoryCardId
+            : ""
       });
       cardsById.set(cardId,adaptedCard);
       cardsByNumber.set(number,adaptedCard);
