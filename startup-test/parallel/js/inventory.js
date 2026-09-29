@@ -320,10 +320,21 @@ function updateConfirmAddButton(){
     quantity;
 
 
+  const canonicalInventory =
+    window.InventoryRequestContract &&
+    typeof window.InventoryRequestContract.usesCanonicalSchemaInventory === "function" &&
+    window.InventoryRequestContract.usesCanonicalSchemaInventory(
+      ACTIVE_SET
+    );
+
+
   inventoryConfirmAddButton.disabled =
     (
       !selectedInventoryVariant ||
-      !selectedInventoryRow ||
+      (
+        !canonicalInventory &&
+        !selectedInventoryRow
+      ) ||
       inventoryWriteInProgress
     );
 
@@ -790,8 +801,18 @@ function chooseVariant(
       currentCard
     );
 
+  const canonicalInventory =
+    window.InventoryRequestContract &&
+    typeof window.InventoryRequestContract.usesCanonicalSchemaInventory === "function" &&
+    window.InventoryRequestContract.usesCanonicalSchemaInventory(
+      ACTIVE_SET
+    );
 
-  if(!row){
+
+  if(
+    !canonicalInventory &&
+    !row
+  ){
 
     status.textContent =
       "Sheet row not found";
@@ -805,7 +826,7 @@ function chooseVariant(
     variant;
 
   selectedInventoryRow =
-    row;
+    row || null;
 
 
   document
@@ -857,11 +878,22 @@ function chooseVariant(
 
 async function confirmInventoryAdd(){
 
+  const canonicalInventory =
+    window.InventoryRequestContract &&
+    typeof window.InventoryRequestContract.usesCanonicalSchemaInventory === "function" &&
+    window.InventoryRequestContract.usesCanonicalSchemaInventory(
+      ACTIVE_SET
+    );
+
+
   if(
     inventoryWriteInProgress ||
     !currentCard ||
     !selectedInventoryVariant ||
-    !selectedInventoryRow
+    (
+      !canonicalInventory &&
+      !selectedInventoryRow
+    )
   ){
     return;
   }
@@ -874,9 +906,12 @@ async function confirmInventoryAdd(){
 
 
   if(
-    !currentRow ||
-    Number(currentRow) !==
-      Number(selectedInventoryRow)
+    !canonicalInventory &&
+    (
+      !currentRow ||
+      Number(currentRow) !==
+        Number(selectedInventoryRow)
+    )
   ){
 
     resetInventoryAddControls();
