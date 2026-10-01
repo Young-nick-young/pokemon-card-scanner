@@ -146,6 +146,19 @@ function renderStartupDiagnostic(){
     panel.style.textAlign =
       "center";
 
+    panel.style.cursor =
+      "pointer";
+
+    panel.title =
+      "Tap to hide startup timings";
+
+    panel.addEventListener(
+      "click",
+      ()=>{
+        panel.remove();
+      }
+    );
+
     document.body.appendChild(
       panel
     );
@@ -161,7 +174,7 @@ function renderStartupDiagnostic(){
 
 
   panel.textContent =
-    "SCHEMA • " +
+    "Tap to hide • SCHEMA • " +
     "Schema " +
     format(startupTimings.schema) +
     " • Sheet " +
