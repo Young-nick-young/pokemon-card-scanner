@@ -1,26 +1,148 @@
 /*
- * Shared inventory card-list loader extension for Schema v1 sets.
+ * Shared inventory catalogue loader for Schema v1 sets.
  *
- * inventory.js remains unchanged. This file deliberately replaces only
- * loadSheetData() after inventory.js loads, preserving the established
- * inventory/write UI while allowing shared Apps Script deployments to
- * route card-list reads by setId when a set opts in.
+ * Schema-backed sets build their local card catalogue from the public Schema
+ * package. Apps Script remains the write path for inventory changes.
+ * Only non-Schema/legacy sets use the Google Sheet card-list fallback.
  */
 
-function loadSheetData(){
+async function loadSheetData(){
 
-  /*
-   * Clear any previous set's inventory state before starting a new read.
-   * This prevents stale card counts/maps being shown during a set reload.
-   */
   cards = [];
   cardMap = {};
   sheetReady = false;
 
+  updateScanButton();
+
+
+  const schemaLoader =
+    window.SchemaV1SetLoader || null;
+
+  const schemaBacked =
+    Boolean(
+      schemaLoader &&
+      typeof schemaLoader.hasSchemaPackage === "function" &&
+      schemaLoader.hasSchemaPackage(
+        ACTIVE_SET
+      )
+    );
+
+
+  let schemaAdapter =
+    (
+      schemaLoader &&
+      typeof schemaLoader.getAdapter === "function"
+    )
+      ? schemaLoader.getAdapter(
+          ACTIVE_SET.id
+        )
+      : null;
+
+
+  /*
+   * A cold Render wake can cause the first Schema request to fail even though
+   * the backend becomes available immediately afterwards. For Schema-backed
+   * sets, retry the Schema load once instead of silently falling back to the
+   * legacy Google Sheet card catalogue.
+   */
+  if(
+    schemaBacked &&
+    !schemaAdapter &&
+    typeof schemaLoader.loadAdapter === "function"
+  ){
+
+    sheetStatus.textContent =
+      "Loading inventory catalogue...";
+
+    try{
+
+      schemaAdapter =
+        await schemaLoader.loadAdapter(
+          ACTIVE_SET
+        );
+
+    }catch(error){
+
+      console.error(
+        "Schema inventory catalogue retry failed:",
+        ACTIVE_SET.id,
+        error
+      );
+
+    }
+
+  }
+
+
+  if(
+    schemaAdapter &&
+    Array.isArray(schemaAdapter.cards) &&
+    schemaAdapter.cards.length > 0
+  ){
+
+    cards =
+      Array.from(
+        schemaAdapter.cards
+      );
+
+    cards.forEach(card=>{
+
+      const number =
+        Number(
+          card.sortKey ??
+          card.number ??
+          card.cardNumber ??
+          card["Card #"]
+        );
+
+      if(number){
+
+        cardMap[number] =
+          card;
+
+      }
+
+    });
+
+
+    sheetReady = true;
+
+    sheetStatus.textContent =
+      "✓ Inventory catalogue ready • " +
+      cards.length +
+      " cards";
+
+    updateScanButton();
+
+    return;
+
+  }
+
+
+  /*
+   * Schema-backed sets use canonical Schema identity for Add/Undo writes.
+   * Falling back to legacy Sheet rows here would make the catalogue appear
+   * ready while canonical inventory identity is actually unavailable.
+   */
+  if(schemaBacked){
+
+    sheetStatus.textContent =
+      "Inventory catalogue unavailable";
+
+    console.error(
+      "Schema inventory catalogue unavailable for:",
+      ACTIVE_SET.id
+    );
+
+    updateScanButton();
+
+    return;
+
+  }
+
+
   sheetStatus.textContent =
     "Connecting to Google Sheet...";
-
-  updateScanButton();
 
 
   if(
