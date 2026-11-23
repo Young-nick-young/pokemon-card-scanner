@@ -1,4 +1,4 @@
-const CACHE_NAME = "tcg-scanner-v19-30th-celebration";
+const CACHE_NAME = "tcg-scanner-v20-mega-evolution";
 
 const APP_FILES = [
   "/pokemon-card-scanner/",
